@@ -1,4 +1,4 @@
-__all__: list[str] = ["customer_similarity"]
+__all__ = ["customer_similarity"]
 
 import csv
 import math
