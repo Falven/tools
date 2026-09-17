@@ -1,4 +1,4 @@
-__all__: list[str] = ["render_heatmap"]
+__all__ = ["render_heatmap"]
 
 import base64
 import io
