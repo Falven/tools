@@ -1,4 +1,4 @@
-__all__: list[str] = ["ey_footprint_assessment"]
+__all__ = ["ey_footprint_assessment"]
 
 import csv
 import os
