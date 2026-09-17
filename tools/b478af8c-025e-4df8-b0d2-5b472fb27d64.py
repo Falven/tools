@@ -15,10 +15,24 @@ OPEN_STATUS_CODES = {"0", "open", "active"}
 def ey_footprint_assessment(account: str, as_of_date: str = "", window_years: int = 3, include_active_pipeline: bool = True, include_lens_context: bool = True) -> dict:
     """Aggregate won sales by service line for a resolved account/corporate tree."""
     as_of = date.fromisoformat(as_of_date or date.today().isoformat())
-    accounts = _read_csv_table("account")
-    opportunities = _read_csv_table("opportunity")
-    products = _read_csv_table("opportunityproduct")
-    fiscal_years = _read_fiscal_calendar("ey_fiscalyear")
+    try:
+        accounts = _read_csv_table("account")
+        opportunities = _read_csv_table("opportunity")
+        products = _read_csv_table("opportunityproduct")
+        fiscal_years = _read_fiscal_calendar("ey_fiscalyear")
+    except RuntimeError as e:
+        return {
+            "resolvedAccount": None,
+            "fiscalWindow": {"status": "UNAVAILABLE", "reason": str(e)},
+            "sourceCoverage": {
+                "Dataverse": {"status": "UNAVAILABLE", "reason": str(e)},
+                "LENS": {"status": "EY_VALIDATE" if include_lens_context else "SKIPPED", "reason": "Wire LENS MCP for account profile, ambition, EY Activity, Client Meeting Investment, and relationship context."},
+            },
+            "salesByServiceLine": [],
+            "activePipelineByServiceLine": [],
+            "validation": [{"id": "C1", "status": "UNAVAILABLE", "note": "Dataverse/account source unavailable"}, {"id": "C2", "status": "EY_VALIDATE", "note": "LENS source requires EY wiring"}],
+            "source_material": "crm-copilot-skills-sandbox/ey-footprint-assessment/SKILL.md",
+        }
     resolved = _resolve_account(accounts, account)
     if resolved is None:
         return {"resolvedAccount": None, "validation": [{"id": "C1", "status": "FAIL", "note": "target_not_found"}]}
