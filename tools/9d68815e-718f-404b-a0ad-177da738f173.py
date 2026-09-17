@@ -9,8 +9,19 @@ from typing import Any
 
 def bucket_ey_fiscal_year(date_value: str, as_of_date: str = "", window_years: int = 3, fiscal_calendar_table: str = "ey_fiscalyear") -> dict:
     """Map a date to an EY fiscal year using the FiscalCalendar reference table."""
-    calendar = _read_fiscal_calendar(fiscal_calendar_table)
     as_of = date.fromisoformat(as_of_date or date.today().isoformat())
+    try:
+        calendar = _read_fiscal_calendar(fiscal_calendar_table)
+    except RuntimeError as e:
+        return {
+            "bucketedDate": {"status": "UNAVAILABLE", "date": date_value, "reason": str(e)},
+            "currentFiscalYear": {"status": "UNAVAILABLE", "date": as_of.isoformat(), "reason": str(e)},
+            "window": {"status": "UNAVAILABLE", "reason": str(e)},
+            "queryRules": _query_rules(),
+            "sourceCoverage": {"FiscalCalendar": {"status": "UNAVAILABLE", "reason": str(e)}},
+            "as_of": as_of.isoformat(),
+            "source_material": "crm-copilot-skills-sandbox/ey-fiscalyear/SKILL.md",
+        }
     bucketed = _bucket(calendar, date.fromisoformat(date_value))
     current = _bucket(calendar, as_of)
     window = _window(calendar, current, window_years)
@@ -18,12 +29,7 @@ def bucket_ey_fiscal_year(date_value: str, as_of_date: str = "", window_years: i
         "bucketedDate": bucketed,
         "currentFiscalYear": current,
         "window": window,
-        "queryRules": {
-            "join": "date_field >= FiscalYearStartDt AND date_field <= FiscalYearEndDt",
-            "wonSalesDateField": "opportunity.ey_effectiveclosedate",
-            "frameworkAgreementExclusion": "ey_opportunitytypecode <> 100000004",
-            "nullDateBehavior": "UNAVAILABLE",
-        },
+        "queryRules": _query_rules(),
         "sourceCoverage": {"FiscalCalendar": {"status": "MATCHED", "rows": len(calendar), "table": fiscal_calendar_table}},
         "as_of": as_of.isoformat(),
         "source_material": "crm-copilot-skills-sandbox/ey-fiscalyear/SKILL.md",
@@ -42,6 +48,15 @@ def _read_fiscal_calendar(table: str) -> list[dict[str, Any]]:
     if not out:
         raise ValueError("FiscalCalendar table exists but did not contain fiscal year id/start/end columns.")
     return sorted(out, key=lambda r: int(str(r["fy_id"]).replace("FY", "")))
+
+
+def _query_rules() -> dict[str, str]:
+    return {
+        "join": "date_field >= FiscalYearStartDt AND date_field <= FiscalYearEndDt",
+        "wonSalesDateField": "opportunity.ey_effectiveclosedate",
+        "frameworkAgreementExclusion": "ey_opportunitytypecode <> 100000004",
+        "nullDateBehavior": "UNAVAILABLE",
+    }
 
 
 def _bucket(calendar: list[dict[str, Any]], value: date) -> dict:
