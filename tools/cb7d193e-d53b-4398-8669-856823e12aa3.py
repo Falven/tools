@@ -18,7 +18,17 @@ DIMENSION_WEIGHTS: dict[str, int] = {
 
 def customer_similarity(target_account: str, top_n: int = 20, account_table: str = "account") -> dict:
     """Rank similar accounts from live/configured account data using deterministic dimensions."""
-    accounts = _read_csv_table(account_table)
+    try:
+        accounts = _read_csv_table(account_table)
+    except RuntimeError as e:
+        return {
+            "target": None,
+            "candidates": [],
+            "excludedCandidates": [],
+            "sourceCoverage": {"CRM": {"status": "UNAVAILABLE", "reason": str(e)}, "LENS": {"status": "UNAVAILABLE", "reason": "LENS size track is not wired in this ToolForge function."}},
+            "validation": [{"id": "C1", "status": "UNAVAILABLE", "note": "CRM account table unavailable"}, {"id": "C10", "status": "UNAVAILABLE", "note": "determinism cannot be tested until account data is mounted"}],
+            "source_material": "crm-copilot-skills-sandbox/customer-similarity/SKILL.md",
+        }
     target = _resolve_account(accounts, target_account)
     if target is None:
         return {"target": None, "candidates": [], "validation": [{"id": "C1", "status": "FAIL", "note": "target_not_found"}]}
@@ -140,4 +150,3 @@ def _data_roots() -> list[Path]:
             roots.append(Path(os.environ[env]))
     roots.extend([Path.cwd(), Path.cwd() / "data", Path.cwd() / "data" / "d365_synthetic"])
     return roots
-
