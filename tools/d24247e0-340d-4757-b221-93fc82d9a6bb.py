@@ -1,4 +1,4 @@
-__all__: list[str] = ["relationship_whitespace"]
+__all__ = ["relationship_whitespace"]
 
 import csv
 import os
