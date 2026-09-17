@@ -1,4 +1,4 @@
-__all__: list[str] = ["bucket_ey_fiscal_year"]
+__all__ = ["bucket_ey_fiscal_year"]
 
 import csv
 import os
