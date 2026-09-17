@@ -15,12 +15,27 @@ def relationship_whitespace(account: str, mode: str = "A", play: str = "", lens_
     mode = mode.upper()
     if mode not in {"A", "B"}:
         raise ValueError("mode must be A or B")
-    accounts = _read_csv_table("account")
-    opportunities = _read_csv_table("opportunity")
-    products = _read_csv_table("opportunityproduct")
-    leads = _read_csv_table("lead")
-    contacts = _read_csv_table("contact")
-    external = _read_csv_table("ey_externalinvolvedparties")
+    try:
+        accounts = _read_csv_table("account")
+        opportunities = _read_csv_table("opportunity")
+        products = _read_csv_table("opportunityproduct")
+        leads = _read_csv_table("lead")
+        contacts = _read_csv_table("contact")
+        external = _read_csv_table("ey_externalinvolvedparties")
+    except RuntimeError as e:
+        lens_summary = _lens_summary(lens_relationships or [])
+        return {
+            "mode": mode,
+            "play": play or None,
+            "resolvedAccount": None,
+            "verdict": "EY_VALIDATE" if mode == "A" else None,
+            "sourceCoverage": {"LENS": {"status": lens_summary["status"], "note": lens_summary.get("reason", "caller supplied lens_relationships")}, "CRM": {"status": "UNAVAILABLE", "reason": str(e)}},
+            "relationshipSummary": lens_summary,
+            "crmCoverage": {"status": "UNAVAILABLE", "reason": str(e)},
+            "relationshipGaps": [{"type": "crm_unavailable", "reason": str(e)}],
+            "validation": [{"id": "C2", "status": lens_summary["status"], "note": "Relationship state comes only from LENS when supplied."}, {"id": "C4", "status": "UNAVAILABLE", "note": "CRM buyer-role source unavailable"}, {"id": "C12", "status": "PASS", "note": "No invented contacts, buyers, or owners."}],
+            "source_material": "crm-copilot-skills-sandbox/relationship-whitespace/SKILL.md",
+        }
     resolved = _resolve_account(accounts, account)
     if resolved is None:
         return {"resolvedAccount": None, "validation": [{"id": "C1", "status": "FAIL", "note": "target_not_found"}]}
@@ -171,4 +186,3 @@ def _data_roots() -> list[Path]:
             roots.append(Path(os.environ[env]))
     roots.extend([Path.cwd(), Path.cwd() / "data", Path.cwd() / "data" / "d365_synthetic"])
     return roots
-
