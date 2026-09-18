@@ -59,18 +59,26 @@ def render_heatmap(
     fig.savefig(output, format="png")
     plt.close(fig)
     image_png_b64 = base64.b64encode(output.getvalue()).decode("ascii")
-    return {
-        "format": "image/png;base64",
-        "image_png_b64": image_png_b64,
+    metadata = {
         "renderStatus": "HEATMAP_RENDER_OK",
         "rows": len(rows),
         "cols": len(cols),
         "scale": scale,
         "cmap": "YlOrRd",
         "targetColumn": target_col_index,
+        "dividerAfterColumn": divider_after_col,
+    }
+    return {
+        "format": "image/png;base64",
+        "image_png_b64": image_png_b64,
+        "content": [{"type": "image", "data": image_png_b64, "mimeType": "image/png"}],
+        "structuredContent": metadata,
+        **metadata,
         "mock": False,
         "source_material": "crm-copilot-skills-sandbox/whitespace-heatmap/SKILL.md",
         "sourceCoverage": {"renderer": {"status": "MATCHED"}, "uiDisplay": {"status": "EY_VALIDATE", "reason": "Validate actual inline image rendering through ToolForge/Copilot, not only JSON output."}},
+        "validation": [{"id": "HM1", "status": "PASS", "note": "matrix shape validated and PNG rendered"}],
+        "isError": False,
     }
 
 
