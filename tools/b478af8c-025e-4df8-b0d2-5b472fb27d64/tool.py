@@ -46,7 +46,10 @@ def ey_footprint_assessment(account: str, as_of_date: str = "", window_years: in
     won_opps = _filter_opportunities(opportunities, account_ids, WON_STATUS_CODES, window["start"], window["end"])
     joined = _join_products(won_opps, products)
     sales = _sales_by_service_line(joined, "wonSalesUsd")
-    pipeline = _sales_by_service_line(_join_products(_filter_opportunities(opportunities, account_ids, OPEN_STATUS_CODES, None, None), products), "openPipelineUsd") if include_active_pipeline else []
+    open_opps = _filter_opportunities(opportunities, account_ids, OPEN_STATUS_CODES, None, None)
+    open_products = _join_products(open_opps, products)
+    pipeline = _sales_by_service_line(open_products, "openPipelineUsd") if include_active_pipeline else []
+    unattributed_pipeline = _sum_unattributed(open_products) if include_active_pipeline else {"status": "SKIPPED", "reason": "include_active_pipeline=false"}
     lens = {
         "status": "EY_VALIDATE" if include_lens_context else "SKIPPED",
         "reason": "Wire LENS MCP for account profile, ambition, EY Activity, Client Meeting Investment, and relationship context."
@@ -56,17 +59,42 @@ def ey_footprint_assessment(account: str, as_of_date: str = "", window_years: in
         "resolvedAccount": _public_account(resolved, account_ids),
         "fiscalWindow": window,
         "defaultsApplied": {"wonOnly": True, "windowYears": window_years, "currency": "USD/base", "frameworkAgreementsExcluded": True},
-        "sourceCoverage": {"Dataverse": {"status": "MATCHED", "tables": ["account", "opportunity", "opportunityproduct"]}, "LENS": lens},
+        "sourceCoverage": {
+            "Dataverse": {
+                "status": "MATCHED",
+                "tables": ["account", "opportunity", "opportunityproduct"],
+                "accountRows": len(accounts),
+                "opportunityRows": len(opportunities),
+                "productRows": len(products),
+                "qualifiedWonOpportunities": len(won_opps),
+                "qualifiedOpenOpportunities": len(open_opps),
+            },
+            "LENS": lens,
+        },
         "salesByServiceLine": sales,
         "activePipelineByServiceLine": pipeline,
+        "unattributedPipeline": unattributed_pipeline,
+        "activeEngagements": {"status": "UNAVAILABLE", "reason": "active engagement source is not wired; historical won sales are not treated as active engagement depth"},
         "heatmapPayload": _heatmap_payload(_public_account(resolved, account_ids), window, sales),
         "validation": [
             {"id": "C1", "status": "PASS", "note": "target resolved to account/corporate tree"},
             {"id": "C2", "status": lens["status"], "note": lens["reason"]},
             {"id": "C3", "status": "PASS", "note": "fiscal window derived from fiscal calendar"},
             {"id": "C4", "status": "PASS", "note": "won opportunities only; framework agreements excluded; value basis opportunityproduct.priceperunit_base"},
+            {"id": "C5", "status": "PASS", "note": "monetary amounts are labeled as wonSalesUsd, openPipelineUsd, or unattributedPipelineUsd"},
+            {"id": "C6", "status": "PASS" if _value(resolved, "ey_channel") else "UNAVAILABLE", "note": "account channel surfaced for downstream consulting restrictions"},
             {"id": "C7", "status": "PASS", "note": "deterministic grouping and sorting applied"},
         ],
+        "trace": {
+            "opportunityFilters": {
+                "wonStatusCodes": sorted(WON_STATUS_CODES),
+                "openStatusCodes": sorted(OPEN_STATUS_CODES),
+                "frameworkAgreementExcluded": FRAMEWORK_AGREEMENT_CODE,
+                "wonDateField": "opportunity.ey_effectiveclosedate",
+                "wonDateWindow": {"start": window["start"], "end": window["end"]},
+            },
+            "stableSort": ["-amount", "serviceLine"],
+        },
         "source_material": "crm-copilot-skills-sandbox/ey-footprint-assessment/SKILL.md",
     }
 
@@ -129,6 +157,19 @@ def _sales_by_service_line(rows: list[dict], amount_name: str) -> list[dict]:
         item[amount_name] = round(item[amount_name], 2)
         out.append(item)
     return sorted(out, key=lambda r: (-r[amount_name], r["serviceLine"]))
+
+
+def _sum_unattributed(rows: list[dict]) -> dict:
+    amount = 0.0
+    line_count = 0
+    deal_ids = set()
+    for row in rows:
+        if _value(row, "ey_solutionid"):
+            continue
+        amount += _float(_value(row, "priceperunit_base")) or 0.0
+        line_count += 1
+        deal_ids.add(_value(row, "opportunityid"))
+    return {"status": "MATCHED", "unattributedPipelineUsd": round(amount, 2), "lineCount": line_count, "dealCount": len(deal_ids)}
 
 
 def _heatmap_payload(account: dict, window: dict, rows: list[dict]) -> dict:
