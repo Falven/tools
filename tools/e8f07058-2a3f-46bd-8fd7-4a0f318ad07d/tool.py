@@ -7,7 +7,22 @@ from pathlib import Path
 
 def confidence_scoring(factor_scores: dict[str, float], factor_weights: dict[str, float] | None = None, high_threshold: float = 0.75, medium_threshold: float = 0.5) -> dict:
     """Compute deterministic confidence from evidence using supplied or configured weights."""
-    weights, weight_source = _load_weights(factor_weights)
+    try:
+        weights, weight_source = _load_weights(factor_weights)
+    except (RuntimeError, ValueError) as e:
+        return {
+            "aggregate": 0.0,
+            "level": "Ineligible",
+            "appliedFactors": {},
+            "missingFactors": [],
+            "unknownFactorsIgnored": sorted(str(name) for name in factor_scores),
+            "topDrivers": [],
+            "topDetractors": [],
+            "thresholds": {"high": high_threshold, "medium": medium_threshold},
+            "sourceCoverage": {"weights": {"status": "UNAVAILABLE", "reason": str(e)}},
+            "validation": [{"id": "CS1", "status": "UNAVAILABLE", "note": "confidence weights unavailable"}],
+            "source_material": "crm-copilot-skills-sandbox/confidence-scoring/SKILL.md",
+        }
     applied = {}
     missing = []
     weighted_sum = 0.0
@@ -32,6 +47,8 @@ def confidence_scoring(factor_scores: dict[str, float], factor_weights: dict[str
         level = "Low"
     if applied.get("channel_eligibility") == 0:
         level = "Ineligible"
+    if missing and level == "High":
+        level = "Medium"
     return {
         "aggregate": round(aggregate, 3),
         "level": level,
@@ -42,6 +59,12 @@ def confidence_scoring(factor_scores: dict[str, float], factor_weights: dict[str
         "topDetractors": sorted(applied, key=applied.get)[:3],
         "thresholds": {"high": high_threshold, "medium": medium_threshold},
         "sourceCoverage": {"weights": weight_source},
+        "validation": [
+            {"id": "CS1", "status": "PASS", "note": "confidence weights loaded"},
+            {"id": "CS2", "status": "PASS" if applied else "UNAVAILABLE", "note": "evidence factors applied"},
+            {"id": "CS3", "status": "PASS" if not missing else "UNAVAILABLE", "note": "missing factors lower or cap confidence"},
+            {"id": "CS4", "status": "PASS" if applied.get("channel_eligibility") != 0 else "FAIL", "note": "channel ineligibility prevents high confidence"},
+        ],
         "source_material": "crm-copilot-skills-sandbox/confidence-scoring/SKILL.md",
     }
 
@@ -80,4 +103,3 @@ def _data_roots() -> list[Path]:
             roots.append(Path(os.environ[env]))
     roots.extend([Path.cwd(), Path.cwd() / "data", Path.cwd() / "data" / "d365_ontology_ext" / "csv"])
     return roots
-
