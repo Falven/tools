@@ -7,7 +7,6 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-
 DIMENSION_WEIGHTS: dict[str, int] = {
     "industry_subsector": 20,
     "industry_sector": 10,
