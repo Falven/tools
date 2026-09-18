@@ -7,30 +7,53 @@ from pathlib import Path
 from typing import Any
 
 
-def bucket_ey_fiscal_year(date_value: str, as_of_date: str = "", window_years: int = 3, fiscal_calendar_table: str = "ey_fiscalyear") -> dict:
-    """Map a date to an EY fiscal year using the FiscalCalendar reference table."""
-    as_of = date.fromisoformat(as_of_date or date.today().isoformat())
+def bucket_ey_fiscal_year(date_value: str = "", dates: list[str] | None = None, as_of_date: str = "", window_years: int = 3, fiscal_calendar_table: str = "ey_fiscalyear") -> dict:
+    """Map one or more dates to EY fiscal years using the FiscalCalendar reference table."""
+    try:
+        as_of = date.fromisoformat(as_of_date or date.today().isoformat())
+    except ValueError:
+        return {
+            "bucketedDate": None,
+            "bucketedDates": [],
+            "currentFiscalYear": {"status": "UNAVAILABLE", "date": as_of_date, "reason": "invalid_as_of_date"},
+            "window": {"status": "UNAVAILABLE", "reason": "invalid_as_of_date"},
+            "queryRules": _query_rules(),
+            "sourceCoverage": {"FiscalCalendar": {"status": "SKIPPED", "reason": "invalid_as_of_date"}},
+            "validation": [{"id": "FY1", "status": "FAIL", "note": "as_of_date must be ISO YYYY-MM-DD"}],
+            "source_material": "crm-copilot-skills-sandbox/ey-fiscalyear/SKILL.md",
+        }
     try:
         calendar = _read_fiscal_calendar(fiscal_calendar_table)
-    except RuntimeError as e:
+    except (RuntimeError, ValueError) as e:
         return {
-            "bucketedDate": {"status": "UNAVAILABLE", "date": date_value, "reason": str(e)},
+            "bucketedDate": {"status": "UNAVAILABLE", "date": date_value, "reason": str(e)} if date_value else None,
+            "bucketedDates": [],
             "currentFiscalYear": {"status": "UNAVAILABLE", "date": as_of.isoformat(), "reason": str(e)},
             "window": {"status": "UNAVAILABLE", "reason": str(e)},
             "queryRules": _query_rules(),
             "sourceCoverage": {"FiscalCalendar": {"status": "UNAVAILABLE", "reason": str(e)}},
+            "validation": [{"id": "FY2", "status": "UNAVAILABLE", "note": "fiscal calendar unavailable"}],
             "as_of": as_of.isoformat(),
             "source_material": "crm-copilot-skills-sandbox/ey-fiscalyear/SKILL.md",
         }
-    bucketed = _bucket(calendar, date.fromisoformat(date_value))
+    requested = list(dates or [])
+    if date_value:
+        requested.insert(0, date_value)
+    bucketed_dates = [_bucket_input(calendar, item) for item in requested]
     current = _bucket(calendar, as_of)
     window = _window(calendar, current, window_years)
     return {
-        "bucketedDate": bucketed,
+        "bucketedDate": bucketed_dates[0] if bucketed_dates else None,
+        "bucketedDates": bucketed_dates,
         "currentFiscalYear": current,
         "window": window,
         "queryRules": _query_rules(),
         "sourceCoverage": {"FiscalCalendar": {"status": "MATCHED", "rows": len(calendar), "table": fiscal_calendar_table}},
+        "validation": [
+            {"id": "FY1", "status": "PASS", "note": "dates parsed or marked invalid individually"},
+            {"id": "FY2", "status": "PASS", "note": "fiscal calendar loaded"},
+            {"id": "FY3", "status": "PASS" if current.get("status") == "MATCHED" else "UNAVAILABLE", "note": "current fiscal year derived from as_of_date"},
+        ],
         "as_of": as_of.isoformat(),
         "source_material": "crm-copilot-skills-sandbox/ey-fiscalyear/SKILL.md",
     }
@@ -70,6 +93,14 @@ def _bucket(calendar: list[dict[str, Any]], value: date) -> dict:
                 "fiscalYearEnd": row["end"].isoformat(),
             }
     return {"status": "UNAVAILABLE", "date": value.isoformat(), "reason": "outside_fiscal_calendar_range"}
+
+
+def _bucket_input(calendar: list[dict[str, Any]], value: str) -> dict:
+    try:
+        parsed = date.fromisoformat(str(value)[:10])
+    except ValueError:
+        return {"status": "UNAVAILABLE", "date": value, "reason": "invalid_date"}
+    return _bucket(calendar, parsed)
 
 
 def _window(calendar: list[dict[str, Any]], current: dict, window_years: int) -> dict:
