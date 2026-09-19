@@ -13,6 +13,7 @@ def _empty_report(required_columns: list[str]) -> dict[str, Any]:
     return {
         "valid": False,
         "summary": {
+            "total_row_count": 0,
             "data_row_count": 0,
             "header_column_count": 0,
             "required_column_count": len(required_columns),
@@ -44,8 +45,14 @@ def validate_csv_text(
         isinstance(column, str) for column in required_columns
     ):
         raise TypeError("required_columns must be a list of strings")
-    if not isinstance(delimiter, str) or len(delimiter) != 1:
-        raise ValueError("delimiter must be exactly one character")
+    if (
+        not isinstance(delimiter, str)
+        or len(delimiter) != 1
+        or delimiter in "\r\n"
+    ):
+        raise ValueError(
+            "delimiter must be exactly one non-newline character"
+        )
 
     # Repeated required names do not represent additional requirements.
     unique_required_columns = list(dict.fromkeys(required_columns))
@@ -130,6 +137,7 @@ def validate_csv_text(
     )
     report["summary"].update(
         {
+            "total_row_count": len(rows),
             "data_row_count": len(data_rows),
             "header_column_count": expected_width,
             "missing_column_count": len(missing_columns),

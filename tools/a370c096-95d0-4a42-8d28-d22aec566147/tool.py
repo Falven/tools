@@ -15,9 +15,9 @@ def validate_csv(
     """Validate CSV text and return a JSON-compatible report.
 
     Pass the complete CSV content and the column names that must appear in its
-    first row. ``delimiter`` defaults to a comma and must be one character.
-    Values containing only whitespace count as empty. Data rows are compared
-    exactly for duplicates, including their field order and whitespace.
+    first row. ``delimiter`` defaults to a comma and must be one non-newline
+    character. Values containing only whitespace count as empty. Data rows are
+    compared exactly for duplicates, including their field order and whitespace.
 
     The result contains ``valid``, the parsed header, summary counts, missing
     required columns, empty cell locations, duplicate row groups, inconsistent
