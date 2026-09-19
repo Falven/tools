@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, sans-serif;
+      }
+      body {
+        display: grid;
+        min-height: 220px;
+        margin: 0;
+        place-items: center;
+      }
+      main {
+        min-width: 240px;
+        padding: 24px;
+        text-align: center;
+      }
+      output {
+        display: block;
+        margin: 12px 0 20px;
+        font-size: 3rem;
+        font-weight: 700;
+      }
+      button {
+        margin: 4px;
+        padding: 8px 14px;
+        border: 1px solid currentColor;
+        border-radius: 8px;
+        font: inherit;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Simple Counter</h1>
+      <output id="count" aria-live="polite">Loading…</output>
+      <button id="decrement" type="button" disabled aria-label="Decrease count">−1</button>
+      <button id="increment" type="button" disabled aria-label="Increase count">+1</button>
+      <button id="reset" type="button" disabled>Reset</button>
+    </main>
+    <!-- app.js -->
+  </body>
+</html>
