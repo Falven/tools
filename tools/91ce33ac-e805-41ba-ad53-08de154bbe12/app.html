@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #070814;
+        --panel: rgba(18, 21, 43, 0.84);
+        --line: rgba(151, 167, 255, 0.18);
+        --text: #f4f5ff;
+        --muted: #99a0c3;
+        --cyan: #43e8ff;
+        --pink: #ff4fc8;
+        --yellow: #ffe66d;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        overscroll-behavior: none;
+      }
+
+      body {
+        min-height: 100vh;
+        padding: 18px;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 15% 12%, rgba(86, 65, 255, .22), transparent 32%),
+          radial-gradient(circle at 87% 82%, rgba(255, 50, 181, .16), transparent 30%),
+          linear-gradient(145deg, #050610 0%, #0b0d20 52%, #080916 100%);
+        font: 600 14px/1.35 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
+        overflow-x: hidden;
+      }
+
+      .app {
+        width: min(100%, 730px);
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+      }
+
+      .mark {
+        display: grid;
+        grid-template-columns: repeat(2, 8px);
+        gap: 3px;
+        transform: rotate(8deg);
+        filter: drop-shadow(0 0 10px rgba(67, 232, 255, .65));
+      }
+
+      .mark i {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        background: var(--cyan);
+      }
+
+      .mark i:nth-child(2), .mark i:nth-child(4) { background: var(--pink); }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(20px, 5vw, 30px);
+        line-height: .95;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        text-shadow: 0 0 24px rgba(67, 232, 255, .25);
+      }
+
+      .subtitle {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+      }
+
+      .icon-button {
+        min-width: 42px;
+        min-height: 42px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        color: var(--text);
+        background: rgba(255, 255, 255, .04);
+        font: inherit;
+        cursor: pointer;
+        transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      }
+
+      .icon-button:hover { background: rgba(255,255,255,.09); border-color: rgba(151,167,255,.4); }
+      .icon-button:active { transform: scale(.95); }
+
+      .game-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 150px;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .board-shell {
+        position: relative;
+        width: min(100%, 420px);
+        justify-self: end;
+        padding: 7px;
+        border: 1px solid rgba(124, 145, 255, .28);
+        border-radius: 18px;
+        background: linear-gradient(145deg, rgba(72, 82, 156, .17), rgba(7, 8, 20, .6));
+        box-shadow:
+          0 22px 55px rgba(0, 0, 0, .38),
+          inset 0 0 0 1px rgba(255, 255, 255, .035),
+          0 0 35px rgba(74, 81, 255, .08);
+      }
+
+      #board {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1 / 2;
+        border-radius: 12px;
+        background: #080a17;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 7px;
+        z-index: 3;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: rgba(5, 6, 16, .78);
+        backdrop-filter: blur(5px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .18s ease;
+      }
+
+      .overlay.show { opacity: 1; pointer-events: auto; }
+
+      .overlay-card {
+        width: min(82%, 270px);
+        padding: 24px 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        text-align: center;
+        background: rgba(16, 18, 39, .92);
+        box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      }
+
+      .overlay-card .eyebrow {
+        color: var(--cyan);
+        font-size: 10px;
+        letter-spacing: .2em;
+        text-transform: uppercase;
+      }
+
+      .overlay-card h2 {
+        margin: 7px 0 5px;
+        font-size: 28px;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+      }
+
+      .overlay-card p {
+        margin: 0 0 17px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .primary {
+        width: 100%;
+        padding: 11px 16px;
+        border: 0;
+        border-radius: 11px;
+        color: #071018;
+        background: linear-gradient(135deg, var(--cyan), #7cffcb);
+        box-shadow: 0 8px 28px rgba(67, 232, 255, .24);
+        font: 800 12px/1 inherit;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      .sidebar {
+        display: grid;
+        gap: 10px;
+      }
+
+      .panel {
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--panel);
+        box-shadow: inset 0 1px rgba(255,255,255,.03);
+      }
+
+      .label {
+        color: var(--muted);
+        font-size: 9px;
+        letter-spacing: .17em;
+        text-transform: uppercase;
+      }
+
+      .score-value {
+        margin-top: 3px;
+        font-size: 25px;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: .03em;
+      }
+
+      .best {
+        margin-top: 3px;
+        color: var(--yellow);
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+
+      .stat strong {
+        display: block;
+        margin-top: 2px;
+        font-size: 18px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      #next {
+        display: block;
+        width: 100%;
+        margin-top: 5px;
+        aspect-ratio: 1.6;
+      }
+
+      .keys {
+        display: grid;
+        gap: 7px;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .key-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      kbd {
+        min-width: 21px;
+        padding: 2px 5px;
+        border: 1px solid rgba(151,167,255,.22);
+        border-bottom-width: 2px;
+        border-radius: 5px;
+        color: #dfe2ff;
+        background: rgba(255,255,255,.06);
+        font: 700 9px inherit;
+        text-align: center;
+      }
+
+      .mobile-stats {
+        display: none;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        margin-bottom: 9px;
+      }
+
+      .mobile-stat {
+        padding: 8px 5px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        text-align: center;
+        background: var(--panel);
+      }
+
+      .mobile-stat strong { display: block; margin-top: 2px; font-size: 15px; }
+
+      .controls {
+        display: none;
+        grid-template-columns: 1fr 1fr 1fr 1.25fr;
+        gap: 8px;
+        width: min(100%, 420px);
+        margin: 12px 0 0 auto;
+      }
+
+      .control {
+        min-height: 50px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        color: var(--text);
+        background: linear-gradient(145deg, rgba(35,39,76,.94), rgba(17,19,41,.94));
+        box-shadow: 0 5px 12px rgba(0,0,0,.16), inset 0 1px rgba(255,255,255,.05);
+        font: 800 18px inherit;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .control.hard {
+        color: #071018;
+        background: linear-gradient(145deg, var(--cyan), #58d4ff);
+      }
+
+      .control:active { transform: translateY(1px) scale(.97); filter: brightness(1.15); }
+
+      .status {
+        min-height: 18px;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 10px;
+        text-align: center;
+        letter-spacing: .08em;
+      }
+
+      @media (max-width: 560px), (pointer: coarse) {
+        body { padding: 12px; }
+        header { margin-bottom: 9px; }
+        .game-layout { display: block; }
+        .sidebar { display: none; }
+        .mobile-stats { display: grid; }
+        .board-shell { width: min(100%, 360px); margin: 0 auto; justify-self: center; }
+        .controls { display: grid; width: min(100%, 360px); margin-left: auto; margin-right: auto; }
+        .subtitle { display: none; }
+      }
+
+      @media (max-height: 700px) and (pointer: coarse) {
+        body { padding-top: 8px; }
+        header { margin-bottom: 6px; }
+        h1 { font-size: 19px; }
+        .mobile-stats { margin-bottom: 6px; }
+        .mobile-stat { padding: 5px; }
+        .board-shell { width: min(100%, 270px); }
+        .controls { width: min(100%, 360px); margin-top: 7px; }
+        .control { min-height: 42px; }
+        .status { margin-top: 5px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app" aria-label="Neon Blocks game">
+      <header>
+        <div class="brand">
+          <span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <div>
+            <h1>Neon Blocks</h1>
+            <div class="subtitle">Stack · Clear · Survive</div>
+          </div>
+        </div>
+        <button id="pause" class="icon-button" type="button" aria-label="Pause game" title="Pause (P)">Ⅱ</button>
+      </header>
+
+      <section class="mobile-stats" aria-label="Game statistics">
+        <div class="mobile-stat"><span class="label">Score</span><strong data-score>0</strong></div>
+        <div class="mobile-stat"><span class="label">Best</span><strong data-best>0</strong></div>
+        <div class="mobile-stat"><span class="label">Lines</span><strong data-lines>0</strong></div>
+        <div class="mobile-stat"><span class="label">Level</span><strong data-level>1</strong></div>
+      </section>
+
+      <div class="game-layout">
+        <div class="board-shell" id="touch-zone">
+          <canvas id="board" width="300" height="600" aria-label="Tetris game board"></canvas>
+          <div id="overlay" class="overlay">
+            <div class="overlay-card">
+              <div id="overlay-eyebrow" class="eyebrow">Game paused</div>
+              <h2 id="overlay-title">Paused</h2>
+              <p id="overlay-copy">Take a breath. Your stack will wait.</p>
+              <button id="overlay-action" class="primary" type="button">Resume</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="sidebar" aria-label="Game information">
+          <div class="panel">
+            <div class="label">Score</div>
+            <div class="score-value" data-score>0</div>
+            <div class="best">BEST <span data-best>0</span></div>
+          </div>
+          <div class="panel stats">
+            <div class="stat"><span class="label">Lines</span><strong data-lines>0</strong></div>
+            <div class="stat"><span class="label">Level</span><strong data-level>1</strong></div>
+          </div>
+          <div class="panel">
+            <div class="label">Next</div>
+            <canvas id="next" width="160" height="100" aria-label="Next piece"></canvas>
+          </div>
+          <div class="panel keys" aria-label="Keyboard controls">
+            <div class="key-row"><span>Move</span><span><kbd>←</kbd> <kbd>→</kbd></span></div>
+            <div class="key-row"><span>Rotate</span><span><kbd>↑</kbd></span></div>
+            <div class="key-row"><span>Soft drop</span><span><kbd>↓</kbd></span></div>
+            <div class="key-row"><span>Hard drop</span><span><kbd>Space</kbd></span></div>
+            <div class="key-row"><span>Pause</span><span><kbd>P</kbd></span></div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="controls" aria-label="Touch controls">
+        <button class="control" type="button" data-action="left" aria-label="Move left">←</button>
+        <button class="control" type="button" data-action="rotate" aria-label="Rotate">↻</button>
+        <button class="control" type="button" data-action="right" aria-label="Move right">→</button>
+        <button class="control hard" type="button" data-action="drop" aria-label="Hard drop">⇊</button>
+      </div>
+      <div id="status" class="status" role="status">Arrow keys to move · Space to drop</div>
+    </main>
+    <!-- app.js -->
+  </body>
+</html>
