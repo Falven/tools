@@ -344,11 +344,11 @@ _ALIASES = {
 }
 
 
-def _normalized_terms(values: list[str] | None) -> set[str]:
+def _normalized_terms(values: list[str] | None, use_aliases: bool = True) -> set[str]:
     terms: set[str] = set()
     for value in values or []:
         cleaned = " ".join(value.lower().replace("-", " ").split())
-        terms.add(_ALIASES.get(cleaned, cleaned))
+        terms.add(_ALIASES.get(cleaned, cleaned) if use_aliases else cleaned)
     return terms
 
 
@@ -410,7 +410,7 @@ def make_vegetarian_weeknight_grocery_list(
         raise ValueError("min_protein_g_per_serving must be between 15 and 40")
 
     excluded = _normalized_terms(excluded_ingredients)
-    pantry = _normalized_terms(pantry_items)
+    pantry = _normalized_terms(pantry_items, use_aliases=False)
     allowed_diets = {"vegan"} if diet == "vegan" else {"vegan", "lacto_ovo"}
 
     eligible = [
