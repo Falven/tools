@@ -100,6 +100,12 @@ def _open_score_database() -> sqlite3.Connection:
         ON snake_scores(score DESC, achieved_at ASC)
         """
     )
+    # Remove the score created while verifying the leaderboard implementation.
+    connection.execute(
+        "DELETE FROM snake_scores WHERE game_id = ?",
+        ("edb461fa-413d-4d14-905a-a519fc1808d0",),
+    )
+    connection.commit()
     return connection
 
 
@@ -135,10 +141,9 @@ def snake_game() -> dict[str, object]:
 
     The app supports arrow keys, WASD, swipe gestures, and on-screen direction
     controls, pause/restart actions, a local best score, and a shared persistent
-    leaderboard. Players can save a completed score under the name and email
-    from their signed-in Microsoft Entra identity; those details are visible to
-    other leaderboard viewers. Returns a launch confirmation and control summary
-    for clients that cannot render the interactive app.
+    leaderboard. Completed scores are saved automatically with the signed-in
+    player's name and email, which are visible to leaderboard viewers. Returns a
+    launch confirmation and control summary for clients without app rendering.
     """
     return {
         "message": "Snake is ready to play.",
@@ -147,7 +152,7 @@ def snake_game() -> dict[str, object]:
             "touch": "Swipe on the board or use the on-screen arrow buttons.",
         },
         "objective": "Eat berries to grow and score points. Avoid walls and your own tail.",
-        "leaderboard": "Completed scores can be shared using the signed-in player's Entra name and email.",
+        "leaderboard": "Completed scores are saved automatically to the shared leaderboard.",
     }
 
 
@@ -157,16 +162,8 @@ def snake_game() -> dict[str, object]:
     name="get_snake_high_scores",
 )
 def get_snake_high_scores() -> dict[str, object]:
-    """Return the shared Snake leaderboard and the current Entra player identity."""
-    player = _entra_player()
-    return {
-        "scores": _leaderboard_rows(),
-        "player": (
-            {"name": player["name"], "email": player["email"]}
-            if player is not None
-            else None
-        ),
-    }
+    """Return the shared Snake leaderboard."""
+    return {"scores": _leaderboard_rows()}
 
 
 @apps.tool(
@@ -175,7 +172,7 @@ def get_snake_high_scores() -> dict[str, object]:
     name="save_snake_high_score",
 )
 def save_snake_high_score(score: int, game_id: str) -> dict[str, object]:
-    """Persist one completed game score under the signed-in Entra identity."""
+    """Persist one completed game score for the signed-in player."""
     if not isinstance(score, int) or score <= 0 or score > 1_000_000 or score % 10:
         raise ValueError("Score must be a positive multiple of 10.")
     if (
@@ -187,9 +184,7 @@ def save_snake_high_score(score: int, game_id: str) -> dict[str, object]:
 
     player = _entra_player()
     if player is None:
-        raise ValueError(
-            "Your signed-in Microsoft Entra identity does not include both a name and email."
-        )
+        raise ValueError("The signed-in player does not have both a name and email.")
 
     achieved_at = datetime.now(UTC).isoformat()
     connection = _open_score_database()

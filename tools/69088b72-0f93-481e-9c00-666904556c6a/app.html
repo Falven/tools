@@ -98,12 +98,6 @@
       .overlay-card { max-width: 330px; }
       .overlay h2 { margin: 0 0 6px; font-size: 34px; letter-spacing: -.04em; }
       .overlay p { margin: 0 0 18px; color: #c8d8c4; line-height: 1.45; }
-      .overlay-actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-      }
       button {
         border: 0;
         border-radius: 14px;
@@ -130,12 +124,6 @@
       .toolbar button {
         color: var(--ink);
         background: var(--panel);
-        border: 1px solid var(--line);
-        box-shadow: none;
-      }
-      button.secondary {
-        color: var(--ink);
-        background: rgba(25, 44, 31, .96);
         border: 1px solid var(--line);
         box-shadow: none;
       }
@@ -203,17 +191,6 @@
         font-size: 22px;
       }
       .leaderboard-body { overflow: auto; padding: 16px 20px 20px; }
-      .save-card {
-        margin-bottom: 16px;
-        padding: 14px;
-        border: 1px solid rgba(131, 242, 103, .24);
-        border-radius: 16px;
-        background: rgba(131, 242, 103, .07);
-      }
-      .save-card[hidden] { display: none; }
-      .save-card strong { color: var(--green); }
-      .identity { margin: 5px 0 12px; color: #dce8d9; font-size: 13px; }
-      .privacy { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
       .leaderboard-status { min-height: 20px; margin: 0 0 8px; color: var(--muted); font-size: 13px; }
       .score-table { width: 100%; border-collapse: collapse; }
       .score-table th {
@@ -250,7 +227,6 @@
         .board-wrap { border-radius: 20px; padding: 7px; }
         .overlay { inset: 7px; }
         .leaderboard-body { padding: 14px; }
-        .score-table th:nth-child(3), .score-table td:nth-child(3) { display: none; }
       }
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
@@ -274,10 +250,7 @@
           <div class="overlay-card">
             <h2 id="overlay-title">Ready?</h2>
             <p id="overlay-copy">Eat the berries, grow longer, and avoid the walls and your own tail.</p>
-            <div class="overlay-actions">
-              <button id="start" type="button">Start game</button>
-              <button id="save-score" class="secondary" type="button" hidden disabled>Save score</button>
-            </div>
+            <button id="start" type="button">Start game</button>
           </div>
         </div>
       </section>
@@ -306,19 +279,10 @@
           <button id="close-scores" class="icon-button" type="button" aria-label="Close high scores">×</button>
         </header>
         <div class="leaderboard-body">
-          <section id="save-card" class="save-card" hidden>
-            <strong>Save <span id="finished-score">0</span> points</strong>
-            <p id="player-identity" class="identity">Checking your signed-in identity…</p>
-            <button id="confirm-save" type="button" disabled>Share this score</button>
-            <p class="privacy">
-              Your Microsoft Entra name and email will be stored with this score
-              and shown to everyone who opens this leaderboard.
-            </p>
-          </section>
           <p id="leaderboard-status" class="leaderboard-status">Loading scores…</p>
           <table class="score-table">
             <thead>
-              <tr><th>Rank</th><th>Player</th><th>Date</th><th>Score</th></tr>
+              <tr><th>Rank</th><th>Player</th><th>Score</th></tr>
             </thead>
             <tbody id="score-list"></tbody>
           </table>

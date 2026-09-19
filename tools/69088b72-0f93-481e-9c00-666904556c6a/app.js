@@ -10,14 +10,9 @@ const overlayCopy = document.querySelector("#overlay-copy");
 const startBtn = document.querySelector("#start");
 const pauseBtn = document.querySelector("#pause");
 const announcer = document.querySelector("#announcer");
-const saveScoreBtn = document.querySelector("#save-score");
 const showScoresBtn = document.querySelector("#show-scores");
 const leaderboardDialog = document.querySelector("#leaderboard-dialog");
 const closeScoresBtn = document.querySelector("#close-scores");
-const saveCard = document.querySelector("#save-card");
-const finishedScoreEl = document.querySelector("#finished-score");
-const playerIdentityEl = document.querySelector("#player-identity");
-const confirmSaveBtn = document.querySelector("#confirm-save");
 const leaderboardStatus = document.querySelector("#leaderboard-status");
 const scoreList = document.querySelector("#score-list");
 
@@ -49,8 +44,8 @@ let touchStart = null;
 let currentGameId = null;
 let finishedGameId = null;
 let finishedScore = 0;
-let currentPlayer = null;
 let bridgeReady = false;
+let savePromise = null;
 bestEl.textContent = String(best);
 
 function roundedRect(x, y, width, height, radius) {
@@ -188,8 +183,6 @@ function begin() {
   finishedScore = 0;
   state = "playing";
   overlay.hidden = true;
-  saveScoreBtn.hidden = true;
-  saveScoreBtn.disabled = true;
   pauseBtn.textContent = "Pause";
   pauseBtn.setAttribute("aria-pressed", "false");
   canvas.focus();
@@ -207,10 +200,9 @@ function gameOver() {
     ? "New high score. That snake was moving!"
     : "The snake bumped into something. Ready for another run?";
   startBtn.textContent = "Play again";
-  saveScoreBtn.hidden = score <= 0;
-  saveScoreBtn.disabled = !bridgeReady || score <= 0;
   overlay.hidden = false;
   announcer.textContent = `Game over. Final score ${score}.`;
+  void autoSaveScore();
 }
 
 function togglePause() {
@@ -251,23 +243,13 @@ function resultData(result) {
   throw new Error(message || "The leaderboard request failed.");
 }
 
-function formatDate(value) {
-  const date = new Date(value);
-  if (Number.isNaN(date.valueOf())) return "";
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 function renderScores(scores) {
   scoreList.replaceChildren();
   if (!Array.isArray(scores) || scores.length === 0) {
     const row = document.createElement("tr");
     const cell = document.createElement("td");
     cell.className = "empty-row";
-    cell.colSpan = 4;
+    cell.colSpan = 3;
     cell.textContent = "No shared scores yet. Be the first!";
     row.append(cell);
     scoreList.append(row);
@@ -280,7 +262,6 @@ function renderScores(scores) {
     const player = document.createElement("td");
     const name = document.createElement("span");
     const email = document.createElement("span");
-    const date = document.createElement("td");
     const points = document.createElement("td");
 
     rank.textContent = `#${entry.rank}`;
@@ -288,25 +269,9 @@ function renderScores(scores) {
     email.className = "player-email";
     email.textContent = entry.email;
     player.append(name, email);
-    date.textContent = formatDate(entry.achieved_at);
     points.textContent = String(entry.score);
-    row.append(rank, player, date, points);
+    row.append(rank, player, points);
     scoreList.append(row);
-  }
-}
-
-function updateSaveCard() {
-  const canSave = finishedScore > 0 && Boolean(finishedGameId);
-  saveCard.hidden = !canSave;
-  if (!canSave) return;
-
-  finishedScoreEl.textContent = String(finishedScore);
-  if (currentPlayer) {
-    playerIdentityEl.textContent = `${currentPlayer.name} · ${currentPlayer.email}`;
-    confirmSaveBtn.disabled = false;
-  } else {
-    playerIdentityEl.textContent = "Your Entra name and email are unavailable.";
-    confirmSaveBtn.disabled = true;
   }
 }
 
@@ -318,24 +283,52 @@ async function refreshLeaderboard() {
       arguments: {},
     });
     const data = resultData(result);
-    currentPlayer = data.player || null;
     renderScores(data.scores);
-    updateSaveCard();
-    leaderboardStatus.textContent = data.scores?.length
-      ? "Top shared scores"
-      : "";
+    leaderboardStatus.textContent = "";
   } catch (error) {
-    leaderboardStatus.textContent = String(error?.message || error);
-    currentPlayer = null;
-    updateSaveCard();
+    leaderboardStatus.textContent = "Could not load scores.";
   }
+}
+
+function autoSaveScore() {
+  if (savePromise) return savePromise;
+  if (!bridgeReady || !finishedGameId || finishedScore <= 0) {
+    return Promise.resolve();
+  }
+
+  const gameId = finishedGameId;
+  const points = finishedScore;
+  savePromise = (async () => {
+    try {
+      const result = await app.callServerTool({
+        name: "save_snake_high_score",
+        arguments: { score: points, game_id: gameId },
+      });
+      const data = resultData(result);
+      if (finishedGameId === gameId) {
+        finishedGameId = null;
+        finishedScore = 0;
+      }
+      if (leaderboardDialog.open) {
+        renderScores(data.scores);
+        leaderboardStatus.textContent = "";
+      }
+    } catch (error) {
+      if (leaderboardDialog.open) {
+        leaderboardStatus.textContent = "Could not save score.";
+      }
+    } finally {
+      savePromise = null;
+    }
+  })();
+  return savePromise;
 }
 
 async function openLeaderboard() {
   if (!bridgeReady) return;
   if (state === "playing") togglePause();
   if (!leaderboardDialog.open) leaderboardDialog.showModal();
-  updateSaveCard();
+  await autoSaveScore();
   await refreshLeaderboard();
 }
 
@@ -345,33 +338,9 @@ startBtn.addEventListener("click", () => {
 });
 pauseBtn.addEventListener("click", togglePause);
 showScoresBtn.addEventListener("click", openLeaderboard);
-saveScoreBtn.addEventListener("click", openLeaderboard);
 closeScoresBtn.addEventListener("click", () => leaderboardDialog.close());
 leaderboardDialog.addEventListener("click", event => {
   if (event.target === leaderboardDialog) leaderboardDialog.close();
-});
-confirmSaveBtn.addEventListener("click", async () => {
-  if (!finishedGameId || finishedScore <= 0 || !currentPlayer) return;
-  confirmSaveBtn.disabled = true;
-  leaderboardStatus.textContent = "Saving your score…";
-  try {
-    const result = await app.callServerTool({
-      name: "save_snake_high_score",
-      arguments: { score: finishedScore, game_id: finishedGameId },
-    });
-    const data = resultData(result);
-    renderScores(data.scores);
-    leaderboardStatus.textContent = data.saved
-      ? `Saved ${data.score} points for ${data.player.name}.`
-      : "This game was already saved.";
-    finishedScore = 0;
-    finishedGameId = null;
-    saveCard.hidden = true;
-    saveScoreBtn.hidden = true;
-  } catch (error) {
-    leaderboardStatus.textContent = String(error?.message || error);
-    confirmSaveBtn.disabled = false;
-  }
 });
 document.querySelectorAll("[data-dir]").forEach(button => {
   button.addEventListener("pointerdown", event => {
@@ -417,7 +386,7 @@ try {
   await app.connect();
   bridgeReady = true;
   showScoresBtn.disabled = false;
-  saveScoreBtn.disabled = finishedScore <= 0;
+  await autoSaveScore();
 } catch (error) {
   console.warn("MCP app bridge unavailable; game remains playable.", error);
 }
