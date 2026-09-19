@@ -6,214 +6,146 @@
     <style>
       :root {
         color-scheme: dark;
-        --bg: #070814;
-        --panel: rgba(18, 21, 43, 0.84);
-        --line: rgba(151, 167, 255, 0.18);
-        --text: #f4f5ff;
-        --muted: #99a0c3;
-        --cyan: #43e8ff;
-        --pink: #ff4fc8;
-        --yellow: #ffe66d;
+        --bg: #151515;
+        --panel: #242424;
+        --border: #4a4a4a;
+        --text: #f4f4f4;
+        --muted: #b8b8b8;
+        --accent: #ef4444;
       }
 
       * { box-sizing: border-box; }
-
-      html, body {
-        margin: 0;
-        min-height: 100%;
-        overscroll-behavior: none;
-      }
+      html, body { margin: 0; min-height: 100%; overscroll-behavior: none; }
 
       body {
         min-height: 100vh;
-        padding: 18px;
+        padding: 16px;
         color: var(--text);
-        background:
-          radial-gradient(circle at 15% 12%, rgba(86, 65, 255, .22), transparent 32%),
-          radial-gradient(circle at 87% 82%, rgba(255, 50, 181, .16), transparent 30%),
-          linear-gradient(145deg, #050610 0%, #0b0d20 52%, #080916 100%);
-        font: 600 14px/1.35 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        font: 600 14px/1.35 Arial, Helvetica, sans-serif;
         user-select: none;
         -webkit-user-select: none;
         touch-action: none;
-        overflow-x: hidden;
       }
 
-      .app {
-        width: min(100%, 730px);
-        margin: 0 auto;
-      }
+      button { font: inherit; }
+      .app { width: min(100%, 650px); margin: 0 auto; }
 
       header {
         display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 14px;
-      }
-
-      .brand {
-        display: flex;
         align-items: center;
-        gap: 11px;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
       }
-
-      .mark {
-        display: grid;
-        grid-template-columns: repeat(2, 8px);
-        gap: 3px;
-        transform: rotate(8deg);
-        filter: drop-shadow(0 0 10px rgba(67, 232, 255, .65));
-      }
-
-      .mark i {
-        width: 8px;
-        height: 8px;
-        border-radius: 2px;
-        background: var(--cyan);
-      }
-
-      .mark i:nth-child(2), .mark i:nth-child(4) { background: var(--pink); }
 
       h1 {
         margin: 0;
-        font-size: clamp(20px, 5vw, 30px);
-        line-height: .95;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-        text-shadow: 0 0 24px rgba(67, 232, 255, .25);
+        font-size: 28px;
+        letter-spacing: .14em;
       }
 
-      .subtitle {
-        margin-top: 5px;
-        color: var(--muted);
-        font-size: 10px;
-        letter-spacing: .18em;
-        text-transform: uppercase;
-      }
+      .header-actions { display: flex; gap: 8px; }
 
-      .icon-button {
-        min-width: 42px;
-        min-height: 42px;
-        padding: 0 12px;
-        border: 1px solid var(--line);
-        border-radius: 12px;
+      .button {
+        min-height: 40px;
+        padding: 0 13px;
+        border: 2px solid var(--border);
+        border-radius: 4px;
         color: var(--text);
-        background: rgba(255, 255, 255, .04);
-        font: inherit;
+        background: var(--panel);
         cursor: pointer;
-        transition: transform .12s ease, background .12s ease, border-color .12s ease;
       }
 
-      .icon-button:hover { background: rgba(255,255,255,.09); border-color: rgba(151,167,255,.4); }
-      .icon-button:active { transform: scale(.95); }
+      .button:hover { border-color: #777; }
+      .button:active { transform: translateY(1px); }
+      .icon-button { min-width: 42px; font-size: 17px; }
 
       .game-layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 150px;
-        gap: 14px;
+        gap: 12px;
         align-items: start;
       }
 
       .board-shell {
         position: relative;
-        width: min(100%, 420px);
+        width: min(100%, 400px);
         justify-self: end;
-        padding: 7px;
-        border: 1px solid rgba(124, 145, 255, .28);
-        border-radius: 18px;
-        background: linear-gradient(145deg, rgba(72, 82, 156, .17), rgba(7, 8, 20, .6));
-        box-shadow:
-          0 22px 55px rgba(0, 0, 0, .38),
-          inset 0 0 0 1px rgba(255, 255, 255, .035),
-          0 0 35px rgba(74, 81, 255, .08);
+        padding: 6px;
+        border: 3px solid #777;
+        border-radius: 3px;
+        background: #0a0a0a;
       }
 
       #board {
         display: block;
         width: 100%;
         aspect-ratio: 1 / 2;
-        border-radius: 12px;
-        background: #080a17;
+        background: #090909;
       }
 
       .overlay {
         position: absolute;
-        inset: 7px;
+        inset: 6px;
         z-index: 3;
         display: grid;
         place-items: center;
-        border-radius: 12px;
-        background: rgba(5, 6, 16, .78);
-        backdrop-filter: blur(5px);
+        background: rgba(0, 0, 0, .82);
         opacity: 0;
         pointer-events: none;
-        transition: opacity .18s ease;
       }
 
       .overlay.show { opacity: 1; pointer-events: auto; }
 
       .overlay-card {
-        width: min(82%, 270px);
-        padding: 24px 18px;
-        border: 1px solid var(--line);
-        border-radius: 18px;
+        width: min(84%, 260px);
+        padding: 22px 18px;
+        border: 2px solid #777;
         text-align: center;
-        background: rgba(16, 18, 39, .92);
-        box-shadow: 0 20px 60px rgba(0,0,0,.45);
+        background: #202020;
       }
 
       .overlay-card .eyebrow {
-        color: var(--cyan);
+        color: var(--muted);
         font-size: 10px;
-        letter-spacing: .2em;
+        letter-spacing: .13em;
         text-transform: uppercase;
       }
 
       .overlay-card h2 {
-        margin: 7px 0 5px;
-        font-size: 28px;
+        margin: 7px 0;
+        font-size: 25px;
         text-transform: uppercase;
-        letter-spacing: .06em;
       }
 
-      .overlay-card p {
-        margin: 0 0 17px;
-        color: var(--muted);
-        font-size: 12px;
-      }
+      .overlay-card p { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
 
       .primary {
         width: 100%;
-        padding: 11px 16px;
+        padding: 11px 14px;
         border: 0;
-        border-radius: 11px;
-        color: #071018;
-        background: linear-gradient(135deg, var(--cyan), #7cffcb);
-        box-shadow: 0 8px 28px rgba(67, 232, 255, .24);
-        font: 800 12px/1 inherit;
-        letter-spacing: .12em;
+        border-radius: 3px;
+        color: white;
+        background: var(--accent);
+        font-weight: 800;
         text-transform: uppercase;
         cursor: pointer;
       }
 
-      .sidebar {
-        display: grid;
-        gap: 10px;
-      }
+      .sidebar { display: grid; gap: 10px; }
 
       .panel {
         padding: 12px;
-        border: 1px solid var(--line);
-        border-radius: 14px;
+        border: 2px solid var(--border);
+        border-radius: 3px;
         background: var(--panel);
-        box-shadow: inset 0 1px rgba(255,255,255,.03);
       }
 
       .label {
         color: var(--muted);
-        font-size: 9px;
-        letter-spacing: .17em;
+        font-size: 10px;
+        letter-spacing: .12em;
         text-transform: uppercase;
       }
 
@@ -221,72 +153,38 @@
         margin-top: 3px;
         font-size: 25px;
         font-variant-numeric: tabular-nums;
-        letter-spacing: .03em;
       }
 
-      .best {
-        margin-top: 3px;
-        color: var(--yellow);
-        font-size: 11px;
-        font-variant-numeric: tabular-nums;
-      }
-
-      .stats {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 9px;
-      }
-
-      .stat strong {
-        display: block;
-        margin-top: 2px;
-        font-size: 18px;
-        font-variant-numeric: tabular-nums;
-      }
-
-      #next {
-        display: block;
-        width: 100%;
-        margin-top: 5px;
-        aspect-ratio: 1.6;
-      }
-
-      .keys {
-        display: grid;
-        gap: 7px;
-        color: var(--muted);
-        font-size: 10px;
-      }
-
-      .key-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 8px;
-      }
+      .best { margin-top: 4px; color: #facc15; font-size: 11px; }
+      .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .stat strong { display: block; margin-top: 2px; font-size: 18px; }
+      #next { display: block; width: 100%; margin-top: 5px; aspect-ratio: 1.6; }
+      .keys { display: grid; gap: 7px; color: var(--muted); font-size: 10px; }
+      .key-row { display: flex; justify-content: space-between; gap: 8px; }
 
       kbd {
         min-width: 21px;
         padding: 2px 5px;
-        border: 1px solid rgba(151,167,255,.22);
+        border: 1px solid #666;
         border-bottom-width: 2px;
-        border-radius: 5px;
-        color: #dfe2ff;
-        background: rgba(255,255,255,.06);
-        font: 700 9px inherit;
+        border-radius: 3px;
+        color: white;
+        background: #333;
+        font: 700 9px Arial, sans-serif;
         text-align: center;
       }
 
       .mobile-stats {
         display: none;
         grid-template-columns: repeat(4, 1fr);
-        gap: 7px;
-        margin-bottom: 9px;
+        gap: 6px;
+        margin-bottom: 8px;
       }
 
       .mobile-stat {
-        padding: 8px 5px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        padding: 7px 4px;
+        border: 2px solid var(--border);
+        border-radius: 3px;
         text-align: center;
         background: var(--panel);
       }
@@ -295,75 +193,112 @@
 
       .controls {
         display: none;
-        grid-template-columns: 1fr 1fr 1fr 1.25fr;
-        gap: 8px;
-        width: min(100%, 420px);
-        margin: 12px 0 0 auto;
+        grid-template-columns: 1fr 1fr 1fr 1.2fr;
+        gap: 7px;
+        width: min(100%, 360px);
+        margin: 10px auto 0;
       }
 
       .control {
-        min-height: 50px;
-        border: 1px solid var(--line);
-        border-radius: 13px;
+        min-height: 48px;
+        border: 2px solid var(--border);
+        border-radius: 4px;
         color: var(--text);
-        background: linear-gradient(145deg, rgba(35,39,76,.94), rgba(17,19,41,.94));
-        box-shadow: 0 5px 12px rgba(0,0,0,.16), inset 0 1px rgba(255,255,255,.05);
-        font: 800 18px inherit;
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
+        background: var(--panel);
+        font-size: 18px;
+        font-weight: 800;
       }
 
-      .control.hard {
-        color: #071018;
-        background: linear-gradient(145deg, var(--cyan), #58d4ff);
-      }
-
-      .control:active { transform: translateY(1px) scale(.97); filter: brightness(1.15); }
+      .control.hard { border-color: var(--accent); background: var(--accent); }
+      .control:active { transform: translateY(1px); filter: brightness(1.15); }
 
       .status {
         min-height: 18px;
-        margin-top: 10px;
+        margin-top: 8px;
         color: var(--muted);
         font-size: 10px;
         text-align: center;
-        letter-spacing: .08em;
       }
 
+      dialog {
+        width: min(calc(100% - 28px), 560px);
+        max-height: min(78vh, 650px);
+        padding: 0;
+        border: 3px solid #777;
+        border-radius: 4px;
+        color: var(--text);
+        background: #1d1d1d;
+        box-shadow: 0 20px 80px rgba(0,0,0,.65);
+        user-select: text;
+        -webkit-user-select: text;
+      }
+
+      dialog::backdrop { background: rgba(0,0,0,.75); }
+
+      .scores-header {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 2px solid var(--border);
+        background: #1d1d1d;
+      }
+
+      .scores-header h2 { margin: 0; font-size: 19px; letter-spacing: .08em; }
+      .close { min-width: 36px; min-height: 34px; padding: 0; }
+      .scores-body { max-height: calc(78vh - 64px); overflow: auto; padding: 8px 16px 16px; }
+
+      .score-row {
+        display: grid;
+        grid-template-columns: 32px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 4px;
+        border-bottom: 1px solid #3b3b3b;
+      }
+
+      .rank { color: #facc15; text-align: center; }
+      .player { min-width: 0; }
+      .player-name { overflow: hidden; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+      .player-email { overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+      .leader-score { font-size: 17px; font-variant-numeric: tabular-nums; text-align: right; }
+      .leader-lines { color: var(--muted); font-size: 10px; text-align: right; }
+      .empty { padding: 30px 10px; color: var(--muted); text-align: center; }
+
       @media (max-width: 560px), (pointer: coarse) {
-        body { padding: 12px; }
-        header { margin-bottom: 9px; }
+        body { padding: 10px; }
+        h1 { font-size: 22px; }
+        .button { padding: 0 10px; font-size: 12px; }
         .game-layout { display: block; }
         .sidebar { display: none; }
         .mobile-stats { display: grid; }
-        .board-shell { width: min(100%, 360px); margin: 0 auto; justify-self: center; }
-        .controls { display: grid; width: min(100%, 360px); margin-left: auto; margin-right: auto; }
-        .subtitle { display: none; }
+        .board-shell { width: min(100%, 350px); margin: 0 auto; }
+        .controls { display: grid; }
       }
 
       @media (max-height: 700px) and (pointer: coarse) {
-        body { padding-top: 8px; }
+        body { padding-top: 7px; }
         header { margin-bottom: 6px; }
-        h1 { font-size: 19px; }
-        .mobile-stats { margin-bottom: 6px; }
-        .mobile-stat { padding: 5px; }
+        .mobile-stats { margin-bottom: 5px; }
+        .mobile-stat { padding: 4px; }
         .board-shell { width: min(100%, 270px); }
-        .controls { width: min(100%, 360px); margin-top: 7px; }
-        .control { min-height: 42px; }
-        .status { margin-top: 5px; }
+        .controls { margin-top: 6px; }
+        .control { min-height: 40px; }
+        .status { margin-top: 4px; }
       }
     </style>
   </head>
   <body>
-    <main class="app" aria-label="Neon Blocks game">
+    <main class="app" aria-label="Tetris game">
       <header>
-        <div class="brand">
-          <span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-          <div>
-            <h1>Neon Blocks</h1>
-            <div class="subtitle">Stack · Clear · Survive</div>
-          </div>
+        <h1>TETRIS</h1>
+        <div class="header-actions">
+          <button id="high-scores" class="button" type="button">High Scores</button>
+          <button id="pause" class="button icon-button" type="button" aria-label="Pause game" title="Pause (P)">Ⅱ</button>
         </div>
-        <button id="pause" class="icon-button" type="button" aria-label="Pause game" title="Pause (P)">Ⅱ</button>
       </header>
 
       <section class="mobile-stats" aria-label="Game statistics">
@@ -380,7 +315,7 @@
             <div class="overlay-card">
               <div id="overlay-eyebrow" class="eyebrow">Game paused</div>
               <h2 id="overlay-title">Paused</h2>
-              <p id="overlay-copy">Take a breath. Your stack will wait.</p>
+              <p id="overlay-copy">Your game is paused.</p>
               <button id="overlay-action" class="primary" type="button">Resume</button>
             </div>
           </div>
@@ -418,6 +353,16 @@
       </div>
       <div id="status" class="status" role="status">Arrow keys to move · Space to drop</div>
     </main>
+
+    <dialog id="scores-dialog">
+      <div class="scores-header">
+        <h2>HIGH SCORES</h2>
+        <button id="close-scores" class="button close" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="scores-body">
+        <div id="scores-list" class="empty">Loading…</div>
+      </div>
+    </dialog>
     <!-- app.js -->
   </body>
 </html>

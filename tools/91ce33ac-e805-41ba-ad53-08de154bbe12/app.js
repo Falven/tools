@@ -32,6 +32,10 @@ const overlayEyebrow = document.querySelector("#overlay-eyebrow");
 const overlayCopy = document.querySelector("#overlay-copy");
 const overlayAction = document.querySelector("#overlay-action");
 const pauseButton = document.querySelector("#pause");
+const highScoresButton = document.querySelector("#high-scores");
+const scoresDialog = document.querySelector("#scores-dialog");
+const closeScoresButton = document.querySelector("#close-scores");
+const scoresList = document.querySelector("#scores-list");
 const status = document.querySelector("#status");
 const scoreNodes = document.querySelectorAll("[data-score]");
 const bestNodes = document.querySelectorAll("[data-best]");
@@ -45,7 +49,7 @@ let bag = [];
 let score = 0;
 let lines = 0;
 let level = 1;
-let best = Number(localStorage.getItem("neon-blocks-best") || 0);
+let best = Number(localStorage.getItem("tetris-best") || localStorage.getItem("neon-blocks-best") || 0);
 let paused = false;
 let gameOver = false;
 let lastTime = 0;
@@ -54,8 +58,10 @@ let animationId = 0;
 let flashRows = [];
 let shakeUntil = 0;
 let appConnected = false;
+let scoreSubmitted = false;
+let pausedForScores = false;
 
-const mcpApp = new App({ name: "Neon Blocks", version: "1.0.0" });
+const mcpApp = new App({ name: "Tetris", version: "1.1.0" });
 mcpApp.ontoolresult = () => {};
 
 function emptyBoard() {
@@ -339,7 +345,7 @@ function drawNext() {
 function updateStats() {
   if (score > best) {
     best = score;
-    localStorage.setItem("neon-blocks-best", String(best));
+    localStorage.setItem("tetris-best", String(best));
   }
   scoreNodes.forEach((node) => { node.textContent = score.toLocaleString(); });
   bestNodes.forEach((node) => { node.textContent = best.toLocaleString(); });
@@ -355,6 +361,7 @@ function resetGame() {
   level = 1;
   paused = false;
   gameOver = false;
+  scoreSubmitted = false;
   nextType = drawFromBag();
   dropCounter = 0;
   lastTime = performance.now();
@@ -369,7 +376,7 @@ function resetGame() {
 function showPause() {
   overlayEyebrow.textContent = "Game paused";
   overlayTitle.textContent = "Paused";
-  overlayCopy.textContent = "Take a breath. Your stack will wait.";
+  overlayCopy.textContent = "Your game is paused.";
   overlayAction.textContent = "Resume";
   overlay.classList.add("show");
 }
@@ -394,7 +401,7 @@ function endGame() {
   paused = false;
   if (score > best) {
     best = score;
-    localStorage.setItem("neon-blocks-best", String(best));
+    localStorage.setItem("tetris-best", String(best));
   }
   updateStats();
   overlayEyebrow.textContent = score >= best && score > 0 ? "New high score" : "Stack reached the top";
@@ -403,10 +410,104 @@ function endGame() {
   overlayAction.textContent = "Play Again";
   overlay.classList.add("show");
   status.textContent = "Press R to restart";
+  submitSharedScore();
   if (appConnected) {
     mcpApp.updateModelContext({
-      structuredContent: { game: "Neon Blocks", score, lines, level, highScore: best },
+      structuredContent: { game: "Tetris", score, lines, level, highScore: best },
     }).catch(() => {});
+  }
+}
+
+function showScoresDialog() {
+  if (typeof scoresDialog.showModal === "function") scoresDialog.showModal();
+  else scoresDialog.setAttribute("open", "");
+}
+
+function closeScoresDialog() {
+  if (typeof scoresDialog.close === "function") scoresDialog.close();
+  else scoresDialog.removeAttribute("open");
+}
+
+function resumeAfterScores() {
+  if (pausedForScores && !gameOver) togglePause(false);
+  pausedForScores = false;
+}
+
+function renderScores(scores) {
+  scoresList.replaceChildren();
+  if (!scores.length) {
+    scoresList.className = "empty";
+    scoresList.textContent = "No scores yet.";
+    return;
+  }
+  scoresList.className = "";
+  scores.forEach((entry) => {
+    const row = document.createElement("div");
+    row.className = "score-row";
+
+    const rank = document.createElement("div");
+    rank.className = "rank";
+    rank.textContent = `#${entry.rank}`;
+
+    const player = document.createElement("div");
+    player.className = "player";
+    const name = document.createElement("div");
+    name.className = "player-name";
+    name.textContent = entry.name;
+    const email = document.createElement("div");
+    email.className = "player-email";
+    email.textContent = entry.email;
+    player.append(name, email);
+
+    const result = document.createElement("div");
+    const points = document.createElement("div");
+    points.className = "leader-score";
+    points.textContent = Number(entry.score).toLocaleString();
+    const cleared = document.createElement("div");
+    cleared.className = "leader-lines";
+    cleared.textContent = `${entry.lines} lines`;
+    result.append(points, cleared);
+
+    row.append(rank, player, result);
+    scoresList.append(row);
+  });
+}
+
+async function loadHighScores() {
+  pausedForScores = !paused && !gameOver;
+  if (pausedForScores) togglePause(true);
+  showScoresDialog();
+  scoresList.className = "empty";
+  scoresList.textContent = "Loading…";
+  if (!appConnected) {
+    scoresList.textContent = "High scores are unavailable.";
+    return;
+  }
+  try {
+    const result = await mcpApp.callServerTool({
+      name: "get_tetris_high_scores",
+      arguments: { limit: 25 },
+    });
+    if (result.isError) throw new Error("Could not load high scores.");
+    renderScores(result.structuredContent?.scores || []);
+  } catch (error) {
+    scoresList.className = "empty";
+    scoresList.textContent = "Could not load high scores.";
+  }
+}
+
+async function submitSharedScore() {
+  if (scoreSubmitted || score <= 0 || !appConnected) return;
+  scoreSubmitted = true;
+  try {
+    const result = await mcpApp.callServerTool({
+      name: "submit_tetris_score",
+      arguments: { score, lines, level },
+    });
+    if (result.isError) throw new Error("Could not save score.");
+    renderScores(result.structuredContent?.scores || []);
+  } catch (error) {
+    scoreSubmitted = false;
   }
 }
 
@@ -479,6 +580,15 @@ document.querySelector("#touch-zone").addEventListener("pointerup", (event) => {
 });
 
 pauseButton.addEventListener("click", () => togglePause());
+highScoresButton.addEventListener("click", loadHighScores);
+closeScoresButton.addEventListener("click", closeScoresDialog);
+scoresDialog.addEventListener("close", resumeAfterScores);
+scoresDialog.addEventListener("click", (event) => {
+  if (event.target === scoresDialog) {
+    closeScoresDialog();
+    if (!scoresDialog.open) resumeAfterScores();
+  }
+});
 overlayAction.addEventListener("click", () => {
   if (gameOver) resetGame();
   else togglePause(false);
@@ -499,6 +609,7 @@ animationId = requestAnimationFrame(update);
 try {
   await mcpApp.connect();
   appConnected = true;
+  if (gameOver) submitSharedScore();
 } catch (error) {
   console.warn("MCP app bridge unavailable; game remains playable.", error);
 }
