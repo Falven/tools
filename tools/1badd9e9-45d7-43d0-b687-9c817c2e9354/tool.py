@@ -1,4 +1,5 @@
 from __future__ import annotations
+# ruff: noqa: I001
 
 import ipaddress
 import json
@@ -16,10 +17,10 @@ from typing import Any, Literal
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urljoin, urlparse
 from urllib.request import (
-    build_opener,
     HTTPCookieProcessor,
     HTTPRedirectHandler,
     Request,
+    build_opener,
 )
 
 from mcp.server.apps import Apps, ResourceCsp
