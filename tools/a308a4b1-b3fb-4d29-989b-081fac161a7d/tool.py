@@ -87,9 +87,9 @@ async def laya_pokemon_view(tab_id: str, visible: bool = False,
 
 
 @apps.tool(resource_uri=_RESOURCE, visibility=["app"], name="laya_pokemon_playback")
-async def laya_pokemon_playback(tab_id: str, visible: bool, displaying: bool,
+async def laya_pokemon_playback(tab_id: str, visible: bool,
                                 runtime_id: str, run_id: str | None,
-                                revision: int) -> CallToolResult:
+                                revision: int, displaying: bool = False) -> CallToolResult:
     """Request at most one paced, bounded Laya/emulator batch while visible.
 
     Requires a fresh view's runtime/run/revision and the caller-bound tab UUID.

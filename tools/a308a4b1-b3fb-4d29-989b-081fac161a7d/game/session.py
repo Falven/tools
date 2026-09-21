@@ -19,9 +19,16 @@ from uuid import uuid4
 
 import anyio
 
-from .controller import Decision, LayaController
+from .controller import Decision, LayaController, LayaError
 from .emulator import RedEmulator
-from .pokemon_red import ROM_LENGTH, Completion, Observation, PokemonRed, validate_rom
+from .pokemon_red import (
+    ROM_LENGTH,
+    Completion,
+    Observation,
+    PokemonRed,
+    RedActionError,
+    validate_rom,
+)
 
 PRESENCE_SECONDS = 12.0
 BATCH_GAP_SECONDS = 2.5
@@ -112,10 +119,12 @@ class GameSession:
         """Small read-only launch status; no presence, clocks or I/O are mutated."""
         view = self._published[0]
         status = view["status"]
+        message = view["message"]
         if status == "running" and not view["busy"] and monotonic() >= view["presence"]["fresh_until"]:
             status = "paused"
+            message = "No fresh visible viewers. The exact emulator state remains paused in RAM."
         return {"status": status, "runtime_id": self.runtime_id,
-                "run_number": view["run_number"], "message": view["message"],
+                "run_number": view["run_number"], "message": message,
                 "ephemeral": True,
                 "note": "Open the App for live state. One replica required; no chat-driven gameplay."}
 
@@ -291,7 +300,8 @@ class GameSession:
                                                         abandon_on_cancel=False, limiter=self._limiter)
             except Exception as error:  # noqa: BLE001 -- also fail closed if thread dispatch itself fails
                 result = WorkResult("failed", work_phase,
-                                    f"Request dispatch failed ({type(error).__name__}); the run is paused.")
+                                    f"Request dispatch failed ({type(error).__name__}); the run is paused.",
+                                    elapsed_ms=round((monotonic() - deadline + CALL_WORK_SECONDS) * 1000, 2))
             with self._lock:
                 now = monotonic()
                 self._account(now)
@@ -446,7 +456,9 @@ class GameSession:
                            "The configured static assets are missing or unreadable by the Python process.")
                 result = WorkResult("setup_error", phase, message)
             else:
+                detail = str(error) if isinstance(error, (LayaError, RedActionError)) else (
+                    "Check pinned assets, CPU memory/budget and decoder compatibility.")
                 result = WorkResult("failed", phase,
                                     f"{phase} failed ({type(error).__name__}). The run is paused, not reset. "
-                                    "Check pinned assets, CPU memory/budget and decoder compatibility.")
+                                    + detail)
         return replace(result, elapsed_ms=round((monotonic() - deadline + CALL_WORK_SECONDS) * 1000, 2))

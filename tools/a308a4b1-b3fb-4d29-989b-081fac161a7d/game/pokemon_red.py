@@ -12,7 +12,7 @@ screen stays unknown and receives explicit exploratory button choices.
 """
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from hashlib import sha1, sha256
 from re import fullmatch
 
@@ -40,6 +40,7 @@ class Move:
     pp: int
     kind: str
     power: int
+    max_pp: int
 
 
 @dataclass(frozen=True)
@@ -88,9 +89,10 @@ class Observation:
     frame: int
 
     def progress_key(self) -> tuple:
-        return (self.mode, self.map_id, self.x, self.y, self.badges,
-                tuple((p.species_id, p.level, p.hp) for p in self.party),
-                self.bag, self.text, self.cursor, self.enemy)
+        return (self.mode, self.map_id, self.x, self.y, self.facing, self.badges,
+                tuple((p.species_id, p.level, p.hp, p.status,
+                       tuple((m.slot, m.pp) for m in p.moves)) for p in self.party),
+                self.bag, self.money, self.text, self.cursor, self.enemy)
 
     def summary(self) -> str:
         return (f"{self.location} ({self.x}, {self.y}) · {self.mode.replace('_', ' ')}"
@@ -105,6 +107,7 @@ class LegalAction:
     # A menu target is re-observed before the final A press, not assumed reached.
     target: tuple[int, int] | None = None
     menu_mode: str | None = None
+    target_label: str | None = None
 
 
 @dataclass(frozen=True)
@@ -113,6 +116,10 @@ class Completion:
     record_sha256: str
     observed_frame: int
     evidence: str = "First complete Hall-of-Fame SRAM team, stable across emulated frames"
+
+
+class RedActionError(RuntimeError):
+    """An authored, safe-to-display input/interpretation failure."""
 
 
 def decode_text(data: bytes) -> str:
@@ -194,6 +201,8 @@ class PokemonRed:
         self._hof_zero_seen = False
         self._hof_candidate: tuple[bytes, int] | None = None
         self._selection_context = ""
+        self._target_item = ""
+        self._disabled_move = ""
 
     def _unique_offset(self, anchor: bytes) -> int:
         offset = self._rom.find(anchor)
@@ -232,7 +241,8 @@ class PokemonRed:
                 offset = self._move_data + (move_id - 1) * 6
                 moves.append(Move(slot, self._move_names[move_id], pp[slot] & 63,
                                   _type_name(self._rom[offset + 3]),
-                                  self._rom[offset + 2]))
+                                  self._rom[offset + 2],
+                                  self._rom[offset + 5] + (self._rom[offset + 5] // 5) * (pp[slot] >> 6)))
         return tuple(moves)
 
     def _party(self, read: ReadMemory) -> tuple[PartyMon, ...]:
@@ -321,6 +331,8 @@ class PokemonRed:
             cell = rows[4 + dy][4 + dx]
             label = "object" if (4 + dx, 4 + dy) in occupied else "clear" if cell == "." else "blocked/edge" if cell == "#" else "unknown"
             neighbors.append((direction, label))
+        for x, y in occupied:
+            rows[y] = rows[y][:x] + "O" + rows[y][x + 1:]
         rows[4] = rows[4][:4] + "@" + rows[4][5:]
         return tuple(rows), tuple(neighbors), tuple(objects[:6])
 
@@ -336,7 +348,8 @@ class PokemonRed:
         # A uniform/fading background must not disclose hidden dark-cave tiles.
         bgp = read(0xFF47)[0]
         visible_palette = len({(bgp >> (2 * i)) & 3 for i in range(4)}) >= 3
-        if not read(0xFF40)[0] & 0x80 or not visible_palette:
+        normalized = joined.upper().replace(" ", "")
+        if not read(0xFF40)[0] & 0x80:
             mode = "animation"
         elif menu and "FIGHT" in labels and "RUN" in labels:
             mode = "battle_command"
@@ -346,8 +359,12 @@ class PokemonRed:
             mode = "party_menu"
         elif menu and ("NEW GAME" in labels or "CONTINUE" in labels):
             mode = "main_menu"
+        elif menu and ("YES" in labels and "NO" in labels):
+            mode = "yes_no"
         elif menu:
             mode = "menu"
+        elif has_box and ("HOWMANY" in normalized or "QUANTITY" in normalized):
+            mode = "quantity"
         elif ("NAME" in joined and "END" in joined and any("ABCDE" in line.replace(" ", "") for line in lines)):
             mode = "naming"
         elif has_box:
@@ -355,7 +372,9 @@ class PokemonRed:
         elif battle:
             mode = "battle_animation"
         elif 0 < read(0xD368)[0] <= 128 and 0 < read(0xD369)[0] <= 128:
-            mode = "overworld"
+            # Dark cave/fade: do not expose its hidden tilemap, but do allow the
+            # player to open the menu (e.g. FLASH) or choose a blind direction.
+            mode = "overworld" if visible_palette else "dark_or_transition"
         else:
             mode = "intro"
         count = read(BAG_COUNT)[0]
@@ -371,7 +390,6 @@ class PokemonRed:
             active_slot = 0
         if battle and party:
             # Battle PP/HP change before the party's out-of-battle copy is updated.
-            from dataclasses import replace
             own = read(0xD014, 29)
             hp, maximum = int.from_bytes(own[1:3], "big"), int.from_bytes(own[15:17], "big")
             if maximum and hp <= maximum and own[0] == party[active_slot].species_id:
@@ -389,10 +407,21 @@ class PokemonRed:
                 bar = min(48, max(1 if hp else 0, hp * 48 // maximum))
                 enemy = f"{self._species_name(data[0])} L{data[14]} HP bar {bar}/48"
         terrain, neighbors, objects = self._navigation(read, tiles, mode)
-        text = tuple(line.strip() for line in lines if line.strip()) if mode not in ("overworld", "animation", "battle_animation") else ()
+        text = tuple(line.strip() for line in lines if line.strip()) if mode not in ("overworld", "animation", "battle_animation", "dark_or_transition") else ()
         facing = {0: "down", 4: "up", 8: "left", 12: "right"}.get(read(0xC109)[0], "?")
         if not battle:
-            self._selection_context = ""
+            self._disabled_move = ""
+            if mode in ("overworld", "dark_or_transition", "intro", "main_menu"):
+                self._selection_context = self._target_item = ""
+        elif party:
+            # Only observed disable announcements, not hidden opponent moves.
+            screen_words = " ".join(text).upper()
+            if "DISABLED NO MORE" in screen_words or "NO LONGER DISABLED" in screen_words:
+                self._disabled_move = ""
+            elif "DISABLED" in screen_words:
+                for move in party[active_slot].moves:
+                    if move.name.upper() in screen_words:
+                        self._disabled_move = move.name
         return Observation(mode, read(MAP_ID)[0], _location(read(MAP_ID)[0]),
                            read(PLAYER_X)[0], read(PLAYER_Y)[0], facing, text,
                            menu, cursor, party, active_slot, battle, enemy,
@@ -409,7 +438,31 @@ class PokemonRed:
         pulses.extend(("down" if vertical > 0 else "up", 4, 8) for _ in range(abs(vertical)))
         pulses.append(("a", 4, 20))
         return LegalAction(identifier, description[:72], tuple(pulses),
-                           (entry.row, entry.column), observation.mode)
+                           (entry.row, entry.column), observation.mode, entry.label)
+
+    def _valid_party_target(self, mon: PartyMon, slot: int, o: Observation) -> bool:
+        if o.battle and self._selection_context != "item":
+            return mon.hp > 0 and (slot != o.active_slot or o.party[o.active_slot].hp == 0)
+        if self._selection_context != "item":
+            return True
+        item = self._target_item
+        if "REVIVE" in item:
+            return mon.hp == 0
+        if "POTION" in item or item in ("FRESH WATER", "SODA POP", "LEMONADE"):
+            return 0 < mon.hp < mon.max_hp
+        if item == "FULL RESTORE":
+            return mon.hp > 0 and (mon.hp < mon.max_hp or mon.status != "OK")
+        if item == "FULL HEAL":
+            return mon.hp > 0 and mon.status != "OK"
+        cures = {"ANTIDOTE": "poison", "BURN HEAL": "burn", "ICE HEAL": "freeze",
+                 "AWAKENING": "sleep", "PARLYZ HEAL": "paralysis"}
+        if item in cures:
+            return mon.status == cures[item]
+        if "ETHER" in item or "ELIXIR" in item:
+            return any(move.pp < move.max_pp for move in mon.moves)
+        # Compatibility for field moves/TMs is read from the game's menu. Do
+        # not invent species compatibility or peek at hidden engine outcomes.
+        return True
 
     def legal_actions(self, observation: Observation) -> tuple[LegalAction, ...]:
         o = observation
@@ -426,14 +479,16 @@ class PokemonRed:
                     continue
                 if o.mode == "battle_moves" and active:
                     move = next((m for m in active.moves if m.name in label), None)
-                    if move is None or move.pp == 0:
+                    if move is None or move.pp == 0 or move.name == self._disabled_move:
                         continue
-                    description = f"{move.name} {move.kind} power{move.power} PP{move.pp}"
+                    description = f"{move.name} PP{move.pp}"
                 elif o.mode == "party_menu":
-                    mon = next((p for p in o.party if p.name and p.name in label), None)
-                    if mon and self._selection_context == "switch" and mon.hp == 0:
+                    slot = next((i for i, p in enumerate(o.party) if p.name and p.name in label), None)
+                    if slot is not None and not self._valid_party_target(o.party[slot], slot, o):
                         continue
-                    description = f"{label} L{mon.level} HP{mon.hp}/{mon.max_hp}" if mon else label
+                    if "NOT ABLE" in label:
+                        continue
+                    description = label
                 else:
                     description = label
                 choices.append(self._select(entry, o, f"pick_{entry.index}", description))
@@ -442,13 +497,19 @@ class PokemonRed:
                             LegalAction("scroll_down", "Scroll/menu down", (("down", 4, 8),)),
                             back))
             return tuple(choices[:12])
-        if o.mode == "overworld":
+        if o.mode in ("overworld", "dark_or_transition"):
+            neighbors = o.neighbors or tuple((direction, "not visible") for direction in ("up", "down", "left", "right"))
             choices = [LegalAction(direction, f"Walk {direction}: {terrain}", ((direction, 8, 16),))
-                       for direction, terrain in o.neighbors]
+                       for direction, terrain in neighbors]
             choices.extend((LegalAction("interact", "Talk/read/use facing object", (("a", 4, 20),)),
                             LegalAction("menu", "Open party/items/field moves", (("start", 4, 20),)),
                             wait))
             return tuple(choices)
+        if o.mode == "quantity":
+            return (LegalAction("more", "Increase displayed quantity", (("up", 4, 12),)),
+                    LegalAction("less", "Decrease displayed quantity", (("down", 4, 12),)),
+                    LegalAction("quantity_ok", "Confirm displayed quantity/price", (("a", 4, 20),)),
+                    back)
         if o.mode == "naming":
             return tuple(LegalAction(key, label, ((button, 4, 12),)) for key, label, button in (
                 ("name_up", "Name cursor up", "up"), ("name_down", "Name cursor down", "down"),
@@ -463,12 +524,23 @@ class PokemonRed:
                 wait, back)
 
     def note_action(self, action: LegalAction, observation: Observation) -> None:
+        label = (action.target_label or "").upper().strip()
+        if label in ("POKÉMON", "POKEMON", "PKMN") and not observation.battle:
+            self._selection_context, self._target_item = "", ""
+        elif label == "ITEM":
+            self._selection_context, self._target_item = "item", ""
         if observation.mode == "battle_command":
             self._selection_context = "switch" if "PKMN" in action.description else "item" if "ITEM" in action.description else ""
+        for _, name, _ in observation.bag:
+            if name in (action.target_label or ""):
+                self._selection_context, self._target_item = "item", name.upper()
 
     def verify_target(self, action: LegalAction, current: Observation) -> None:
-        if action.target is not None and (current.mode != action.menu_mode or current.cursor != action.target):
-            raise RuntimeError("Menu changed before confirmation; unsafe macro was stopped.")
+        if action.target is not None:
+            current_label = next((entry.label for entry in current.menu
+                                  if (entry.row, entry.column) == action.target), None)
+            if current.mode != action.menu_mode or current.cursor != action.target or current_label != action.target_label:
+                raise RedActionError("Menu target changed before confirmation; the macro stopped without pressing A.")
 
     def completion(self, read: ReadMemory, observation: Observation) -> Completion | None:
         """Validate an entire first recorded team, not a flag or model assertion.
@@ -497,9 +569,14 @@ class PokemonRed:
                 self._hof_candidate = None
                 return None
             entry = record[index * 16:(index + 1) * 16]
-            if entry[:2] != bytes((mon.species_id, mon.level)) or entry[2:13] != mon.name_bytes:
+            # Bytes after the name terminator are padding, not part of the name.
+            name = mon.name_bytes.split(b"\x50", 1)[0] + b"\x50"
+            if len(name) > 11 or entry[:2] != bytes((mon.species_id, mon.level)) or entry[2:2 + len(name)] != name:
                 self._hof_candidate = None
                 return None
+        if len(observation.party) < 6 and record[len(observation.party) * 16] != 0xFF:
+            self._hof_candidate = None
+            return None
         candidate = self._hof_candidate
         self._hof_candidate = (record, observation.frame)
         if candidate is None or candidate[0] != record or observation.frame - candidate[1] < 2:

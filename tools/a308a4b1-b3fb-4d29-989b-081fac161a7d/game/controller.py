@@ -23,6 +23,10 @@ SDK_REVISION = "42626c348753fbb17572a813127df2278a1ec527"
 MODEL_REVISION = "1c5edc17a7acd8701df6fc341c0d179f1c62c982"
 
 
+class LayaError(RuntimeError):
+    """Authored, safe-to-display controller contract failure; never a raw SDK error."""
+
+
 @dataclass(frozen=True)
 class Decision:
     action_id: str
@@ -55,7 +59,7 @@ class LayaController:
         self._milestones: list[str] = []
         self._last_action = ""
         self._last_effect = ""
-        self._last_map: int | None = None
+        self._goal_map: int | None = None
 
     @property
     def milestones(self) -> tuple[str, ...]:
@@ -86,7 +90,7 @@ class LayaController:
             raise ValueError("Laya configuration files exceed their expected bounds.")
         cfg = loads(config_path.read_text(encoding="utf-8"))
         encoder = loads(encoder_path.read_text(encoding="utf-8"))
-        if cfg.get("max_len") != 512 or not isinstance(cfg.get("head_max_len"), int) or not 64 <= cfg["head_max_len"] < 512:
+        if cfg.get("max_len") != 512 or cfg.get("head_max_len") != 192:
             raise ValueError("Use the pinned general English Laya checkpoint with its 512-token context.")
         if encoder.get("model_type") != "modernbert" or "auto_map" in encoder:
             raise ValueError("Expected the local ModernBERT encoder configuration without remote code.")
@@ -105,9 +109,12 @@ class LayaController:
         if not provenance or loads(provenance).get("vcs_info", {}).get("commit_id") != SDK_REVISION:
             raise RuntimeError("Laya must be installed from the exact configured SDK source revision.")
         import laya
-        # Bind the public API; no alternative SDK, remote model, or dependency
-        # compatibility shim is tried.
+        from laya.common import build_sequence
+
+        # Bind the pinned API, including its actual token renderer. No alternate
+        # SDK, remote model, or guessed renderer is used.
         signature(laya.load).bind(str(self._path), device="cpu")
+        signature(build_sequence).bind(None, "", {}, 512, 192)
         self._library = laya
 
     def load_model(self) -> None:
@@ -121,6 +128,7 @@ class LayaController:
         agent = self._library.load(str(self._path), device="cpu")
         signature(agent.predict).bind("", {"next_action": {
             "type": "choice", "instructions": "Choose.", "criteria": {"wait": "Wait"}}})
+        signature(agent._to_internal).bind({"type": "choice", "instructions": "Choose.", "criteria": {"wait": "Wait"}})
         if not isinstance(agent.cfg, dict):
             raise TypeError("Loaded Laya configuration is not a dictionary.")
         if agent.cfg.get("max_len") != 512 or agent.cfg.get("head_max_len") != self._config["head_max_len"]:
@@ -139,7 +147,7 @@ class LayaController:
         self._transitions.clear()
         self._milestones.clear()
         self._last_action = self._last_effect = ""
-        self._last_map = None
+        self._goal_map = None
 
     def _state(self, o: Observation) -> str:
         # Salient information first; optional memory at the end can be omitted to
@@ -153,7 +161,7 @@ class LayaController:
                                            for i, p in enumerate(o.party)))
             active = o.party[o.active_slot]
             lines.append(f"Active {o.active_slot} moves:" + ";".join(
-                f"{m.name}/{m.kind}/power{m.power}/PP{m.pp}" for m in active.moves))
+                f"{m.name}/{m.kind}/power{m.power}/PP{m.pp}/{m.max_pp}" for m in active.moves))
         else:
             lines.append("No Pokemon acquired yet.")
         if o.text:
@@ -168,6 +176,7 @@ class LayaController:
             for direction, dx, dy in (("up", 0, -1), ("down", 0, 1), ("left", -1, 0), ("right", 1, 0)):
                 visits.append(f"{direction}:{self._visits.get((o.map_id, o.x + dx, o.y + dy), 0)}")
             lines.append("Neighbor visits " + ",".join(visits) + "; " + ",".join(o.objects))
+            lines.append("Visible grid @=you .=walkable #=edge O=object:\n" + "\n".join(o.terrain))
         if o.bag:
             lines.append("Bag:" + ",".join(f"{name}x{count}" for _, name, count in o.bag))
         lines.append(f"Money:{o.money}; seen progress:" + ",".join(self._milestones[-6:]))
@@ -178,27 +187,31 @@ class LayaController:
         return "\n".join(lines)
 
     def _predict(self, state: str, options: dict[str, str], deadline: float) -> tuple:
+        from laya.common import build_sequence, serialize_state
+
         if self._agent is None:
             raise RuntimeError("The real Laya model is not loaded.")
         if monotonic() >= deadline:
             raise TimeoutError("No inference budget remains.")
         question = {"type": "choice", "instructions": "Choose the next action toward the current objective.",
                     "criteria": options}
-        # Measure our exact text with the loaded tokenizer; reserve headroom for
-        # SDK delimiters. This is explicitly TEXT-token accounting, not a claim
-        # about private renderer overhead, padding or an uninspected SDK helper.
+        # The pinned SDK's renderer provides actual input IDs and option markers.
+        # Render the complete head first to prevent silent option truncation.
+        internal = self._agent._to_internal(question)
         head_limit = self._config["head_max_len"]
-        option_text = question["instructions"] + "\n" + "\n".join(f"{key}: {value}" for key, value in options.items())
-        option_tokens = len(self._agent.tok.encode(option_text, add_special_tokens=False))
-        if option_tokens > head_limit - 48:
-            raise RuntimeError("Legal action descriptions exceed Laya's option-token budget.")
-        original = self._agent.tok.encode(state, add_special_tokens=False)
+        head, head_markers = build_sequence(self._agent.tok, "", internal, 4096, 4096)
+        if len(head_markers) != len(options) or len(head) > head_limit:
+            raise LayaError("Legal options exceed the pinned Laya head budget. Shorten this mode's action descriptions.")
+        original = self._agent.tok.encode(serialize_state(state), add_special_tokens=False)
         budget = max(0, 512 - head_limit - 8)
         kept = min(budget, len(original))
         compact = self._agent.tok.decode(original[:kept], skip_special_tokens=True)
         state_tokens = len(self._agent.tok.encode(compact, add_special_tokens=False))
         if state_tokens > budget:
-            raise RuntimeError("Laya tokenizer round-trip exceeded the state-token budget.")
+            raise LayaError("Laya tokenizer round-trip exceeded the state-token budget.")
+        sequence, markers = build_sequence(self._agent.tok, compact, internal, 512, head_limit)
+        if len(sequence) > 512 or len(markers) != len(options):
+            raise LayaError("The SDK renderer dropped a legal option or exceeded the 512-token input budget.")
         started = monotonic()
         result = self._agent.predict(compact, {"next_action": question})
         elapsed = (monotonic() - started) * 1000
@@ -208,11 +221,11 @@ class LayaController:
             raise TypeError("Laya returned a non-object result.")
         answer = result.get("answers", {}).get("next_action")
         if not isinstance(answer, dict) or answer.get("choice") not in options:
-            raise RuntimeError("Laya returned an action outside the supplied legal choices.")
+            raise LayaError("Laya returned an action outside the supplied legal choices; no fallback action was executed.")
         confidence = answer.get("confidence")
         if not isinstance(confidence, (int, float)) or not isfinite(confidence) or not 0 <= confidence <= 1:
-            raise RuntimeError("Laya returned invalid option concentration metadata.")
-        return answer["choice"], float(confidence), elapsed, state_tokens + option_tokens, state_tokens, len(original) - kept
+            raise LayaError("Laya returned invalid option concentration metadata.")
+        return answer["choice"], float(confidence), elapsed, len(sequence), state_tokens, len(original) - kept
 
     def decide(self, o: Observation, legal: tuple[LegalAction, ...], deadline: float) -> Decision:
         if not legal or len({a.identifier for a in legal}) != len(legal):
@@ -223,7 +236,8 @@ class LayaController:
                             0, 0, 0, 0, None, 0, "animation", self.stalled)
         measurements = []
         if not self._objective or (o.mode == "overworld" and
-                (self._steps - self._objective_at >= 12 or self._last_map != o.map_id or self.stalled)):
+                (self._steps - self._objective_at >= 12 or self._goal_map != o.map_id
+                 or (self.stalled and self._steps - self._objective_at >= 3))):
             goals = {
                 "explore": "Explore unvisited nearby routes/rooms",
                 "interact": "Talk/read/interact to learn story tasks",
@@ -234,6 +248,7 @@ class LayaController:
             goal = self._predict(self._state(o), goals, deadline)
             self._objective = goals[goal[0]]
             self._objective_at = self._steps
+            self._goal_map = o.map_id
             measurements.append(goal)
         options = {a.identifier: a.description for a in legal}
         choice = self._predict(self._state(o), options, deadline)
@@ -251,7 +266,7 @@ class LayaController:
         self._same = self._same + 1 if before.progress_key() == key else 0
         self._recent.append(key)
         self._last_action = decision.action
-        self._last_effect = "no observed change" if before.progress_key() == key else after.summary()
+        self._last_effect = "no tracked progress" if before.progress_key() == key else after.summary()
         if after.mode == "overworld":
             position = (after.map_id, after.x, after.y)
             self._visits[position] = self._visits.get(position, 0) + 1
@@ -260,7 +275,6 @@ class LayaController:
                 self._visits.popitem(last=False)
         if before.map_id != after.map_id:
             self._transitions.append(f"{before.location}->{after.location}")
-        self._last_map = after.map_id
         if after.text and after.mode in ("dialogue", "battle_text"):
             text = " ".join(after.text)[-220:]
             if not self._dialogue or text != self._dialogue[-1]:
@@ -274,7 +288,7 @@ class LayaController:
             observed.append("Pokedex menu observed")
         if after.badges & 1:
             observed.append("Boulder badge acquired")
-        if after.map_id in (3, 58, 59, 60):
+        if after.mode == "overworld" and after.party and after.map_id in (3, 58, 59, 60):
             observed.append("Mt. Moon/Cerulean region reached")
         if "BLACKED OUT" in " ".join(after.text).upper():
             observed.append("blackout observed")

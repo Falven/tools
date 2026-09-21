@@ -15,7 +15,7 @@
   <p class="session-note">Progress and scores last for this server session.</p>
   <div class="layout">
     <section class="play" aria-label="Current Pokémon Red game">
-      <div class="screen">
+      <div class="screen" id="screen" aria-busy="false">
         <img id="frame" width="160" height="144" alt="Current Pokémon Red emulator frame" hidden>
         <div id="screen-empty"><strong id="empty-title">Connecting to the shared game</strong><p>No gameplay frame yet.</p></div>
       </div>
@@ -28,6 +28,11 @@
       <ul id="requirements" aria-label="Setup requirements"></ul>
       <button type="button" id="reconnect" hidden>Reconnect viewer</button>
       <p id="game-summary" class="secondary"></p>
+      <section id="completion" aria-labelledby="completion-title" hidden>
+        <h2 id="completion-title">Hall of Fame recorded</h2>
+        <p id="completion-time"></p>
+        <ul id="completion-team"></ul>
+      </section>
       <section aria-labelledby="trace-title">
         <h2 id="trace-title">Laya’s latest choices</h2>
         <ol id="decisions"><li>No decisions yet.</li></ol>
@@ -35,6 +40,8 @@
       </section>
       <details><summary>Playback and session details</summary>
         <p id="transport" class="fine">No measured calls yet.</p>
+        <p id="server-timing" class="fine">No measured initialization or gameplay timings yet.</p>
+        <p id="milestones" class="fine">No campaign milestones observed.</p>
         <p id="runtime" class="fine"></p>
         <p class="fine">Short request-driven batches, not 60-fps video. No requests means no new play. Hidden tabs stop playback. A batch already admitted may finish.</p>
         <p class="fine">Laya is a general typed-choice model. Full-campaign competence is unproven.</p>
