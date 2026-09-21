@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2950" height="1830" viewBox="0 0 2950 1830" role="img" aria-labelledby="title description">
+  <title id="title">ToolForge on Azure — application architecture</title>
+  <desc id="description">A left-to-right, cut-paper architecture diagram based on the supplied ToolForge brief. Browser and external MCP clients reach public HTTPS ingress on Azure Container Apps. Every replica contains Next.js with Copilot, a localhost Python MCP server, and disposable local working storage in the same container. Published Python tools execute with host permissions. Azure App Service is an alternative host. Connected services are Microsoft Entra ID with separate web and MCP registrations, Azure OpenAI or Microsoft Foundry, Key Vault, optional Blob Storage, Azure Monitor, Container Registry, and PostgreSQL Flexible Server through a private endpoint and private DNS using compute VNet integration. Git and optional external MCP servers and downstream APIs are outside the application boundary. Dashed arrows denote optional integrations and container deployment. Two-headed arrows denote two-way exchanges. Small pins are routing joins, not extra services. This is an SVG companion to the editable Paperweave JSON, not a live-board screenshot.</desc>
+  <defs>
+    <pattern id="grain" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r=".65" fill="#8f9a82" opacity=".2"/>
+      <circle cx="18" cy="17" r=".4" fill="#8f9a82" opacity=".12"/>
+    </pattern>
+    <filter id="paper-shadow" x="-10%" y="-10%" width="125%" height="135%">
+      <feDropShadow dx="5" dy="6" stdDeviation="0" flood-color="#b7bdaa" flood-opacity=".58"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#50624f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-sky" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#557e85" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-lilac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#806b9e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-peach" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#a8735c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <path id="w-browser" d="M376 822C453 822 506 842 584 842"/>
+    <path id="w-client" d="M376 1070C480 1070 472 875 584 875"/>
+    <path id="w-entra" d="M365 546C365 620 640 625 640 781"/>
+    <path id="w-image" d="M1445 371C1445 416 1394 447 1394 489"/>
+    <path id="w-ingress" d="M821 842H899"/>
+    <path id="w-localhost" d="M1261 842H1369"/>
+    <path id="w-copilot" d="M1080 764C1080 735 1080 723 1080 696"/>
+    <path id="w-files" d="M1167 921C1172 970 1183 994 1253 994"/>
+    <path id="w-env" d="M1487 956C1487 990 1465 994 1415 994"/>
+    <path id="w-inference" d="M1261 585C1462 585 1691 410 1894 410"/>
+    <path id="w-external-mcp" d="M1261 622C1615 635 2230 500 2484 500"/>
+    <path id="w-downstream" d="M1626 860C1900 860 2200 876 2484 876"/>
+    <path id="w-secrets" d="M1706 715C1775 715 1815 665 1894 665"/>
+    <path id="w-attachments" d="M1706 1030C1790 1030 1810 1060 1894 1060"/>
+    <path id="w-git" d="M1706 930C1950 930 2200 977 2407 977C2460 977 2437 1135 2484 1135"/>
+    <path id="w-monitor" d="M1645 1231C1670 1282 1738 1282 1792 1282C1835 1282 1848 1337 1894 1337"/>
+    <path id="w-private-db" d="M1335 1231C1335 1325 1492 1400 1492 1469"/>
+    <path id="w-dns" d="M1171 1537H1304"/>
+    <path id="w-postgres" d="M1681 1537C1773 1537 1809 1585 1894 1585"/>
+    <style>
+      text { fill:#293e36; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+      .headline { font-family:Georgia,serif; font-size:52px; }
+      .subtitle { font-family:Georgia,serif; font-style:italic; font-size:21px; }
+      .section { font-family:ui-monospace,monospace; font-size:15px; letter-spacing:1.6px; fill:#50624f; }
+      .frame { fill-opacity:.09; stroke-width:1.5; stroke-dasharray:8 6; }
+      .frame-title { font-size:16px; font-weight:600; letter-spacing:.25px; }
+      .rule { fill:none; stroke-width:1; opacity:.4; }
+      .paper { stroke-width:1.2; filter:url(#paper-shadow); }
+      .sage { fill:#d1dfc5; stroke:#7f9875; }
+      .sky { fill:#c5dfe0; stroke:#7a9ca1; }
+      .butter { fill:#f3dda3; stroke:#b59a55; }
+      .peach { fill:#efc1ac; stroke:#b47d66; }
+      .lilac { fill:#dcd2ed; stroke:#9b8ab7; }
+      .natural { fill:#f7f3e6; stroke:#bbbba7; }
+      .fold { fill:#fff9e5; fill-opacity:.55; stroke:#9caa96; stroke-width:.7; }
+      .badge { font-family:ui-monospace,monospace; font-size:10px; letter-spacing:1.15px; opacity:.74; }
+      .card-title { font-size:23px; font-weight:600; }
+      .body { font-size:20px; }
+      .small { font-size:18px; }
+      .center { text-anchor:middle; }
+      .note { font-family:Georgia,serif; font-size:20px; }
+      .halo { fill:none; stroke:#f4f1e9; stroke-width:7; stroke-linecap:round; stroke-linejoin:round; }
+      .thread { fill:none; stroke:#50624f; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+      .thread.sky-line { stroke:#557e85; }
+      .thread.lilac-line { stroke:#806b9e; }
+      .thread.peach-line { stroke:#a8735c; }
+      .optional { stroke-dasharray:6 7; }
+      .label { font-family:Georgia,serif; font-style:italic; font-size:16px; text-anchor:middle; paint-order:stroke fill; stroke:#f4f1e9; stroke-width:7; stroke-linejoin:round; }
+      .label-sm { font-size:14px; }
+      .pin { fill:#f7f3e6; stroke:#87947d; stroke-width:1.4; }
+      .legend { font-family:Georgia,serif; font-size:18px; }
+    </style>
+  </defs>
+  <rect width="2950" height="1830" fill="#f4f1e9"/>
+  <rect width="2950" height="1830" fill="url(#grain)"/>
+  <path d="M32 52H48M40 44V60M2902 52H2918M2910 44V60M32 1778H48M40 1770V1786M2902 1778H2918M2910 1770V1786" fill="none" stroke="#96a28d" stroke-width="1" opacity=".65"/>
+  <text x="70" y="89" class="headline">ToolForge on Azure</text>
+  <text x="74" y="135" class="subtitle">Collaborative Python tools, from browser and Copilot to published MCP execution. A logical architecture based on the supplied brief.</text>
+  <text x="70" y="200" class="section">01 / PEOPLE + CLIENTS</text>
+  <text x="555" y="200" class="section">02 / TOOLFORGE COMPUTE</text>
+  <text x="1900" y="200" class="section">03 / AZURE CONNECTED SERVICES</text>
+  <text x="2490" y="200" class="section">04 / EXTERNAL SYSTEMS</text>
+  <g id="boundaries">
+    <rect x="520" y="400" width="1220" height="1210" rx="7" class="frame sky"/>
+    <path d="M520 427H1740" class="rule" stroke="#7a9ca1"/>
+    <text x="534" y="419" class="frame-title">Compute VNet integration · private PostgreSQL connectivity</text>
+    <rect x="555" y="445" width="1145" height="780" rx="7" class="frame sage"/>
+    <path d="M555 472H1700" class="rule" stroke="#7f9875"/>
+    <text x="569" y="464" class="frame-title">TOOLFORGE APPLICATION · Azure Container Apps (primary hosting)</text>
+    <rect x="840" y="495" width="815" height="660" rx="7" class="frame peach"/>
+    <path d="M840 522H1655" class="rule" stroke="#b47d66"/>
+    <text x="854" y="514" class="frame-title">EACH REPLICA · ONE SHARED CONTAINER</text>
+    <rect x="880" y="545" width="400" height="415" rx="7" class="frame sage"/>
+    <path d="M880 572H1280" class="rule" stroke="#7f9875"/>
+    <text x="894" y="564" class="frame-title">Next.js process · includes Copilot</text>
+  </g>
+  <g id="connections">
+    <g><use href="#w-browser" class="halo"/><use href="#w-browser" class="thread" marker-end="url(#arrow)"/></g>
+    <g><use href="#w-client" class="halo"/><use href="#w-client" class="thread" marker-end="url(#arrow)"/></g>
+    <g><use href="#w-entra" class="halo"/><use href="#w-entra" class="thread lilac-line" marker-end="url(#arrow-lilac)"/></g>
+    <g><use href="#w-image" class="halo"/><use href="#w-image" class="thread optional" marker-end="url(#arrow)"/></g>
+    <g><use href="#w-ingress" class="halo"/><use href="#w-ingress" class="thread" marker-end="url(#arrow)"/></g>
+    <g><use href="#w-localhost" class="halo"/><use href="#w-localhost" class="thread" marker-end="url(#arrow)"/></g>
+    <g><use href="#w-copilot" class="halo"/><use href="#w-copilot" class="thread" marker-end="url(#arrow)"/></g>
+    <g><use href="#w-files" class="halo"/><use href="#w-files" class="thread"/></g>
+    <g><use href="#w-env" class="halo"/><use href="#w-env" class="thread"/></g>
+    <g><use href="#w-inference" class="halo"/><use href="#w-inference" class="thread" marker-end="url(#arrow)"/></g>
+    <g><use href="#w-external-mcp" class="halo"/><use href="#w-external-mcp" class="thread lilac-line optional" marker-end="url(#arrow-lilac)"/></g>
+    <g><use href="#w-downstream" class="halo"/><use href="#w-downstream" class="thread peach-line optional" marker-end="url(#arrow-peach)"/></g>
+    <g><use href="#w-secrets" class="halo"/><use href="#w-secrets" class="thread lilac-line" marker-start="url(#arrow-lilac)" marker-end="url(#arrow-lilac)"/></g>
+    <g><use href="#w-attachments" class="halo"/><use href="#w-attachments" class="thread sky-line optional" marker-start="url(#arrow-sky)" marker-end="url(#arrow-sky)"/></g>
+    <g><use href="#w-git" class="halo"/><use href="#w-git" class="thread" marker-start="url(#arrow)" marker-end="url(#arrow)"/></g>
+    <g><use href="#w-monitor" class="halo"/><use href="#w-monitor" class="thread" marker-end="url(#arrow)"/></g>
+    <g><use href="#w-private-db" class="halo"/><use href="#w-private-db" class="thread sky-line" marker-start="url(#arrow-sky)" marker-end="url(#arrow-sky)"/></g>
+    <g><use href="#w-dns" class="halo"/><use href="#w-dns" class="thread sky-line" marker-end="url(#arrow-sky)"/></g>
+    <g><use href="#w-postgres" class="halo"/><use href="#w-postgres" class="thread sky-line" marker-start="url(#arrow-sky)" marker-end="url(#arrow-sky)"/></g>
+    <circle cx="2407" cy="977" r="9" class="pin"/>
+    <circle cx="1792" cy="1282" r="9" class="pin"/>
+  </g>
+  <g id="connection-labels">
+    <text x="480" y="813" class="label">HTTPS · streamed updates</text>
+    <text x="478" y="958" class="label">HTTPS · authenticated MCP</text>
+    <text x="485" y="631" class="label">web sign-in / MCP authorization</text>
+    <text x="1315" y="832" class="label label-sm">localhost · MCP</text>
+    <text x="1080" y="735" class="label label-sm">runs Copilot</text>
+    <text x="1210" y="975" class="label label-sm">local files</text>
+    <text x="1440" y="979" class="label label-sm">Python envs</text>
+    <text x="1577" y="478" class="label">inference / streamed responses</text>
+    <text x="1825" y="544" class="label">optional · external MCP</text>
+    <text x="2055" y="853" class="label">tool execution · delegated auth where configured</text>
+    <text x="1800" y="681" class="label">↔ secrets</text>
+    <text x="1800" y="1037" class="label">↔ attachments</text>
+    <text x="2060" y="947" class="label">↔ publish + synchronize</text>
+    <text x="1755" y="1257" class="label">telemetry + logs</text>
+    <text x="1410" y="1355" class="label">↔ private PostgreSQL traffic</text>
+    <text x="1790" y="1546" class="label label-sm">↔ state + coordination</text>
+  </g>
+  <g id="browser" transform="translate(70 745)">
+    <path d="M10 0H282L300 18V146Q300 155 291 155H9Q0 155 0 146V10Q0 0 10 0Z" class="paper natural"/>
+    <path d="M282 0V18H300" class="fold"/>
+    <text x="20" y="26" class="badge">HUMAN COLLABORATORS</text>
+    <path d="M20 34H280" class="rule" stroke="#bbbba7"/>
+    <text x="150" y="70" class="card-title center">Browser</text>
+    <text x="150" y="101" class="body center">Build with Copilot</text>
+    <text x="150" y="129" class="body center">Review + publish</text>
+  </g>
+  <g id="mcp-client" transform="translate(70 1000)">
+    <path d="M10 0H282L300 18V151Q300 160 291 160H9Q0 160 0 151V10Q0 0 10 0Z" class="paper natural"/>
+    <path d="M282 0V18H300" class="fold"/>
+    <text x="20" y="26" class="badge">MACHINE CALLERS</text>
+    <path d="M20 34H280" class="rule" stroke="#bbbba7"/>
+    <text x="150" y="86" class="card-title center">External MCP client</text>
+    <text x="150" y="119" class="body center">Invoke published tools</text>
+  </g>
+  <g id="entra" transform="translate(70 330)">
+    <path d="M10 0H332L350 18V201Q350 210 341 210H9Q0 210 0 201V10Q0 0 10 0Z" class="paper lilac"/>
+    <path d="M332 0V18H350" class="fold"/>
+    <text x="20" y="26" class="badge">IDENTITY · TWO APP REGISTRATIONS</text>
+    <path d="M20 34H330" class="rule" stroke="#9b8ab7"/>
+    <text x="175" y="73" class="card-title center">Microsoft Entra ID</text>
+    <text x="175" y="108" class="body center">Web sign-in registration</text>
+    <text x="175" y="136" class="body center">MCP access registration</text>
+    <text x="175" y="169" class="small center">Browser authentication +</text>
+    <text x="175" y="193" class="small center">MCP client authorization</text>
+  </g>
+  <g id="acr" transform="translate(1250 240)">
+    <path d="M10 0H432L450 18V116Q450 125 441 125H9Q0 125 0 116V10Q0 0 10 0Z" class="paper natural"/>
+    <path d="M432 0V18H450" class="fold"/>
+    <text x="20" y="26" class="badge">IMAGE DELIVERY · DASHED DEPLOYMENT PATH</text>
+    <path d="M20 34H430" class="rule" stroke="#bbbba7"/>
+    <text x="225" y="73" class="card-title center">Azure Container Registry</text>
+    <text x="225" y="103" class="body center">Container image deployed to app</text>
+  </g>
+  <g id="ingress" transform="translate(590 787)">
+    <rect width="225" height="110" rx="55" class="paper sky"/>
+    <circle cx="13" cy="55" r="2" fill="#7a9ca1"/>
+    <text x="112.5" y="48" class="body center">Public HTTPS</text>
+    <text x="112.5" y="75" class="body center">ingress</text>
+  </g>
+  <g id="copilot" transform="translate(905 590)">
+    <path d="M10 0H332L350 18V91Q350 100 341 100H9Q0 100 0 91V10Q0 0 10 0Z" class="paper butter"/>
+    <path d="M332 0V18H350" class="fold"/>
+    <text x="175" y="44" class="card-title center">AI Copilot agent</text>
+    <text x="175" y="74" class="body center">Conversations + authoring</text>
+  </g>
+  <g id="web-api" transform="translate(905 770)">
+    <path d="M10 0H332L350 18V136Q350 145 341 145H9Q0 145 0 136V10Q0 0 10 0Z" class="paper sage"/>
+    <path d="M332 0V18H350" class="fold"/>
+    <text x="20" y="26" class="badge">APPLICATION PROCESS</text>
+    <path d="M20 34H330" class="rule" stroke="#7f9875"/>
+    <text x="175" y="71" class="card-title center">Next.js web + API</text>
+    <text x="175" y="101" class="body center">Browser UI · authentication</text>
+    <text x="175" y="129" class="body center">Drafts · tool publishing</text>
+  </g>
+  <g id="python-server" transform="translate(1375 770)">
+    <path d="M10 0H227L245 18V171Q245 180 236 180H9Q0 180 0 171V10Q0 0 10 0Z" class="paper peach"/>
+    <path d="M227 0V18H245" class="fold"/>
+    <text x="20" y="26" class="badge">RUNTIME PROCESS</text>
+    <path d="M20 34H225" class="rule" stroke="#b47d66"/>
+    <text x="122.5" y="71" class="card-title center">Python MCP</text>
+    <text x="122.5" y="99" class="card-title center">Tool Server</text>
+    <text x="122.5" y="135" class="body center">Executes</text>
+    <text x="122.5" y="162" class="body center">published tools</text>
+  </g>
+  <g id="local-storage" transform="translate(1040 1000)">
+    <path d="M0 0H540V68L518 90H0Z" class="paper natural"/>
+    <path d="M518 90V68H540" class="fold"/>
+    <text x="270" y="37" class="note center">Local working storage (disposable)</text>
+    <text x="270" y="65" class="note center">Git checkout + Python environments</text>
+  </g>
+  <text x="885" y="1130" class="note" style="font-size:18px">Published Python tools execute with the host's permissions.</text>
+  <g id="hosting-alternative" transform="translate(590 1170)">
+    <rect width="1060" height="38" rx="19" class="paper natural"/>
+    <text x="530" y="25" class="small center">Alternative hosting: Azure App Service · same container architecture, not an additional hop</text>
+  </g>
+  <g id="model-endpoint" transform="translate(1900 255)">
+    <path d="M10 0H442L460 18V161Q460 170 451 170H9Q0 170 0 161V10Q0 0 10 0Z" class="paper butter"/>
+    <path d="M442 0V18H460" class="fold"/>
+    <text x="20" y="26" class="badge">MODEL INFERENCE</text>
+    <path d="M20 34H440" class="rule" stroke="#b59a55"/>
+    <text x="230" y="78" class="card-title center">Azure OpenAI /</text>
+    <text x="230" y="108" class="card-title center">Microsoft Foundry</text>
+    <text x="230" y="145" class="body center">Copilot inference + streaming</text>
+  </g>
+  <g id="key-vault" transform="translate(1900 570)">
+    <path d="M10 0H442L460 18V161Q460 170 451 170H9Q0 170 0 161V10Q0 0 10 0Z" class="paper lilac"/>
+    <path d="M442 0V18H460" class="fold"/>
+    <text x="20" y="26" class="badge">AUTHENTICATED PUBLIC ENDPOINT · DEFAULT</text>
+    <path d="M20 34H440" class="rule" stroke="#9b8ab7"/>
+    <text x="230" y="78" class="card-title center">Azure Key Vault</text>
+    <text x="230" y="113" class="body center">Application secrets + tool credentials</text>
+    <text x="230" y="143" class="body center">Managed identity where configured</text>
+  </g>
+  <g id="blob-storage" transform="translate(1900 1000)">
+    <path d="M10 0H442L460 18V166Q460 175 451 175H9Q0 175 0 166V10Q0 0 10 0Z" class="paper sky"/>
+    <path d="M442 0V18H460" class="fold"/>
+    <text x="20" y="26" class="badge">OPTIONAL · AUTHENTICATED PUBLIC ENDPOINT</text>
+    <path d="M20 34H440" class="rule" stroke="#7a9ca1"/>
+    <text x="230" y="80" class="card-title center">Azure Blob Storage</text>
+    <text x="230" y="116" class="body center">Conversation attachments</text>
+    <text x="230" y="147" class="body center">Transfers through application only</text>
+  </g>
+  <g id="azure-monitor" transform="translate(1900 1255)">
+    <path d="M10 0H442L460 18V156Q460 165 451 165H9Q0 165 0 156V10Q0 0 10 0Z" class="paper natural"/>
+    <path d="M442 0V18H460" class="fold"/>
+    <text x="20" y="26" class="badge">OBSERVABILITY</text>
+    <path d="M20 34H440" class="rule" stroke="#bbbba7"/>
+    <text x="230" y="76" class="card-title center">Azure Monitor</text>
+    <text x="230" y="112" class="body center">Application Insights · telemetry</text>
+    <text x="230" y="142" class="body center">Log Analytics · app + platform logs</text>
+  </g>
+  <g id="postgresql" transform="translate(1900 1485)">
+    <path d="M10 0H442L460 18V246Q460 255 451 255H9Q0 255 0 246V10Q0 0 10 0Z" class="paper sky"/>
+    <path d="M442 0V18H460" class="fold"/>
+    <text x="20" y="26" class="badge">PERSISTENT STATE + REPLICA COORDINATION</text>
+    <path d="M20 34H440" class="rule" stroke="#7a9ca1"/>
+    <text x="230" y="72" class="card-title center">Azure Database for PostgreSQL</text>
+    <text x="230" y="100" class="card-title center">Flexible Server</text>
+    <text x="230" y="134" class="body center">Users · sessions · drafts</text>
+    <text x="230" y="160" class="body center">Conversations · settings · Copilot run queues</text>
+    <path d="M32 178H428" class="rule" stroke="#7a9ca1"/>
+    <text x="230" y="206" class="body center">Coordinates execution + live updates</text>
+    <text x="230" y="233" class="body center">across replicas</text>
+  </g>
+  <g id="private-endpoint" transform="translate(1310 1475)">
+    <path d="M10 0H347L365 18V116Q365 125 356 125H9Q0 125 0 116V10Q0 0 10 0Z" class="paper sky"/>
+    <path d="M347 0V18H365" class="fold"/>
+    <text x="20" y="26" class="badge">PRIVATE DATABASE ACCESS</text>
+    <path d="M20 34H345" class="rule" stroke="#7a9ca1"/>
+    <text x="182.5" y="72" class="body center" font-weight="600">PostgreSQL private endpoint</text>
+    <text x="182.5" y="102" class="body center">Private IP in connected VNet</text>
+  </g>
+  <g id="private-dns" transform="translate(755 1475)">
+    <path d="M10 0H392L410 18V116Q410 125 401 125H9Q0 125 0 116V10Q0 0 10 0Z" class="paper sky"/>
+    <path d="M392 0V18H410" class="fold"/>
+    <text x="20" y="26" class="badge">NAME RESOLUTION</text>
+    <path d="M20 34H390" class="rule" stroke="#7a9ca1"/>
+    <text x="205" y="72" class="card-title center">Private DNS</text>
+    <text x="205" y="102" class="body center">Database name → private IP</text>
+  </g>
+  <g id="external-mcp" transform="translate(2490 390)">
+    <path d="M10 0H372L390 18V171Q390 180 381 180H9Q0 180 0 171V10Q0 0 10 0Z" class="paper lilac"/>
+    <path d="M372 0V18H390" class="fold"/>
+    <text x="20" y="26" class="badge">OPTIONAL · OUTSIDE APP</text>
+    <path d="M20 34H370" class="rule" stroke="#9b8ab7"/>
+    <text x="195" y="94" class="card-title center">External MCP servers</text>
+    <text x="195" y="130" class="body center">Copilot tool integrations</text>
+  </g>
+  <g id="downstream-apis" transform="translate(2490 790)">
+    <path d="M10 0H372L390 18V166Q390 175 381 175H9Q0 175 0 166V10Q0 0 10 0Z" class="paper peach"/>
+    <path d="M372 0V18H390" class="fold"/>
+    <text x="20" y="26" class="badge">OPTIONAL · OUTSIDE APP</text>
+    <path d="M20 34H370" class="rule" stroke="#b47d66"/>
+    <text x="195" y="71" class="card-title center">Downstream APIs</text>
+    <text x="195" y="101" class="body center">Including Microsoft Graph</text>
+    <text x="195" y="132" class="body center">Delegated user auth</text>
+    <text x="195" y="158" class="body center">where configured</text>
+  </g>
+  <g id="git-remote" transform="translate(2490 1040)">
+    <path d="M10 0H372L390 18V186Q390 195 381 195H9Q0 195 0 186V10Q0 0 10 0Z" class="paper natural"/>
+    <path d="M372 0V18H390" class="fold"/>
+    <text x="20" y="26" class="badge">OUTSIDE APPLICATION BOUNDARY</text>
+    <path d="M20 34H370" class="rule" stroke="#bbbba7"/>
+    <text x="195" y="71" class="card-title center">Git remote repository</text>
+    <text x="195" y="101" class="body center">Published Python tools</text>
+    <text x="195" y="127" class="body center">Shared dependencies</text>
+    <text x="195" y="153" class="body center">Version history</text>
+    <text x="195" y="180" class="body center">Replicas publish + synchronize</text>
+  </g>
+  <g id="managed-identity-note" transform="translate(70 1370)">
+    <path d="M0 0H400V213L378 235H0Z" class="paper lilac"/>
+    <path d="M378 235V213H400" class="fold"/>
+    <text x="24" y="37" class="note">
+      <tspan x="24">Azure service access uses</tspan>
+      <tspan x="24" dy="28">managed identity where</tspan>
+      <tspan x="24" dy="28">configured.</tspan>
+      <tspan x="24" dy="43">Key Vault + Blob default to</tspan>
+      <tspan x="24" dy="28">authenticated public</tspan>
+      <tspan x="24" dy="28">service endpoints.</tspan>
+    </text>
+  </g>
+  <g id="design-choices" transform="translate(2490 1370)">
+    <path d="M0 0H390V223L368 245H0Z" class="paper butter"/>
+    <path d="M368 245V223H390" class="fold"/>
+    <text x="24" y="38" class="note" font-weight="600">Choices, not extra hops</text>
+    <text x="24" y="83" class="note" style="font-size:19px">
+      <tspan x="24">App Service = alternative host.</tspan>
+      <tspan x="24" dy="32">Web sign-in ≠ MCP registration.</tspan>
+      <tspan x="24" dy="32">Local files ≠ durable state.</tspan>
+      <tspan x="24" dy="32">VNet integration ≠</tspan>
+      <tspan x="24" dy="26">private ingress.</tspan>
+    </text>
+  </g>
+  <g id="legend" transform="translate(555 1660)">
+    <text x="0" y="15" class="section">READING THE THREADS</text>
+    <text x="0" y="48" class="legend">Solid arrows = core paths. Dashed arrows = optional integration or container image deployment.</text>
+    <text x="0" y="77" class="legend">↔ = two-way exchanges. Small unlabelled pins are routing joins, not services.</text>
+    <text x="0" y="106" class="legend">Public HTTPS ingress remains public; compute VNet integration provides the private database path.</text>
+  </g>
+  <text x="2490" y="1747" class="section">PAPERWEAVE / ARCHITECTURE STUDY</text>
+</svg>
