@@ -93,6 +93,7 @@ async function poll() {
   const isVisible = visible();
   const read = state.needView || !isVisible || !state.view;
   const args = { tab_id: state.tab, visible: isVisible,
+    displaying: isVisible && Boolean(state.view?.frame) && byId("frame").complete && byId("frame").naturalWidth === 160,
     runtime_id: state.view?.runtime_id ?? null,
     run_id: state.view?.run_id ?? null, revision: state.view?.revision ?? null };
   const start = performance.now();

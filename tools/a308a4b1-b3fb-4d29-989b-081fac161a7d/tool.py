@@ -21,7 +21,7 @@ def _operator() -> Operator:
     claims = getattr(access, "claims", None) if access is not None else None
     if not claims or not isinstance(claims, dict) or not claims.get("scp"):
         raise ValueError("A verified delegated ToolForge caller is required.")
-    if not claims["scp"].strip():
+    if not isinstance(claims["scp"], str) or not claims["scp"].strip():
         raise ValueError("Delegated caller scopes are required.")
     try:
         return Operator(str(UUID(claims["tid"])), str(UUID(claims["oid"])))
@@ -29,8 +29,9 @@ def _operator() -> Operator:
         raise ValueError("Verified tenant and operator identity are required.") from None
 
 
-def _respond(tab_id: str, visible: bool, runtime_id: str | None,
-             run_id: str | None, revision: int | None, playback: bool) -> CallToolResult:
+async def _respond(tab_id: str, visible: bool, displaying: bool,
+                   runtime_id: str | None, run_id: str | None,
+                   revision: int | None, playback: bool) -> CallToolResult:
     try:
         operator = _operator()
         tab_id = str(UUID(tab_id))
@@ -39,8 +40,8 @@ def _respond(tab_id: str, visible: bool, runtime_id: str | None,
         for identifier in (runtime_id, run_id):
             if identifier is not None:
                 UUID(identifier)
-        view = _session.request(operator, tab_id, visible, runtime_id,
-                                run_id, revision, playback)
+        view = await _session.request(operator, tab_id, visible, displaying,
+                                      runtime_id, run_id, revision, playback)
     except ValueError as error:
         return CallToolResult(
             is_error=True, content=[TextContent(type="text", text=str(error))],
@@ -70,22 +71,25 @@ def new_tool() -> dict:
 
 
 @apps.tool(resource_uri=_RESOURCE, visibility=["app"], name="laya_pokemon_view")
-def laya_pokemon_view(tab_id: str, visible: bool = False,
-                     runtime_id: str | None = None, run_id: str | None = None,
-                     revision: int | None = None) -> CallToolResult:
+async def laya_pokemon_view(tab_id: str, visible: bool = False,
+                            displaying: bool = False,
+                            runtime_id: str | None = None, run_id: str | None = None,
+                            revision: int | None = None) -> CallToolResult:
     """Read live state and report this authenticated tab's visibility.
 
     UUID tab_id is memory-only and bound to the verified caller. Optional IDs and
-    revision identify the last displayed view. Does not advance gameplay.
+    revision identify the last displayed view. displaying reports that a real
+    frame is rendered; it is only a presence signal, not a duration or identity.
+    Does not advance gameplay.
     Returns a small receipt with the detached display snapshot only in _meta.
     """
-    return _respond(tab_id, visible, runtime_id, run_id, revision, False)
+    return await _respond(tab_id, visible, displaying, runtime_id, run_id, revision, False)
 
 
 @apps.tool(resource_uri=_RESOURCE, visibility=["app"], name="laya_pokemon_playback")
-def laya_pokemon_playback(tab_id: str, visible: bool,
-                         runtime_id: str, run_id: str | None,
-                         revision: int) -> CallToolResult:
+async def laya_pokemon_playback(tab_id: str, visible: bool, displaying: bool,
+                                runtime_id: str, run_id: str | None,
+                                revision: int) -> CallToolResult:
     """Request at most one paced, bounded Laya/emulator batch while visible.
 
     Requires a fresh view's runtime/run/revision and the caller-bound tab UUID.
@@ -93,7 +97,7 @@ def laya_pokemon_playback(tab_id: str, visible: bool,
     only the shared RAM session. Setup/inference/action failures pause it. Display
     payloads are in _meta; ordinary activity receipts contain no frame data.
     """
-    return _respond(tab_id, visible, runtime_id, run_id, revision, True)
+    return await _respond(tab_id, visible, displaying, runtime_id, run_id, revision, True)
 
 
 _html = (_ASSETS / "app.html").read_text(encoding="utf-8")
