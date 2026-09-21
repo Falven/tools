@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laya Plays Pokémon</title>
+  <!-- styles.css -->
+</head>
+<body>
+<main aria-labelledby="title">
+  <header>
+    <div><p class="eyebrow">ONE SHARED GAME · WATCH ONLY</p><h1 id="title">Laya Plays Pokémon</h1></div>
+    <span id="status" role="status">Connecting</span>
+  </header>
+  <p class="session-note">Progress and scores last for this server session.</p>
+  <div class="layout">
+    <section class="play" aria-label="Current Pokémon Red game">
+      <div class="screen">
+        <img id="frame" width="160" height="144" alt="Current Pokémon Red emulator frame" hidden>
+        <div id="screen-empty"><strong id="empty-title">Connecting to the shared game</strong><p>No gameplay frame yet.</p></div>
+      </div>
+      <dl class="metrics">
+        <div><dt>Run</dt><dd id="run">—</dd></div>
+        <div><dt>Active play</dt><dd id="active">—</dd></div>
+        <div><dt>Viewers</dt><dd id="viewers">0</dd></div>
+      </dl>
+      <p id="message" aria-live="polite">Fetching live state. The chat result is not a live game view.</p>
+      <ul id="requirements" aria-label="Setup requirements"></ul>
+      <button type="button" id="reconnect" hidden>Reconnect viewer</button>
+      <p id="game-summary" class="secondary"></p>
+      <section aria-labelledby="trace-title">
+        <h2 id="trace-title">Laya’s latest choices</h2>
+        <ol id="decisions"><li>No decisions yet.</li></ol>
+        <p class="fine">Option confidence measures concentration among choices, not strategic certainty.</p>
+      </section>
+      <details><summary>Playback and session details</summary>
+        <p id="transport" class="fine">No measured calls yet.</p>
+        <p id="runtime" class="fine"></p>
+        <p class="fine">Short request-driven batches, not 60-fps video. No requests means no new play. Hidden tabs stop playback. A batch already admitted may finish.</p>
+        <p class="fine">Laya is a general typed-choice model. Full-campaign competence is unproven.</p>
+      </details>
+    </section>
+    <aside aria-label="Current-session leaderboards">
+      <section>
+        <h2>Fastest runs — active play time</h2>
+        <p class="fine">Current-session demo scores, not speedrun records.</p>
+        <ol id="fastest"><li>No verified completions this session.</li></ol>
+      </section>
+      <section>
+        <h2>Longest watch time</h2>
+        <p id="own-watch" class="secondary">Your watch time: —</p>
+        <ol id="watch"><li>No watch time recorded yet.</li></ol>
+        <p class="fine">Visible, connected intervals; multiple tabs never multiply a person’s total. Presence expires after 12 seconds.</p>
+      </section>
+    </aside>
+  </div>
+</main>
+<!-- app.js -->
+</body>
+</html>
