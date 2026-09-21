@@ -1,3 +1,4 @@
+# Shared project configuration for all tools.
 [project]
 name = "toolforge-tools"
 version = "0.0.0"
