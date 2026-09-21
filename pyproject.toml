@@ -6,7 +6,8 @@ requires-python = ">=3.14"
 dependencies = [
     "pyboy==2.7.0",
     "laya @ git+https://github.com/NandhaKishorM/laya.git@42626c348753fbb17572a813127df2278a1ec527",
-    "torch==2.10.0",
+    # CPU-only wheel for the established CPython 3.14 Linux x86_64 runtime.
+    "torch @ https://download.pytorch.org/whl/cpu/torch-2.10.0%2Bcpu-cp314-cp314-manylinux_2_28_x86_64.whl",
     "transformers==4.57.6",
     "tokenizers==0.22.2",
     "safetensors==0.7.0",
