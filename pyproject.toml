@@ -6,11 +6,11 @@ requires-python = ">=3.14"
 dependencies = [
     "pyboy==2.7.0",
     "laya @ git+https://github.com/NandhaKishorM/laya.git@42626c348753fbb17572a813127df2278a1ec527",
-    "torch==2.10.0",
-    "transformers==4.57.6",
+    "torch==2.13.0",
+    "transformers==5.10.1",
     "tokenizers==0.22.2",
     "safetensors==0.7.0",
     "huggingface-hub==0.36.0",
     "numpy==2.4.2",
-    "Pillow==12.1.1",
+    "Pillow==12.3.0",
 ]
