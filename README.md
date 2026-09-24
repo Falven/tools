@@ -2,7 +2,7 @@
   <img src="./toolforge-logo.png" alt="ToolForge logo" width="96" height="96">
 </p>
 
-<h1 align="center">ToolForge tool catalog</h1>
+<h1 align="center">ToolForge</h1>
 
 <p align="center">Python tools for your ToolForge instance.</p>
 
