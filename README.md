@@ -72,7 +72,7 @@ In ToolForge, open [CONFIGURATION → Server → Environment variables](http://l
 
 ## Connect via MCP
 
-1. Open Configuration > Server > MCP in ToolForge and choose Copy MCP endpoint. The instance's `/mcp` endpoint uses Streamable HTTP.
+1. In ToolForge, open [CONFIGURATION → Server → MCP](http://localhost:3000/configuration/server#mcp-section-title) and choose Copy MCP endpoint. The instance's `/mcp` endpoint uses Streamable HTTP.
 2. Configure your client to send a Microsoft Entra bearer token for the instance's tenant and audience. It must include the delegated scope or application role shown under Required permission in the same panel.
 
 ### Check with MCP Inspector
