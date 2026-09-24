@@ -31,9 +31,14 @@ sandbox="allow-scripts"></iframe><script type="module">
 import { AppBridge, PostMessageTransport } from
 "https://cdn.jsdelivr.net/npm/@modelcontextprotocol/ext-apps@2.0.0/dist/src/app-bridge.js/+esm";
 const frame = document.querySelector("#app");
+const options = new URLSearchParams(location.search);
+const modes = options.has("inline") ? ["inline"] : ["inline", "fullscreen"];
+let currentMode = "inline";
+window.displayRequests = [];
 const bridge = new AppBridge(null, {name:"Synthetic test host",version:"1.0.0"},
   {serverTools:{},logging:{}},
-  {hostContext:{theme:"dark",displayMode:"inline",availableDisplayModes:["inline"],
+  {hostContext:{theme:"dark",displayMode:"inline",availableDisplayModes:modes,
+    containerDimensions:{width:innerWidth, height:600},
     locale:"en-US",platform:"web"}});
 window.modelContexts = [];
 window.dropNextFinish = false;
@@ -50,8 +55,20 @@ bridge.onupdatemodelcontext = async params => {
   return {};
 };
 bridge.onsizechange = ({height}) => {
-  if (height) frame.style.height = Math.ceil(height) + "px";
+  if (height && currentMode !== "fullscreen") frame.style.height = Math.ceil(height) + "px";
 };
+const resize = () => {
+  const height = currentMode === "fullscreen" ? innerHeight : 600;
+  frame.style.height = height + "px";
+  bridge.setHostContext({displayMode:currentMode, containerDimensions:{width:innerWidth,height}});
+};
+bridge.onrequestdisplaymode = async ({mode}) => {
+  window.displayRequests.push(mode);
+  if (!options.has("deny") && modes.includes(mode)) currentMode = mode;
+  resize();
+  return {mode:currentMode};
+};
+window.addEventListener("resize", resize);
 bridge.oninitialized = async () => {
   await bridge.sendToolInput({arguments:{}});
   await bridge.sendToolResult(await window.testCallTool({name:"new_tool",arguments:{}}));
@@ -98,17 +115,19 @@ class BrowserChecks:
             result = await self.server.call_tool(params["name"], params.get("arguments") or {})
         return result.model_dump(by_alias=True, exclude_none=True)
 
-    async def open(self, page):
+    async def open(self, page, query=""):
         await page.expose_function("testCallTool", self.rpc)
         page.on("pageerror", lambda error: self.errors.append(str(error)))
-        await page.goto(self.origin, wait_until="domcontentloaded")
+        await page.goto(self.origin + query, wait_until="domcontentloaded")
         await page.wait_for_selector("#app")
         app = page.frame_locator("#app")
         await expect(app.locator("#start")).to_be_enabled(timeout=30000)
+        if not query:
+            await expect(app.locator("html")).to_have_attribute("data-display-mode", "fullscreen")
         return app
 
     async def state(self, app, value):
-        if value in ("running", "over"):
+        if value in ("countdown", "running", "over"):
             deadline = time.monotonic() + 35
             while time.monotonic() < deadline:
                 current = await app.locator("#stage").get_attribute("data-state")
@@ -127,14 +146,20 @@ class BrowserChecks:
         dimensions = await app.locator("body").evaluate("""(body, panelId) => {
           const stage = document.querySelector("#stage").getBoundingClientRect();
           const panel = document.getElementById(panelId).getBoundingClientRect();
-          return {width:innerWidth,scrollWidth:body.scrollWidth,
+          const scene = document.querySelector("#scene").getBoundingClientRect();
+          return {width:innerWidth,height:innerHeight,scrollWidth:body.scrollWidth,scrollHeight:body.scrollHeight,
             stage:{top:stage.top,bottom:stage.bottom,left:stage.left,right:stage.right},
+            scene:{top:scene.top,bottom:scene.bottom,left:scene.left,right:scene.right},
             panel:{top:panel.top,bottom:panel.bottom,left:panel.left,right:panel.right}};
         }""", panel)
         assert dimensions["scrollWidth"] <= dimensions["width"], dimensions
         s, p = dimensions["stage"], dimensions["panel"]
+        assert s["left"] == 0 and s["right"] == dimensions["width"], dimensions
+        if await app.locator("html").get_attribute("data-display-mode") == "fullscreen":
+            assert s["top"] == 0 and s["bottom"] == dimensions["height"], dimensions
+            assert dimensions["scrollHeight"] <= dimensions["height"], dimensions
         assert p["top"] >= s["top"] + 30, dimensions
-        assert p["bottom"] <= s["bottom"] - 22, dimensions
+        assert p["bottom"] <= s["bottom"] - 10, dimensions
         assert p["left"] >= s["left"] and p["right"] <= s["right"], dimensions
         await page.screenshot(path=str(self.artifacts / f"{dimensions['width']}-{panel}.png"),
                               full_page=True)
@@ -149,10 +174,26 @@ class BrowserChecks:
         await expect(app.locator("#player-email")).to_have_text("f•••@example.test")
         assert await app.locator("#scene canvas").evaluate("(c) => !!c.getContext('webgl2')")
         await self.layout(page, app)
+        await expect(app.locator("#leaderboard-dialog")).not_to_be_visible()
+        await expect(app.locator("#player-name")).not_to_be_visible()
+        await expect(app.locator(".sidebar")).to_have_count(0)
+        await app.locator("#fullscreen-button").click()
+        await expect(app.locator("html")).to_have_attribute("data-display-mode", "inline")
+        await app.locator("#fullscreen-button").click()
+        await expect(app.locator("html")).to_have_attribute("data-display-mode", "fullscreen")
+        await self.layout(page, app)
+        print("PASS game-first fullscreen: entire viewport, no sidebar, enter/exit through the official host API")
         await expect(app.locator("#leaderboard li")).to_have_count(0)
         await app.locator("#start").click()
         await self.state(app, "countdown")
         await app.locator("#stage").press("ArrowLeft")  # Opposite turn must be ignored.
+        await app.locator("#leaderboard-button").click()
+        await expect(app.locator("#leaderboard-dialog")).to_be_visible()
+        await self.state(app, "paused")
+        await app.locator("#leaderboard-dialog").press("ArrowUp")  # Never steer behind a modal.
+        await app.locator("#leaderboard-dialog").press("Escape")
+        await expect(app.locator("#leaderboard-dialog")).not_to_be_visible()
+        await self.state(app, "countdown")
         await app.locator("#stage").press("Space")
         await self.state(app, "paused")
         timer = await app.locator("#timer").inner_text()
@@ -173,9 +214,13 @@ class BrowserChecks:
         await page.wait_for_function("window.modelContexts.length === 1")
         model = await page.evaluate("window.modelContexts")
         assert "example.test" not in json.dumps(model) and model[0]["structuredContent"]["score"] == 10
+        await app.locator("#leaderboard-button").click()
+        await expect(app.locator("#leaderboard-dialog")).to_be_visible()
         await app.locator("#scope-mine").click()
         await expect(app.locator("#scope-mine")).to_have_attribute("aria-pressed", "true")
         await expect(app.locator("#leaderboard .rank")).to_have_text("01")
+        await page.screenshot(path=str(self.artifacts / "leaderboard-modal.png"), full_page=True)
+        await app.get_by_role("button", name="Close leaderboard").click()
         print("PASS desktop: real Three.js/WebGL, countdown, movement, reversal guard, pause/resume, "
               "automatic server-verified score, account name, masked e-mail, model context")
 
@@ -213,6 +258,7 @@ class BrowserChecks:
         assert len([c for c in self.calls if c["name"] == "neon_snake_finish"]) == finishes_before
         print("PASS reload persistence, WASD input, practice mode never starts/saves a ranked run")
 
+        await app.locator("#leaderboard-button").click()
         await app.locator("#data-button").click()
         await expect(app.locator("#data-dialog")).to_be_visible()
         await app.locator("#delete-data").click()
@@ -240,8 +286,15 @@ class BrowserChecks:
         await app.locator("#profile-email").fill("mobile.fixture@example.test")
         await app.locator("#save-profile").tap()
         await self.state(app, "countdown")
-        await app.locator('[data-direction="0"]').tap()
+        # Hold contact until game over: the turn must happen before release.
+        touch = await context.new_cdp_session(page)
+        point = await app.locator('[data-direction="0"]').bounding_box()
+        await touch.send("Input.dispatchTouchEvent", {"type":"touchStart", "touchPoints":[
+            {"x":point["x"] + point["width"]/2, "y":point["y"] + point["height"]/2, "id":1}
+        ]})
+        await expect(app.locator('[data-direction="0"]')).to_have_class("held")
         await self.state(app, "over")
+        await touch.send("Input.dispatchTouchEvent", {"type":"touchEnd", "touchPoints":[]})
         await expect(app.locator("#save-state")).to_contain_text("Saved automatically")
         await expect(app.locator("#player-name")).to_have_text("Mobile Fixture")
         await expect(app.locator("#player-email")).to_have_text("m•••@example.test")
@@ -254,12 +307,79 @@ class BrowserChecks:
         await app.locator("#help-button").tap()
         await expect(app.locator("#help-dialog")).to_be_visible()
         await app.get_by_role("button", name="Close instructions").tap()
-        # The footer is below the phone viewport in an auto-sized iframe.
-        # Its modal must be placed in the currently visible clipped area.
+        await app.locator("#leaderboard-button").tap()
         await app.locator("#data-button").tap()
         await expect(app.locator("#data-dialog")).to_be_visible()
+        await page.set_viewport_size({"width":844, "height":390})
+        await expect(app.locator("#data-dialog")).to_have_css("max-height", "358px")
+        dialog_box = await app.locator("#data-dialog").bounding_box()
+        assert dialog_box["y"] >= 0 and dialog_box["y"] + dialog_box["height"] <= 390, dialog_box
         await app.get_by_role("button", name="Close privacy details").tap()
-        print("PASS mobile: 390/320px layout, reduced motion, missing-claims profile form, touch direction pad")
+        await self.layout(page, app)
+        print("PASS mobile: portrait/landscape fullscreen, missing-claims form, touch responds on contact before release")
+        await context.close()
+
+    async def inputs(self, browser):
+        self.identity = {"oid":"input-fixture"}
+        context = await browser.new_context(viewport={"width":960,"height":680}, has_touch=True)
+        page = await context.new_page()
+        # Isolate input scheduling from software-GPU stalls, without changing
+        # game code, clocks, score rules, or server verification.
+        await page.route("**/npm/three@*/**", lambda route: route.abort())
+        app = await self.open(page)
+        await app.locator("#dismiss-banner").click()
+        await app.locator("#start").click()
+        await self.state(app, "countdown")
+        await app.locator("#leaderboard-button").click()
+        await expect(app.locator("#leaderboard-dialog")).to_be_visible()
+        await expect(app.locator("#stage")).to_have_attribute("data-state", "paused")
+        await app.locator("#leaderboard-dialog").press("Escape")
+        await expect(app.locator("#stage")).to_have_attribute("data-state", "countdown")
+        await app.locator("#stage").press("p")
+        await app.locator("#help-button").click()
+        await app.get_by_role("button", name="Close instructions").click()
+        await expect(app.locator("#stage")).to_have_attribute("data-state", "paused")
+        await app.locator("#resume").click()
+        await expect(app.locator("#stage")).to_have_attribute("data-state", "countdown")
+        print("PASS modal lifecycle: interrupted play resumes; a manually paused game stays paused")
+        await app.locator("#sound-button").focus()
+        await page.keyboard.press("w")
+        await page.keyboard.press("a")
+        await self.state(app, "over")
+        await expect(app.locator("#save-state")).to_contain_text("Saved automatically")
+        latest = [c for c in self.calls if c["name"] == "neon_snake_finish"][-1]
+        assert latest["arguments"]["directions"] == "0" + "3" * 7, latest
+        print("PASS keyboard: two rapid corners buffered, input works while a toolbar button has focus")
+
+        await app.locator("#again").click()
+        await self.state(app, "countdown")
+        touch = await context.new_cdp_session(page)
+        box = await app.locator("#scene").bounding_box()
+        x, y = box["x"] + box["width"]/2, box["y"] + box["height"]/2
+        await touch.send("Input.dispatchTouchEvent", {"type":"touchStart", "touchPoints":[{"x":x,"y":y,"id":1}]})
+        await touch.send("Input.dispatchTouchEvent", {"type":"touchMove", "touchPoints":[{"x":x,"y":y-10,"id":1}]})
+        await touch.send("Input.dispatchTouchEvent", {"type":"touchEnd", "touchPoints":[]})
+        await self.state(app, "over")
+        await expect(app.locator("#save-state")).to_contain_text("Saved automatically")
+        latest = [c for c in self.calls if c["name"] == "neon_snake_finish"][-1]
+        assert latest["arguments"]["directions"] == "0" * 10, latest
+        print("PASS short swipe: 10px gesture registers before release, no page scrolling")
+
+        await app.locator("#again").click()
+        await self.state(app, "countdown")
+        await page.keyboard.down("w")
+        await self.state(app, "running")
+        await page.wait_for_timeout(250)
+        await page.keyboard.press("a")
+        await page.wait_for_timeout(200)
+        await page.keyboard.down("w")  # Repeat of a held key, not a fresh turn.
+        await page.keyboard.up("w")
+        await self.state(app, "over")
+        await expect(app.locator("#save-state")).to_contain_text("Saved automatically")
+        latest = [c for c in self.calls if c["name"] == "neon_snake_finish"][-1]
+        replay = latest["arguments"]["directions"]
+        assert replay.startswith("0") and replay.endswith("3") and "0" not in replay.lstrip("0"), latest
+        print("PASS held-key repeat does not undo a fresh direction or clog the turn buffer")
         await context.close()
 
     async def compatibility(self, browser):
@@ -276,6 +396,23 @@ class BrowserChecks:
         await expect(page.locator("#save-state")).to_contain_text("Practice run")
         await page.screenshot(path=str(self.artifacts / "compatibility.png"), full_page=True)
         print("PASS CDN/WebGL-unavailable fallback: playable 2D, explicit practice-only guest mode")
+        for query in ("?inline=1", "?deny=1"):
+            check_page = await context.new_page()
+            await check_page.route("**/npm/three@*/**", lambda route: route.abort())
+            app = await self.open(check_page, query)
+            await expect(app.locator("html")).to_have_attribute("data-display-mode", "inline")
+            await self.layout(check_page, app)
+            if "inline" in query:
+                await expect(app.locator("#fullscreen-button")).not_to_be_visible()
+                assert await check_page.evaluate("window.displayRequests") == []
+            else:
+                await expect(app.locator("#fullscreen-button")).to_have_attribute("aria-pressed", "false")
+                assert await check_page.evaluate("window.displayRequests") == ["fullscreen"]
+                await app.locator("#fullscreen-button").click()
+                await expect(app.locator("#banner-text")).to_contain_text("kept the game inline")
+                await expect(app.locator("#start")).to_be_enabled()
+            await check_page.close()
+        print("PASS inline-only and fullscreen-refusing hosts remain playable without a resize loop")
         await context.close()
 
 
@@ -288,14 +425,16 @@ async def main():
     try:
         with tempfile.TemporaryDirectory(prefix="browser-", dir=artifacts) as directory, \
                 patch.dict(os.environ, {"NEON_SNAKE_DB_PATH": str(Path(directory) / "scores.sqlite3")}):
-            checks = BrowserChecks(f"http://127.0.0.1:{http.server_port}", artifacts)
             async with async_playwright() as playwright:
                 # The development container has 1 CPU and 1.2 GB RAM. Separate
                 # low-memory browser launches avoid an OOM, not game validation.
-                suites = {"desktop": checks.desktop, "mobile": checks.mobile, "compatibility": checks.compatibility}
+                suites = ("desktop", "mobile", "inputs", "compatibility")
                 selected = sys.argv[1:] or list(suites)
                 for name in selected:
-                    check = suites[name]
+                    if name not in suites:
+                        raise ValueError(f"Unknown browser suite: {name}")
+                    checks = BrowserChecks(f"http://127.0.0.1:{http.server_port}", artifacts)
+                    check = getattr(checks, name)
                     print(f"CHECK browser suite: {name}", flush=True)
                     browser = await playwright.chromium.launch(args=[
                         "--no-sandbox", "--no-zygote", "--single-process",
@@ -303,10 +442,15 @@ async def main():
                         "--num-raster-threads=1", "--js-flags=--max-old-space-size=96",
                     ])
                     try:
-                        await check(browser)
+                        # Independent identities and databases make every
+                        # selectable suite safe to run in any order.
+                        with patch.dict(os.environ, {
+                            "NEON_SNAKE_DB_PATH": str(Path(directory) / f"{name}.sqlite3")
+                        }):
+                            await check(browser)
                     finally:
                         await browser.close()
-                assert not checks.errors, checks.errors
+                    assert not checks.errors, checks.errors
                 print("PASS no uncaught browser JavaScript errors; synthetic database removed after checks")
     finally:
         http.shutdown()

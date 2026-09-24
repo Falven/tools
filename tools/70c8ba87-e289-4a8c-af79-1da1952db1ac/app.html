@@ -239,6 +239,96 @@
         *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
         dialog::backdrop, .overlay-card { backdrop-filter: none; }
       }
+      /* Game-first screen: no sidebar, cards, or document scrolling around play. */
+      :root { --scene-top: 68px; --scene-bottom: 46px; }
+      html, body { overflow: hidden; overscroll-behavior: none; }
+      .shell { max-width: none; margin: 0; padding: 0; height: var(--app-height, clamp(480px, 76vw, 820px)); max-height: var(--app-max-height, none); }
+      :root[data-display-mode="fullscreen"] .shell,
+      :root[data-standalone="true"] .shell { height: 100dvh; max-height: none; }
+      .stage { width: 100%; height: 100%; min-height: 0; background: radial-gradient(ellipse at 50% 45%, #192b20, #0b1510 72%); }
+      .stage:focus-visible { box-shadow: none; }
+      #scene { inset: calc(var(--scene-top) + var(--safe-top, 0px)) 0 calc(var(--scene-bottom) + var(--safe-bottom, 0px)); }
+      .play-hud { position: absolute; z-index: 4; inset: var(--safe-top, 0px) 0 auto; height: var(--scene-top); display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 22px; background: linear-gradient(#0b1510d9, #0b151000); }
+      .play-hud .brand { gap: 8px; flex: none; }
+      .play-hud .brand-icon { width: 28px; height: 28px; padding: 3px; border: 0; background: none; }
+      .play-hud h1 { font-size: 12px; letter-spacing: 1px; font-weight: 650; }
+      .hud { display: flex; padding: 0; border: 0; gap: clamp(12px, 3vw, 34px); }
+      .metric { display: flex; align-items: baseline; gap: 7px; }
+      .metric .eyebrow { font-size: 9px; letter-spacing: 1px; }
+      .metric-value { margin: 0; font-size: 24px; }
+      .metric.secondary .metric-value { font-size: 17px; color: #aabbab; }
+      .play-actions { display: flex; gap: 6px; align-items: center; }
+      .play-actions .icon-button { width: 40px; height: 40px; border-color: #53634344; background: #101c1680; }
+      .play-actions #leaderboard-button { width: auto; gap: 7px; padding: 0 11px; color: var(--lime); font-size: 11px; }
+      .play-actions #pause-button { min-width: 40px; padding: 0; }
+      .play-bottom { position: absolute; z-index: 4; bottom: calc(12px + var(--safe-bottom, 0px)); left: 22px; display: flex; align-items: center; gap: 16px; pointer-events: none; }
+      .quiet-actions { display: flex; gap: 4px; }
+      .quiet-actions .icon-button { border: 0; width: 34px; height: 34px; color: #8da18e; pointer-events: auto; }
+      .mode-badge { font-size: 9px; color: #8da18e; letter-spacing: .7px; }
+      .renderer-label { display: none; }
+      .stage[data-renderer="compatibility"] .renderer-label { display: block; color: var(--coral); }
+      .banner { position: absolute; z-index: 7; top: calc(var(--scene-top) + var(--safe-top, 0px)); left: 16px; right: 16px; width: fit-content; max-width: min(640px, calc(100% - 32px)); margin: 0 auto; background: #241f17f5; }
+      .overlay { inset: calc(var(--scene-top) + var(--safe-top, 0px)) 12px calc(var(--scene-bottom) + var(--safe-bottom, 0px)); }
+      .overlay-card { width: min(320px, 94%); padding: 24px; background: #101c16f5; border-color: #395134; backdrop-filter: none; }
+      .overlay-card h2 { font-size: 32px; margin: 9px 0 14px; }
+      .overlay-card .description { font-size: 11px; margin-bottom: 18px; }
+      .overlay-footnote { font-size: 10px; margin-top: 10px; }
+      .dpad { display: none; position: absolute; z-index: 4; right: 18px; bottom: calc(14px + var(--safe-bottom, 0px)); grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 44px); gap: 5px; }
+      .dpad button { background: #14231ad9; border-color: #53634388; touch-action: none; transition: background .08s; }
+      .dpad button.held { color: #17290c; background: var(--lime); border-color: var(--lime); }
+      .stage[data-state="ready"] .dpad, .stage[data-state="over"] .dpad { opacity: .45; }
+      dialog { width: 440px; max-width: calc(100% - 24px); padding: 22px; }
+      .dialog-heading { gap: 12px; }
+      .dialog-heading h2 { flex: 1; display: flex; align-items: center; gap: 9px; }
+      .dialog-heading h2 .icon { color: var(--lime); }
+      .dialog-heading .icon-button { width: 36px; height: 36px; flex: none; }
+      #leaderboard-dialog { width: 480px; }
+      #leaderboard-dialog .player-card { margin: 0 0 18px; padding: 13px; border-radius: 10px; }
+      #leaderboard-dialog .profile-main { margin-top: 0; }
+      #leaderboard-dialog .profile-stats { grid-template-columns: repeat(3, 1fr); gap: 6px; padding-top: 10px; margin-top: 10px; }
+      #leaderboard-dialog .segmented { margin: 0 0 16px; }
+      #leaderboard-dialog .list-heading, #leaderboard-dialog .score-row { padding-left: 10px; padding-right: 10px; }
+      #leaderboard-dialog .board-footer { padding: 12px 0 0; }
+      #leaderboard-dialog .footer { padding-top: 10px; margin: 0; }
+      #leaderboard-dialog p { margin-bottom: 0; }
+      @media (max-width: 650px) {
+        .play-hud { padding: 8px 14px; gap: 10px; }
+        .play-hud h1 { display: none; }
+        .hud { gap: 16px; }
+        .metric { gap: 5px; }
+        .action-text { display: none; }
+        .play-actions #leaderboard-button { width: 40px; padding: 0; }
+      }
+      @media (max-width: 420px) {
+        :root { --scene-top: 60px; }
+        .play-hud { padding: 8px 10px; gap: 8px; }
+        .best-metric { display: none; }
+        .hud { gap: 12px; }
+        .play-hud .brand-icon { width: 24px; }
+        .metric-value { font-size: 23px; }
+        .play-actions { gap: 4px; }
+        .play-actions .icon-button, .play-actions #leaderboard-button { width: 36px; height: 38px; }
+        .play-actions #pause-button { min-width: 36px; }
+        .play-bottom { left: 12px; gap: 8px; flex-direction: column; align-items: flex-start; }
+        .overlay-card { padding: 21px; }
+        .overlay-card h2 { font-size: 29px; }
+        dialog { padding: 18px; }
+      }
+      @media (pointer: coarse) {
+        .dpad { display: grid; }
+        :root { --scene-bottom: 114px; }
+      }
+      @media (max-height: 480px) {
+        :root { --scene-top: 48px; --scene-bottom: 12px; }
+        .play-hud { height: 48px; }
+        .play-bottom { bottom: 8px; }
+        .play-bottom .mode-badge { display: none; }
+        .overlay-card { padding: 16px 21px; }
+        .overlay-card h2 { font-size: 25px; margin: 6px 0 10px; }
+        .overlay-card .description { margin-bottom: 12px; }
+        .overlay-card .primary { padding: 9px 12px; }
+        .dpad { right: 12px; bottom: 10px; grid-template-columns: repeat(3, 42px); grid-template-rows: repeat(2, 40px); }
+      }
     </style>
     <script type="importmap">
       {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}
@@ -256,37 +346,33 @@
       <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4m0 3h.01"/></symbol>
       <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></symbol>
       <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+      <symbol id="i-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+      <symbol id="i-collapse" viewBox="0 0 24 24"><path d="M3 8h5V3m13 5h-5V3M8 21v-5H3m13 5v-5h5"/></symbol>
       <symbol id="i-snake" viewBox="0 0 28 28"><path d="M5 23h13a5 5 0 0 0 0-10h-7a4 4 0 0 1 0-8h11" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><circle cx="23" cy="4" r="1" fill="#142007"/><path d="M24 6h3" stroke="currentColor" stroke-width="1.5"/></symbol>
     </svg>
     <div class="shell">
-      <header class="topbar">
-        <div class="brand">
-          <div class="brand-icon" aria-hidden="true"><svg><use href="#i-snake"/></svg></div>
-          <div><h1>NEON <span>SNAKE</span></h1><p class="tagline">The classic, with a little perspective.</p></div>
-        </div>
-        <div class="top-actions">
-          <span class="edition">2.5D ARCADE / 01</span>
-          <button id="help-button" class="text-button" type="button" aria-label="How to play"><svg class="icon"><use href="#i-help"/></svg>How to play</button>
-        </div>
-      </header>
-      <div id="banner" class="banner" role="status" hidden><span id="banner-text"></span><button id="dismiss-banner" type="button" aria-label="Dismiss notice">×</button></div>
-      <main class="layout">
-        <section class="game-column" aria-label="Snake arcade">
-          <div class="game-card">
+      <main id="stage" class="stage" tabindex="0" aria-label="Snake game board. Arrow keys or WASD to steer. Space or P to pause.">
+        <div id="scene" aria-hidden="true"></div>
+        <header class="play-hud">
+            <div class="brand"><div class="brand-icon" aria-hidden="true"><svg><use href="#i-snake"/></svg></div><h1>NEON <span>SNAKE</span></h1></div>
             <div class="hud" aria-label="Current game statistics">
               <div class="metric"><div class="eyebrow">Score</div><output id="score" class="metric-value" aria-label="Current score">0000</output></div>
-              <div class="metric secondary"><div class="eyebrow metric-icon"><svg class="icon" aria-hidden="true"><use href="#i-trophy"/></svg>Your best</div><div id="best" class="metric-value">0000</div></div>
-              <div class="metric secondary"><div class="eyebrow">Level</div><div id="level" class="metric-value">01</div></div>
-              <div class="timer"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg><span id="timer" aria-label="Active game time">00:00</span></div>
+              <div class="metric secondary best-metric"><div class="eyebrow">Best</div><div id="best" class="metric-value">0000</div></div>
+              <div class="metric secondary"><div class="eyebrow">Lv</div><div id="level" class="metric-value">01</div></div>
+              <span id="timer" class="sr-only" aria-label="Active game time">00:00</span>
             </div>
-            <div id="stage" class="stage" tabindex="0" role="region" aria-label="Snake game board. Arrow keys or WASD to steer. Space or P to pause.">
-              <div id="scene" aria-hidden="true"></div>
-              <div class="stage-labels"><span id="mode-badge" class="mode-badge"><i class="dot"></i><span id="mode-text">CLASSIC MODE</span></span><span class="board-label">18 × 18</span></div>
+            <nav class="play-actions" aria-label="Game controls">
+              <button id="leaderboard-button" class="icon-button" type="button" aria-label="Leaderboard" aria-haspopup="dialog" title="Leaderboard"><svg class="icon" aria-hidden="true"><use href="#i-trophy"/></svg><span class="action-text">Scores</span></button>
+              <button id="pause-button" class="icon-button" type="button" disabled title="Pause / resume"><svg class="icon" aria-hidden="true"><use id="pause-icon" href="#i-pause"/></svg><span id="pause-label" class="sr-only">Pause</span></button>
+              <button id="fullscreen-button" class="icon-button" type="button" aria-label="Enter fullscreen" aria-pressed="false" title="Enter fullscreen" hidden><svg class="icon" aria-hidden="true"><use id="fullscreen-icon" href="#i-expand"/></svg></button>
+            </nav>
+        </header>
+        <div id="banner" class="banner" role="status" hidden><span id="banner-text"></span><button id="dismiss-banner" type="button" aria-label="Dismiss notice">×</button></div>
               <div id="overlay" class="overlay">
                 <div id="ready-panel" class="overlay-card">
-                  <p class="eyebrow">A fresh perspective</p>
-                  <h2>Eat. Grow.<br/>Go again.</h2>
-                  <p class="description">Chase the glow. Find your flow.<br/>Just don't get in your own way.</p>
+                  <p class="eyebrow">Neon Snake</p>
+                  <h2>Just you. The grid.</h2>
+                  <p class="description">Arrow keys / WASD · Swipe to steer<br/>Eat the glow. Don't hit the wall.</p>
                   <button id="start" class="primary" type="button" disabled><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span id="start-label">Start run</span></button>
                   <button id="practice" class="link-button" type="button" disabled>Just practice · no score saved</button>
                   <p id="start-notice" class="overlay-footnote">Ranked runs save with your name and e-mail.<br/>Other players see only a masked address.</p>
@@ -310,46 +396,36 @@
                 </div>
                 <div id="countdown" role="status" hidden><span id="count-number">3</span><small>GET INTO THE GROOVE</small></div>
               </div>
-              <div class="stage-bottom"><span class="cell-legend"><i class="food-dot"></i>ENERGY CELL +10</span><span id="renderer-label" class="renderer-label">THREE.JS / 2.5D</span></div>
-            </div>
-            <div class="controls-bar">
-              <div class="key-hints"><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><span class="desktop-extra">or <kbd>WASD</kbd></span><span class="hint-gap">move</span><span class="desktop-extra hint-gap"><kbd>Space</kbd> pause</span></div>
-              <div class="game-actions">
-                <button id="pause-button" class="text-button" type="button" disabled><svg class="icon" aria-hidden="true"><use id="pause-icon" href="#i-pause"/></svg><span id="pause-label">Pause</span></button>
+            <div class="play-bottom">
+              <span id="mode-badge" class="mode-badge"><i class="dot"></i><span id="mode-text">CLASSIC MODE</span></span>
+              <div class="quiet-actions">
+                <button id="help-button" class="icon-button" type="button" aria-label="How to play" aria-haspopup="dialog" title="How to play"><svg class="icon"><use href="#i-help"/></svg></button>
                 <button id="sound-button" class="icon-button" type="button" aria-label="Enable game sounds" aria-pressed="false" title="Enable game sounds"><svg class="icon" aria-hidden="true"><use id="sound-icon" href="#i-mute"/></svg></button>
               </div>
+              <span id="renderer-label" class="renderer-label">THREE.JS / 2.5D</span>
             </div>
-          </div>
-          <div class="below-game">
-            <p class="tip"><strong>Small moves. Long game.</strong><br/>Every 5 energy cells, things pick up a little.<br/>On touch screens, swipe or use the direction pad.</p>
             <div class="dpad" role="group" aria-label="Direction pad">
               <button type="button" data-direction="0" aria-label="Move up">↑</button>
               <button type="button" data-direction="3" aria-label="Move left">←</button>
               <button type="button" data-direction="2" aria-label="Move down">↓</button>
               <button type="button" data-direction="1" aria-label="Move right">→</button>
             </div>
-          </div>
-        </section>
-        <aside class="sidebar" aria-label="Scores and player profile">
-          <section class="leaderboard-card" aria-labelledby="leaderboard-title">
-            <div class="leaderboard-heading"><h2 id="leaderboard-title"><svg class="icon" aria-hidden="true"><use href="#i-trophy"/></svg>Leaderboard</h2><button id="refresh" class="icon-button" type="button" title="Refresh scores" aria-label="Refresh scores" disabled><svg class="icon"><use href="#i-refresh"/></svg></button></div>
-            <p class="board-subtitle">Good runs deserve a little glory.</p>
-            <div class="segmented" role="group" aria-label="Leaderboard filter"><button id="scope-all" type="button" aria-pressed="true">Everyone</button><button id="scope-mine" type="button" aria-pressed="false">My runs</button></div>
-            <div class="list-heading" aria-hidden="true"><span>#</span><span>PLAYER</span><span>SCORE ↓</span></div>
-            <ol id="leaderboard" aria-label="Top 10 runs, highest score first"></ol>
-            <div id="empty-board"><div class="empty-icon" aria-hidden="true"><svg class="icon"><use href="#i-trophy"/></svg></div><p id="empty-title">Room at the top.</p><p id="empty-copy">Your next run could be the one.<br/>Finished runs appear here automatically.</p></div>
-            <div class="board-footer"><span id="board-state"><i class="dot"></i><span id="board-state-text">CONNECTING</span></span><span id="board-total">TOP 10 RUNS</span></div>
-          </section>
+      </main>
+    </div>
+    <dialog id="leaderboard-dialog" aria-labelledby="leaderboard-title">
+          <div class="dialog-heading"><h2 id="leaderboard-title"><svg class="icon" aria-hidden="true"><use href="#i-trophy"/></svg>Leaderboard</h2><button id="refresh" class="icon-button" type="button" title="Refresh scores" aria-label="Refresh scores" disabled><svg class="icon"><use href="#i-refresh"/></svg></button><button class="icon-button" type="button" data-close="leaderboard-dialog" aria-label="Close leaderboard"><svg class="icon"><use href="#i-close"/></svg></button></div>
           <section class="player-card" aria-label="Your player profile">
-            <p class="eyebrow">Your corner of the arcade</p>
             <div class="profile-main"><div id="avatar" class="avatar" aria-hidden="true">…</div><div class="profile-info"><span id="player-name">Finding your player…</span><span id="player-email">Linked to your signed-in account</span></div></div>
             <button id="complete-profile" class="link-button" type="button" hidden>Complete your player profile</button>
-            <div class="profile-stats"><span>Best rank<strong id="personal-rank">—</strong></span><span>Runs played<strong id="personal-runs">0</strong></span></div>
+            <div class="profile-stats"><span>Best<strong id="profile-best">0</strong></span><span>Rank<strong id="personal-rank">—</strong></span><span>Runs<strong id="personal-runs">0</strong></span></div>
           </section>
-        </aside>
-      </main>
-      <footer class="footer"><span class="footer-copy"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>Auto-saved scores. Account-linked. E-mail masked.</span><button id="data-button" class="link-button" type="button">Score privacy</button></footer>
-    </div>
+          <div class="segmented" role="group" aria-label="Leaderboard filter"><button id="scope-all" type="button" aria-pressed="true">Everyone</button><button id="scope-mine" type="button" aria-pressed="false">My runs</button></div>
+          <div class="list-heading" aria-hidden="true"><span>#</span><span>PLAYER</span><span>SCORE ↓</span></div>
+          <ol id="leaderboard" aria-label="Top 10 runs, highest score first"></ol>
+          <div id="empty-board"><div class="empty-icon" aria-hidden="true"><svg class="icon"><use href="#i-trophy"/></svg></div><p id="empty-title">Room at the top.</p><p id="empty-copy">Finished runs appear here automatically.</p></div>
+          <div class="board-footer"><span id="board-state"><i class="dot"></i><span id="board-state-text">CONNECTING</span></span><span id="board-total">TOP 10 RUNS</span></div>
+          <footer class="footer"><span>Highest score first · e-mail masked</span><button id="data-button" class="link-button" type="button">Score privacy</button></footer>
+    </dialog>
     <dialog id="help-dialog" aria-labelledby="help-title">
       <div class="dialog-heading"><h2 id="help-title">Find your flow.</h2><button class="icon-button" type="button" data-close="help-dialog" aria-label="Close instructions"><svg class="icon"><use href="#i-close"/></svg></button></div>
       <ol class="help-steps">

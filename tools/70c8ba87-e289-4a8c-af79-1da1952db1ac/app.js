@@ -69,10 +69,23 @@ class SnakeEngine {
     return eating && this.over !== "wall" && this.over !== "self";
   }
 }
+function bufferTurn(queue, direction, currentDirection) {
+  const last = queue.length ? queue[queue.length - 1] : currentDirection;
+  if (!Number.isInteger(direction) || direction < 0 || direction > 3 ||
+      queue.length >= 2 || last === direction || (last + 2) % 4 === direction) return false;
+  queue.push(direction);
+  return true;
+}
+function movementAlpha(elapsed, interval, reducedMotion = false) {
+  // A short transition rather than trailing the authoritative grid by a full
+  // 75–165ms tick. Movement speed, collision rules and replay timing stay intact.
+  return reducedMotion ? 1 : Math.min(1, Math.max(0, elapsed) / Math.min(50, interval * .35));
+}
 // END SNAKE ENGINE
 
 const $ = id => document.getElementById(id);
 const stage = $("stage");
+const sceneContainer = $("scene");
 const motion = matchMedia("(prefers-reduced-motion: reduce)");
 const events = new AbortController();
 const on = (target, name, handler, options = {}) =>
@@ -108,6 +121,11 @@ let boardBusy = false;
 let lastCompleted = null;
 let sound = false;
 let audio = null;
+let activeDialog = null;
+let resumeAfterDialog = false;
+let host = { displayMode: "inline", availableDisplayModes: [] };
+let displayBusy = false;
+let fullscreenAttempted = false;
 const pendingSaves = new Map();
 
 function previewGame() {
@@ -131,6 +149,16 @@ function announce(message) { $("announcement").textContent = message; }
 function showDialog(id) {
   const dialog = $(id);
   if (dialog.open || disposed) return;
+  if (!activeDialog) {
+    resumeAfterDialog = ["running", "countdown"].includes(state);
+    pause("Paused while this panel is open.");
+  }
+  const previous = activeDialog;
+  activeDialog = dialog;
+  previous?.close();
+  placeDialog(dialog);
+}
+function placeDialog(dialog) {
   // Auto-sized inline Apps can be taller than the phone's visible viewport.
   // Measure the clipped area without reading the cross-origin parent window.
   // Centering against the full iframe would strand form buttons off-screen.
@@ -139,12 +167,15 @@ function showDialog(id) {
   function open(rect) {
     observer.disconnect();
     clearTimeout(timer);
-    if (dialog.open || disposed) return;
+    if (disposed || activeDialog !== dialog) return;
     const height = rect?.height > 64 ? rect.height : Math.min(innerHeight, 640);
     const top = rect?.height > 64 ? Math.max(0, rect.top) : 0;
     dialog.style.setProperty("--dialog-top", `${top + 16}px`);
     dialog.style.setProperty("--dialog-height", `${Math.max(32, Math.min(640, height - 32))}px`);
-    dialog.showModal();
+    if (!dialog.open) dialog.showModal();
+    // Center within the *visible* part of an inline iframe, not its full page.
+    const offset = Math.max(16, (height - dialog.getBoundingClientRect().height) / 2);
+    dialog.style.setProperty("--dialog-top", `${top + offset}px`);
   }
   observer.observe(document.querySelector(".shell"));
 }
@@ -240,6 +271,7 @@ function applySnapshot(data, includeBoard = true) {
   $("avatar").textContent = player.authenticated ?
     (player.display_name || "P").split(/\s+/).slice(0, 2).map(p => p[0]).join("").toUpperCase() : "P";
   $("best").textContent = pad(player.best_score || 0);
+  $("profile-best").textContent = String(player.best_score || 0);
   $("personal-rank").textContent = player.best_rank ? `#${player.best_rank}` : "—";
   $("personal-runs").textContent = String(player.total_runs || 0);
   $("complete-profile").hidden = !player.authenticated || player.ready;
@@ -256,13 +288,13 @@ function canRank() {
 }
 function updateControls() {
   const known = snapshot !== null || connectionFailed;
-  $("start").disabled = !view || startBusy || !known;
-  $("practice").disabled = !view || startBusy;
+  $("start").disabled = !view || startBusy || displayBusy || !known;
+  $("practice").disabled = !view || startBusy || displayBusy;
   $("practice").hidden = known && !canRank();
   $("start-label").textContent = startBusy ? "Setting up your run…" :
     !known ? "Connecting player…" : canRank() ? "Start ranked run" : "Play practice";
   $("start-notice").textContent = canRank() ?
-    "Starting records your name and e-mail. Your name and masked address appear with your scores." :
+    "Scores save with your name and e-mail. Only a masked address is shown." :
     "Practice runs aren't saved. Open in a signed-in MCP App to join the leaderboard.";
   $("load-note").hidden = !!view && known && !startBusy;
   if (!view) $("load-note").textContent = "Loading the arcade…";
@@ -281,6 +313,14 @@ function updateControls() {
   $("complete-profile").disabled = startBusy || !["ready", "over"].includes(state);
   $("delete-data").disabled = !canRank() || !["ready", "over"].includes(state) ||
     pendingSaves.size > 0 || startBusy;
+  const fullscreen = host.displayMode === "fullscreen";
+  const displayLabel = fullscreen ? "Exit fullscreen" : "Enter fullscreen";
+  $("fullscreen-button").hidden = !fullscreen && !host.availableDisplayModes?.includes("fullscreen");
+  $("fullscreen-button").disabled = displayBusy || !connected;
+  $("fullscreen-button").setAttribute("aria-pressed", String(fullscreen));
+  $("fullscreen-button").setAttribute("aria-label", displayLabel);
+  $("fullscreen-button").title = displayLabel;
+  $("fullscreen-icon").setAttribute("href", fullscreen ? "#i-collapse" : "#i-expand");
 }
 
 function setState(next) {
@@ -302,17 +342,15 @@ function pause(reason = "Your next move can wait.") {
   announce("Game paused.");
 }
 function resume() {
-  if (state !== "paused" || document.hidden) return;
+  if (state !== "paused" || document.hidden || activeDialog) return;
   lastFrame = performance.now();
   setState(pausedFrom);
   focusBoard();
   announce("Game resumed.");
 }
 function turn(direction) {
-  if (!["running", "countdown"].includes(state)) return;
-  const last = queue.length ? queue[queue.length - 1] : engine.direction;
-  if (queue.length >= 2 || last === direction || (last + 2) % 4 === direction) return;
-  queue.push(direction);
+  if (activeDialog || !["running", "countdown"].includes(state)) return false;
+  return bufferTurn(queue, direction, engine.direction);
 }
 function updateHud() {
   $("score").textContent = pad(engine.score);
@@ -528,14 +566,16 @@ function tone(frequency, duration = .09) {
 class ThreeBoard {
   constructor(THREE, RoundedBoxGeometry) {
     this.T = THREE;
+    this.quality = 1;
+    this.slowFrames = 0;
     this.scene = new THREE.Scene();
     this.camera = new THREE.OrthographicCamera();
     this.camera.position.set(1.4, 25, 19);
     this.camera.lookAt(0, 0, 0);
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    this.renderer.shadowMap.autoUpdate = false;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.15;
@@ -551,7 +591,7 @@ class ThreeBoard {
     const sun = new THREE.DirectionalLight(0xedffe4, 3);
     sun.position.set(-7, 17, 8);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.mapSize.set(512, 512);
     Object.assign(sun.shadow.camera, { left: -13, right: 13, top: 13, bottom: -13, near: 1, far: 50 });
     sun.shadow.normalBias = .035;
     sun.shadow.bias = -.0004;
@@ -622,7 +662,7 @@ class ThreeBoard {
     this.scene.add(this.head);
     this.food = add(new THREE.IcosahedronGeometry(.43, 0),
       material(0xff8b71, { emissive: 0xff5c3a, emissiveIntensity: .4, roughness: .34 }));
-    this.food.castShadow = true;
+    this.food.castShadow = false;
     this.ring = add(new THREE.TorusGeometry(.53, .026, 6, 32),
       new THREE.MeshBasicMaterial({ color: 0xff997d, transparent: true, opacity: .62 }), 0, -.11);
     this.ring.rotation.x = Math.PI / 2;
@@ -630,34 +670,40 @@ class ThreeBoard {
     this.scene.add(this.foodLight);
     const particleGeometry = new THREE.BoxGeometry(.12, .12, .12);
     const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffb990 });
-    this.particles = Array.from({ length: 16 }, () => {
+    this.particles = Array.from({ length: 8 }, () => {
       const mesh = new THREE.Mesh(particleGeometry, particleMaterial);
       mesh.visible = false;
       this.scene.add(mesh);
       return { mesh, age: 1, velocity: new THREE.Vector3() };
     });
-    const dustGeometry = new THREE.BufferGeometry();
-    const positions = [];
-    for (let i = 0; i < 35; i++) positions.push((Math.random() - .5) * 25, 1 + Math.random() * 7, (Math.random() - .5) * 25);
-    dustGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    this.dust = new THREE.Points(dustGeometry, new THREE.PointsMaterial({
-      color: 0xb7dfa0, size: .045, transparent: true, opacity: .35, depthWrite: false,
-    }));
-    this.scene.add(this.dust);
     this.observer = new ResizeObserver(() => this.resize());
-    this.observer.observe(stage);
+    this.observer.observe(sceneContainer);
     this.resize();
   }
   resize() {
-    const width = stage.clientWidth, height = stage.clientHeight;
+    const width = sceneContainer.clientWidth, height = sceneContainer.clientHeight;
     if (!width || !height) return;
+    // Limit fullscreen fill-rate on high-DPI screens; preserve CSS resolution.
+    const ratio = Math.max(.4, this.quality *
+      Math.min(devicePixelRatio || 1, 1.5, Math.sqrt(1250000 / (width * height))));
+    this.renderer.setPixelRatio(ratio);
     this.renderer.setSize(width, height, false);
-    const aspect = width / height, span = Math.max(18, 21.3 / aspect);
+    const aspect = width / height, span = Math.max(16.7, 20.3 / aspect);
     Object.assign(this.camera, {
       left: -span * aspect / 2, right: span * aspect / 2,
       top: span / 2, bottom: -span / 2, near: .1, far: 100,
     });
     this.camera.updateProjectionMatrix();
+    this.renderer.shadowMap.needsUpdate = true;
+    lastRender = 0;
+  }
+  noteSlowFrame(delta) {
+    if (delta < 80 || this.quality <= .45 || ++this.slowFrames < 3) return;
+    this.slowFrames = 0;
+    this.quality = Math.max(.45, this.quality * .75);
+    // Prefer responsive 3D play to high-resolution shadows on slow GPUs.
+    if (this.quality < .6) this.renderer.shadowMap.enabled = false;
+    this.resize();
   }
   burst(position) {
     if (motion.matches || !position) return;
@@ -670,7 +716,7 @@ class ThreeBoard {
     });
   }
   render(game, alpha, now, dt) {
-    const T = this.T, time = motion.matches ? 0 : now / 1000;
+    const time = motion.matches || state !== "running" ? 0 : now / 1000;
     this.dummy.rotation.set(0, 0, 0);
     this.body.count = game.snake.length - 1;
     game.snake.forEach((position, i) => {
@@ -679,21 +725,22 @@ class ThreeBoard {
       const z = previous[1] + (position[1] - previous[1]) * alpha - 8.5;
       if (!i) {
         this.head.position.set(x, .3, z);
-        const angle = [Math.PI / 2, 0, -Math.PI / 2, Math.PI][game.direction];
-        let delta = (angle - this.head.rotation.y + Math.PI * 3) % (Math.PI * 2) - Math.PI;
-        this.head.rotation.y += delta * (motion.matches ? 1 : Math.min(1, dt * 22));
+        this.head.rotation.y = [Math.PI / 2, 0, -Math.PI / 2, Math.PI][game.direction];
       } else {
         const scale = i === game.snake.length - 1 ? .83 : 1;
         this.dummy.position.set(x, .23, z);
         this.dummy.scale.set(scale, scale, scale);
         this.dummy.updateMatrix();
         this.body.setMatrixAt(i - 1, this.dummy.matrix);
-        this.color.setHSL(.22 + .025 * i / game.snake.length, .68, .51 - .14 * i / game.snake.length);
-        this.body.setColorAt(i - 1, this.color);
+        if (this.lastLength !== game.snake.length) {
+          this.color.setHSL(.22 + .025 * i / game.snake.length, .68, .51 - .14 * i / game.snake.length);
+          this.body.setColorAt(i - 1, this.color);
+        }
       }
     });
     this.body.instanceMatrix.needsUpdate = true;
-    if (this.body.instanceColor) this.body.instanceColor.needsUpdate = true;
+    if (this.body.instanceColor && this.lastLength !== game.snake.length) this.body.instanceColor.needsUpdate = true;
+    this.lastLength = game.snake.length;
     this.food.visible = this.ring.visible = this.foodLight.visible = !!game.food;
     if (game.food) {
       const [x, z] = game.food.map(n => n - 8.5);
@@ -712,7 +759,11 @@ class ThreeBoard {
       particle.mesh.scale.setScalar(1 - particle.age / .6);
       particle.mesh.rotation.x += dt * 3;
     }
-    this.dust.rotation.y = time * .015;
+    this.renderer.shadowMap.needsUpdate ||= this.shadowGame !== game ||
+      this.shadowStep !== game.steps || this.shadowAlpha !== alpha;
+    this.shadowGame = game;
+    this.shadowStep = game.steps;
+    this.shadowAlpha = alpha;
     this.renderer.render(this.scene, this.camera);
   }
   dispose() {
@@ -740,17 +791,18 @@ class CompatibilityBoard {
     if (!this.ctx) throw new Error("Canvas unavailable");
     $("scene").replaceChildren(this.canvas);
     this.observer = new ResizeObserver(() => this.resize());
-    this.observer.observe(stage);
+    this.observer.observe(sceneContainer);
     this.resize();
   }
   resize() {
     this.ratio = Math.min(devicePixelRatio || 1, 2);
-    this.canvas.width = stage.clientWidth * this.ratio;
-    this.canvas.height = stage.clientHeight * this.ratio;
+    this.canvas.width = sceneContainer.clientWidth * this.ratio;
+    this.canvas.height = sceneContainer.clientHeight * this.ratio;
+    lastRender = 0;
   }
   burst() {}
   render(game, alpha) {
-    const ctx = this.ctx, w = stage.clientWidth, h = stage.clientHeight;
+    const ctx = this.ctx, w = sceneContainer.clientWidth, h = sceneContainer.clientHeight;
     ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
     ctx.clearRect(0, 0, w, h);
     const cell = Math.min((w - 30) / 18, (h - 75) / 14.4), dy = cell * .8;
@@ -825,6 +877,7 @@ function animate(now) {
   if (disposed) return;
   const rawDelta = now - lastFrame;
   lastFrame = now;
+  if (!document.hidden) view?.noteSlowFrame?.(rawDelta);
   const dt = Math.min(rawDelta, 100);
   if (rawDelta > 500 && ["running", "countdown"].includes(state)) {
     pause("Paused automatically while the App was away or the display was busy.");
@@ -861,8 +914,8 @@ function animate(now) {
       if (engine.over) finishGame();
     }
   }
-  const alpha = state === "running" && !motion.matches ? Math.min(1, accumulator / engine.interval) : 1;
-  const cadence = state === "running" ? 15 : 33;
+  const alpha = state === "running" ? movementAlpha(accumulator, engine.interval, motion.matches) : 1;
+  const cadence = state === "running" ? 15 : 200;
   if (!document.hidden && now - lastRender >= cadence) {
     view.render(engine, alpha, now, Math.min((now - lastRender) / 1000, .1));
     lastRender = now;
@@ -871,9 +924,45 @@ function animate(now) {
 }
 
 function hostContext(context) {
-  const top = context?.safeAreaInsets?.top;
-  if (typeof top === "number" && Number.isFinite(top)) {
-    document.documentElement.style.setProperty("--safe-top", `${Math.max(0, Math.min(top, 80))}px`);
+  const previousMode = host.displayMode;
+  host = { ...host, ...context };
+  const root = document.documentElement;
+  root.dataset.displayMode = host.displayMode || "inline";
+  for (const edge of ["top", "bottom"]) {
+    const inset = host.safeAreaInsets?.[edge];
+    if (typeof inset === "number" && Number.isFinite(inset)) {
+      root.style.setProperty(`--safe-${edge}`, `${Math.max(0, Math.min(inset, 100))}px`);
+    }
+  }
+  for (const [key, property] of [["height", "--app-height"], ["maxHeight", "--app-max-height"]]) {
+    const value = host.containerDimensions?.[key];
+    if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+      root.style.setProperty(property, `${value}px`);
+    } else root.style.removeProperty(property);
+  }
+  if (previousMode !== host.displayMode) pause("Display size changed. Resume when you're ready.");
+  updateControls();
+  if (connected && !fullscreenAttempted && host.availableDisplayModes?.includes("fullscreen")) {
+    fullscreenAttempted = true;
+    if (host.displayMode !== "fullscreen") void changeDisplay("fullscreen", true);
+  }
+}
+async function changeDisplay(mode, automatic = false) {
+  if (!connected || displayBusy || !host.availableDisplayModes?.includes(mode)) return;
+  displayBusy = true;
+  pause("Changing display size. Resume when you're ready.");
+  updateControls();
+  try {
+    // The host owns fullscreen. Respect its actual response, including refusal.
+    const result = await app.requestDisplayMode({ mode }, { timeout: 5000 });
+    if (disposed) return;
+    hostContext({ displayMode: result.mode });
+    if (result.mode !== mode && !automatic) notice("This host kept the game inline. The board still fills the available App area.");
+  } catch {
+    if (!automatic) notice("Fullscreen isn't available in this host. You can keep playing inline.");
+  } finally {
+    displayBusy = false;
+    updateControls();
   }
 }
 function guest(message) {
@@ -890,12 +979,16 @@ function guest(message) {
   updateControls();
 }
 async function connectHost() {
-  if (window.parent === window) { guest(); return; }
+  if (window.parent === window) {
+    document.documentElement.dataset.standalone = "true";
+    guest();
+    return;
+  }
   const delayed = setTimeout(() => guest("Player connection is taking a while. You can practice now; ranked play needs the MCP connection."), 10000);
   try {
     const { App } = await import("https://cdn.jsdelivr.net/npm/@modelcontextprotocol/ext-apps@2.0.0/dist/src/app-with-deps.js");
     if (disposed) return;
-    app = new App({ name: "Neon Snake", version: "1.0.0" });
+    app = new App({ name: "Neon Snake", version: "1.1.0" });
     // Register notification handlers BEFORE the bridge handshake.
     app.ontoolresult = result => {
       try { applySnapshot(unpack(result)); }
@@ -925,6 +1018,12 @@ on($("back-to-menu"), "click", backToMenu);
 on($("resume"), "click", resume);
 on($("pause-button"), "click", () => {
   if (state === "paused") resume(); else { pause(); focusBoard(); }
+});
+on($("fullscreen-button"), "click", () =>
+  void changeDisplay(host.displayMode === "fullscreen" ? "inline" : "fullscreen"));
+on($("leaderboard-button"), "click", () => {
+  showDialog("leaderboard-dialog");
+  void refreshBoard(true);
 });
 on($("dismiss-banner"), "click", () => notice(""));
 on($("retry-save"), "click", () => { if (lastCompleted?.id) void savePending(lastCompleted.id); });
@@ -967,11 +1066,9 @@ on($("profile-form"), "keydown", event => {
   }
 });
 on($("help-button"), "click", () => {
-  pause("Instructions are open. Resume when you're ready.");
   showDialog("help-dialog");
 });
 on($("data-button"), "click", () => {
-  pause("Your privacy details are open. Resume when you're ready.");
   $("delete-form").reset();
   $("delete-error").hidden = true;
   updateControls();
@@ -979,6 +1076,22 @@ on($("data-button"), "click", () => {
 });
 document.querySelectorAll("[data-close]").forEach(button =>
   on(button, "click", () => $(button.dataset.close).close()));
+document.querySelectorAll("dialog").forEach(dialog => {
+  on(dialog, "close", () => {
+    if (activeDialog !== dialog) return; // Switching from scores to privacy/profile.
+    activeDialog = null;
+    const shouldResume = resumeAfterDialog;
+    resumeAfterDialog = false;
+    if (shouldResume) resume();
+    else if (["paused", "running", "countdown"].includes(state)) focusBoard();
+  });
+  on(dialog, "click", event => {
+    if (event.target !== dialog) return;
+    const box = dialog.getBoundingClientRect();
+    if (event.clientX < box.left || event.clientX > box.right ||
+        event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+  });
+});
 async function deleteData(event) {
   event.preventDefault();
   if ($("delete-data").disabled || !$("delete-form").reportValidity()) return;
@@ -1019,43 +1132,69 @@ on($("sound-button"), "click", async () => {
 });
 
 const keyDirections = { ArrowUp: 0, ArrowRight: 1, ArrowDown: 2, ArrowLeft: 3, w: 0, d: 1, s: 2, a: 3 };
-on(stage, "keydown", event => {
-  if (event.target !== stage || event.altKey || event.ctrlKey || event.metaKey) return;
+on(document, "keydown", event => {
+  if (activeDialog || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey ||
+      event.target.closest?.("input, textarea, select, [contenteditable='true']")) return;
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   if (key in keyDirections && ["running", "countdown"].includes(state)) {
     event.preventDefault();
-    turn(keyDirections[key]);
+    // OS key repeat must not add stale turns behind a fresh direction.
+    if (!event.repeat) turn(keyDirections[key]);
   } else if ([" ", "p", "Escape"].includes(key) && ["running", "countdown", "paused"].includes(state)) {
+    if (key === " " && event.target.closest?.("button")) return; // Native keyboard activation.
     event.preventDefault();
     if (event.repeat) return;
     if (state === "paused" && key !== "Escape") resume(); else pause();
   }
+}, { capture: true });
+document.querySelectorAll("[data-direction]").forEach(button => {
+  on(button, "pointerdown", event => {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    button.setPointerCapture(event.pointerId);
+    button.classList.add("held");
+    turn(Number(button.dataset.direction)); // Act on contact, not release/click.
+    focusBoard();
+  });
+  for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+    on(button, type, () => button.classList.remove("held"));
+  }
+  on(button, "click", event => {
+    if (event.detail !== 0) return; // Pointer input was already handled above.
+    turn(Number(button.dataset.direction)); // Keyboard and assistive activation.
+    focusBoard();
+  });
 });
-document.querySelectorAll("[data-direction]").forEach(button =>
-  on(button, "click", () => { turn(Number(button.dataset.direction)); focusBoard(); }));
 let pointer = null;
 on(stage, "pointerdown", event => {
-  if (event.target.closest("button") || !["running", "countdown", "paused"].includes(state)) return;
+  if (activeDialog || !event.isPrimary || event.button !== 0 ||
+      event.target.closest("button, .overlay-card") || !["running", "countdown"].includes(state)) return;
+  event.preventDefault();
   focusBoard();
   pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
   stage.setPointerCapture(event.pointerId);
-});
+}, { passive: false });
 on(stage, "pointermove", event => {
   if (!pointer || pointer.id !== event.pointerId) return;
   const dx = event.clientX - pointer.x, dy = event.clientY - pointer.y;
-  if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 8) return;
+  event.preventDefault();
   turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0));
   pointer.x = event.clientX;
   pointer.y = event.clientY;
-});
+}, { passive: false });
 on(stage, "pointerup", () => { pointer = null; });
 on(stage, "pointercancel", () => { pointer = null; });
+on(stage, "lostpointercapture", () => { pointer = null; });
 on(window, "blur", () => pause("Paused automatically when you left the App."));
 on(document, "visibilitychange", () => {
   if (document.hidden) pause("Paused automatically while the App was hidden.");
   lastFrame = performance.now();
 });
 on(window, "online", () => void retryPending());
+on(window, "resize", () => {
+  if (activeDialog?.open) placeDialog(activeDialog);
+});
 const visibleObserver = new IntersectionObserver(entries => {
   if (entries[0] && !entries[0].isIntersecting) pause("Paused while the board was out of view.");
 });
@@ -1063,7 +1202,7 @@ visibleObserver.observe(stage);
 const poll = setInterval(() => {
   if (document.hidden || disposed || !connected) return;
   void retryPending();
-  if (!["running", "countdown"].includes(state) && !boardBusy && !startBusy) void refreshBoard(true);
+  if ($("leaderboard-dialog").open && !boardBusy && !startBusy) void refreshBoard(true);
 }, 20000);
 function dispose() {
   if (disposed) return;

@@ -8,12 +8,33 @@ account-linked score recording.
 Call the existing Tool **`new_tool`**, then choose **Open App** in its activity.
 The existing MCP operation name is intentionally preserved.
 
-- **Arrow keys / WASD:** steer after focusing the board.
-- **Swipe / direction pad:** touch controls.
+- **Arrow keys / WASD:** steer anywhere within the active App, including after
+  using a toolbar control. Text fields and open dialogs never steer the snake.
+- **Swipe / direction pad:** short swipes or immediate touch-down controls.
 - **Space / P:** pause and resume. Leaving the App also pauses the game.
+- **Trophy / Scores:** open the leaderboard modal. Opening a panel pauses play;
+  closing it resumes only if that panel interrupted a running game.
+- **Expand / collapse:** toggle host-supported fullscreen.
 - **Ranked run:** completed scores save automatically.
 - **Practice:** no profile or score is written.
-- **Score privacy:** explains visibility and offers explicitly confirmed deletion.
+- **Scores → Score privacy:** explains visibility and offers explicitly confirmed deletion.
+
+The board fills the game screen with a compact HUD—no permanent leaderboard,
+profile sidebar, instruction cards, or surrounding page. The App requests
+fullscreen once on connection if the host advertises it, and respects refusal.
+Inline-only hosts get the same game-first layout within their available area.
+Phone portrait/landscape, host size limits, and safe-area insets are supported.
+Browser-native fullscreen is not forced outside the host's sandbox.
+
+Input changes preserve the existing game speed, replay protocol, and scores:
+two quick valid corners can be buffered, held-key repeats are ignored, touch
+controls act on **pointer-down** rather than click/release, and swipe slop is
+8 CSS pixels. Grid-transition animation is capped at 50ms instead of trailing
+by an entire 75–165ms game tick. This is an animation duration, not an
+end-to-end latency guarantee. Fullscreen rendering caps pixel density, reuses
+stationary shadow maps, and removes drifting background particles to reduce
+rendering overhead. Repeated slow frames lower rendering resolution and, on
+very slow devices, disable shadows without changing the game or score rules.
 
 Eat coral energy cells for 10 points and one extra segment. Speed increases
 every five cells. Walls and body collisions end the game; entering a cell the
@@ -117,11 +138,14 @@ uv run --no-sync python -u tools/70c8ba87-e289-4a8c-af79-1da1952db1ac/test_brows
 ```
 
 Browser suites can also be selected individually: append `desktop`, `mobile`,
-or `compatibility`. They use the real official App/host bridge and Python SDK,
+`inputs`, or `compatibility`. They use the real official App/host bridge and Python SDK,
 with synthetic middleware identities and a disposable SQLite database.
 They do not contact a production score store. Screenshots go in ignored
 `.test-artifacts/`. Low-memory Chromium flags are test-only; the harness uses
 the real Resume button if software graphics trigger the game's stall pause.
+Checks cover fullscreen negotiation/refusal, viewport sizing, modal pause and
+resume, pointer-down before release, short swipes, rapid corners, toolbar focus,
+held-key repeat, score persistence, and save retries.
 
 The unit suite covers replay rules, Python/JavaScript parity, sorting,
 identity isolation, privacy, rate limits, expiry, concurrent retries, deletion,

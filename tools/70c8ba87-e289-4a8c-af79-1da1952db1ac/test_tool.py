@@ -161,6 +161,46 @@ class RulesTests(unittest.TestCase):
         self.assertGreater(max(row["score"] for row in expected), 100)
 
 
+class InputTests(unittest.TestCase):
+    def check_javascript(self, assertions):
+        try:
+            import playwright
+        except ImportError:
+            self.skipTest("Install the browser test dependency for JavaScript checks.")
+        node = Path(playwright.__file__).parent / "driver" / "node"
+        source = (tool.ASSETS / "app.js").read_text().split("// END SNAKE ENGINE")[0]
+        script = source + '\nconst assert = require("node:assert/strict");\n' + assertions
+        subprocess.run([str(node), "-e", script], check=True, capture_output=True, timeout=15)
+
+    def test_two_quick_corners_are_buffered_without_reversals(self):
+        self.check_javascript("""
+            const queue = [];
+            assert.equal(bufferTurn(queue, 3, 1), false);
+            assert.equal(bufferTurn(queue, 0, 1), true);
+            assert.equal(bufferTurn(queue, 0, 1), false);
+            assert.equal(bufferTurn(queue, 2, 1), false);
+            assert.equal(bufferTurn(queue, 3, 1), true);
+            assert.deepEqual(queue, [0, 3]);
+            assert.equal(bufferTurn(queue, 2, 1), false);
+            const game = new SnakeEngine(1);
+            game.step(queue.shift());
+            game.step(queue.shift());
+            assert.deepEqual(game.snake[0], [5, 8]);
+            assert.equal(game.durationMs, 330);
+        """)
+
+    def test_visual_transition_does_not_trail_by_a_full_tick(self):
+        self.check_javascript("""
+            assert.equal(movementAlpha(0, 165), 0);
+            assert.equal(movementAlpha(25, 165), .5);
+            assert.equal(movementAlpha(50, 165), 1);
+            assert.equal(movementAlpha(27, 75), 1);
+            assert.equal(movementAlpha(0, 165, true), 1);
+            assert.equal(movementAlpha(-1, 165), 0);
+            assert.equal(SNAKE_RULES.initial_tick_ms, 165);
+        """)
+
+
 class StorageTests(unittest.TestCase):
     def setUp(self):
         artifacts = tool.ASSETS / ".test-artifacts"
@@ -381,6 +421,39 @@ class InterfaceTests(unittest.TestCase):
         self.assertNotIn("innerHTML", script)
         self.assertNotIn("localStorage", script)
         self.assertNotIn("fetch(", script)
+
+    def test_leaderboard_is_a_modal_not_a_sidebar(self):
+        from html.parser import HTMLParser
+
+        class Structure(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.in_dialog = False
+                self.ids = []
+                self.board_in_dialog = False
+
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if tag == "dialog":
+                    self.in_dialog = True
+                if identifier := attrs.get("id"):
+                    self.ids.append(identifier)
+                    if identifier == "leaderboard":
+                        self.board_in_dialog = self.in_dialog
+                self.assert_no_sidebar = "sidebar" not in attrs.get("class", "").split()
+                if not self.assert_no_sidebar:
+                    raise AssertionError("The sidebar must not surround the game.")
+
+            def handle_endtag(self, tag):
+                if tag == "dialog":
+                    self.in_dialog = False
+
+        structure = Structure()
+        structure.feed(tool.HTML)
+        self.assertTrue(structure.board_in_dialog)
+        self.assertEqual(len(structure.ids), len(set(structure.ids)))
+        self.assertIn("leaderboard-button", structure.ids)
+        self.assertIn("fullscreen-button", structure.ids)
 
 
 if __name__ == "__main__":
