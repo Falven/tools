@@ -31,10 +31,21 @@ two quick valid corners can be buffered, held-key repeats are ignored, touch
 controls act on **pointer-down** rather than click/release, and swipe slop is
 8 CSS pixels. Grid-transition animation is capped at 50ms instead of trailing
 by an entire 75–165ms game tick. This is an animation duration, not an
-end-to-end latency guarantee. Fullscreen rendering caps pixel density, reuses
-stationary shadow maps, and removes drifting background particles to reduce
-rendering overhead. Repeated slow frames lower rendering resolution and, on
-very slow devices, disable shadows without changing the game or score rules.
+end-to-end latency guarantee.
+
+Graphics use a fixed **maximum-quality preset**: native device-pixel resolution
+without a density cap or pixel budget, hardware antialiasing, high-precision
+shaders, a high-performance GPU preference, and 4096×4096 soft shadows (subject
+only to the GPU's texture-size limit). Shadows stay enabled and update with
+every rendered frame, including the hovering food. Higher-detail rounded
+geometry, smooth eyes/rings, and the full food-collection burst are restored.
+Active play renders on every browser animation frame, including high-refresh
+displays. **Slow frames never reduce resolution or disable effects.**
+
+This prioritizes image quality over GPU/battery usage; actual frame rate depends
+on the device. The existing stall/background auto-pause remains to protect a
+run, but it never changes quality. Static menus remain still and drifting
+background particles stay removed to keep the fullscreen layout distraction-free.
 
 Eat coral energy cells for 10 points and one extra segment. Speed increases
 every five cells. Walls and body collisions end the game; entering a cell the
@@ -138,14 +149,24 @@ uv run --no-sync python -u tools/70c8ba87-e289-4a8c-af79-1da1952db1ac/test_brows
 ```
 
 Browser suites can also be selected individually: append `desktop`, `mobile`,
-`inputs`, or `compatibility`. They use the real official App/host bridge and Python SDK,
+`quality`, `inputs`, or `compatibility`. They use the real official App/host bridge and Python SDK,
 with synthetic middleware identities and a disposable SQLite database.
 They do not contact a production score store. Screenshots go in ignored
 `.test-artifacts/`. Low-memory Chromium flags are test-only; the harness uses
 the real Resume button if software graphics trigger the game's stall pause.
 Checks cover fullscreen negotiation/refusal, viewport sizing, modal pause and
 resume, pointer-down before release, short swipes, rapid corners, toolbar focus,
-held-key repeat, score persistence, and save retries.
+held-key repeat, score persistence, and save retries. The focused quality suite
+checks real WebGL rendering at 2× display density, antialiasing, high-precision
+soft-shadow shaders, 4K shadow allocation, and native resolution after stalls
+and resizing. It observes WebGL calls without replacing the renderer or assets.
+
+Maximum-quality validation on the one-CPU software-WebGL runner passed the
+`quality`, `inputs`, and `compatibility` suites. The full-size `desktop` gameplay
+test timed out during repeated graphics-stall auto-pauses; the subsequent
+`mobile` suite did not run. This is an unresolved on-device performance check,
+not a reason to lower rendering quality. GPU-accelerated gameplay still needs
+validation on the target device.
 
 The unit suite covers replay rules, Python/JavaScript parity, sorting,
 identity isolation, privacy, rate limits, expiry, concurrent retries, deletion,

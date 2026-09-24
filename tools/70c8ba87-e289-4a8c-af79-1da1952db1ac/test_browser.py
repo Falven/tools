@@ -319,6 +319,106 @@ class BrowserChecks:
         print("PASS mobile: portrait/landscape fullscreen, missing-claims form, touch responds on contact before release")
         await context.close()
 
+    async def quality(self, browser):
+        # Keep the viewport modest for software WebGL, but run the unmodified
+        # maximum-quality renderer at real 2x density, including its 4K shadows.
+        context = await browser.new_context(
+            viewport={"width":480, "height":640}, device_scale_factor=2)
+        page = await context.new_page()
+        await page.add_init_script("""(() => {
+          const qa = window.graphicsObserved = {
+            options: null, softShadowShader: false, highPrecisionShader: false,
+            shadowTextures: 0, shadowPasses: 0, shadowSize: 0,
+          };
+          const getContext = HTMLCanvasElement.prototype.getContext;
+          HTMLCanvasElement.prototype.getContext = function(...args) {
+            const gl = Reflect.apply(getContext, this, args);
+            if (args[0] === "webgl2" && gl && args[1]) {
+              qa.options = {...args[1]};
+              qa.shadowSize = Math.min(4096, gl.getParameter(gl.MAX_TEXTURE_SIZE));
+            }
+            return gl;
+          };
+          const proto = WebGL2RenderingContext.prototype;
+          const shaderSource = proto.shaderSource;
+          proto.shaderSource = function(shader, source) {
+            qa.softShadowShader ||= source.includes("#define SHADOWMAP_TYPE_PCF_SOFT");
+            qa.highPrecisionShader ||= source.includes("precision highp float;");
+            return Reflect.apply(shaderSource, this, [shader, source]);
+          };
+          for (const name of ["texImage2D", "texStorage2D"]) {
+            const original = proto[name];
+            proto[name] = function(...args) {
+              if (args[3] === qa.shadowSize && args[4] === qa.shadowSize) qa.shadowTextures++;
+              return Reflect.apply(original, this, args);
+            };
+          }
+          const viewport = proto.viewport;
+          proto.viewport = function(...args) {
+            if (args[2] === qa.shadowSize && args[3] === qa.shadowSize) qa.shadowPasses++;
+            return Reflect.apply(viewport, this, args);
+          };
+        })()""")
+        page.on("console", lambda message: self.errors.append(message.text)
+                if message.type == "error" and "THREE." in message.text else None)
+        app = await self.open(page)
+        await expect(app.locator("#stage")).to_have_attribute("data-renderer", "three")
+        canvas = app.locator("#scene canvas")
+        await canvas.evaluate("""async () => {
+          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        }""")
+
+        async def inspect():
+            actual = await canvas.evaluate("""c => {
+              const gl = c.getContext("webgl2");
+              const scene = c.parentElement;
+              return {...window.graphicsObserved, dpr:devicePixelRatio,
+                width:c.width, height:c.height,
+                cssWidth:scene.clientWidth, cssHeight:scene.clientHeight,
+                antialias:gl.getContextAttributes().antialias,
+                samples:gl.getParameter(gl.SAMPLES),
+                bufferWidth:gl.drawingBufferWidth, bufferHeight:gl.drawingBufferHeight,
+                glError:gl.getError()};
+            }""")
+            assert actual["dpr"] == 2, actual
+            assert actual["width"] == actual["cssWidth"] * 2, actual
+            assert actual["height"] == actual["cssHeight"] * 2, actual
+            assert actual["bufferWidth"] == actual["width"], actual
+            assert actual["bufferHeight"] == actual["height"], actual
+            assert actual["antialias"] and actual["samples"] > 0, actual
+            assert actual["options"]["powerPreference"] == "high-performance", actual
+            assert actual["softShadowShader"] and actual["highPrecisionShader"], actual
+            assert actual["shadowSize"] == 4096 and actual["shadowTextures"] > 0, actual
+            assert actual["shadowPasses"] > 0 and actual["glError"] == 0, actual
+            return actual
+
+        before = await inspect()
+        # Introduce slow UI frames, not synthetic engine time. The former
+        # adaptive quality loop must not silently degrade the image again.
+        await canvas.evaluate("""async () => {
+          for (let i = 0; i < 6; i++) {
+            await new Promise(requestAnimationFrame);
+            const end = performance.now() + 110;
+            while (performance.now() < end) {}
+          }
+        }""")
+        after = await inspect()
+        assert after["shadowPasses"] > before["shadowPasses"], (before, after)
+        await page.set_viewport_size({"width":640, "height":480})
+        await expect(canvas).to_have_attribute("width", "1280")
+        await inspect()
+        await page.screenshot(path=str(self.artifacts / "maximum-quality-2x.png"), full_page=True)
+        await expect(app.locator("#leaderboard-dialog")).not_to_be_visible()
+        await app.locator("#leaderboard-button").click()
+        await expect(app.locator("#leaderboard-dialog")).to_be_visible()
+        await app.get_by_role("button", name="Close leaderboard").click()
+        await expect(app.locator("#leaderboard-dialog")).not_to_be_visible()
+        assert not any(c["name"] in ("neon_snake_begin", "neon_snake_finish") for c in self.calls)
+        print("PASS maximum graphics: native 2x resolution, real multisample AA, high-performance "
+              "GPU request, highp/soft-shadow shaders, 4K live shadow maps; no quality loss "
+              "after slow frames or resizing; leaderboard modal preserved")
+        await context.close()
+
     async def inputs(self, browser):
         self.identity = {"oid":"input-fixture"}
         context = await browser.new_context(viewport={"width":960,"height":680}, has_touch=True)
@@ -428,7 +528,7 @@ async def main():
             async with async_playwright() as playwright:
                 # The development container has 1 CPU and 1.2 GB RAM. Separate
                 # low-memory browser launches avoid an OOM, not game validation.
-                suites = ("desktop", "mobile", "inputs", "compatibility")
+                suites = ("desktop", "mobile", "quality", "inputs", "compatibility")
                 selected = sys.argv[1:] or list(suites)
                 for name in selected:
                     if name not in suites:

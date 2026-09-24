@@ -566,16 +566,17 @@ function tone(frequency, duration = .09) {
 class ThreeBoard {
   constructor(THREE, RoundedBoxGeometry) {
     this.T = THREE;
-    this.quality = 1;
-    this.slowFrames = 0;
     this.scene = new THREE.Scene();
     this.camera = new THREE.OrthographicCamera();
     this.camera.position.set(1.4, 25, 19);
     this.camera.lookAt(0, 0, 0);
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
+    // Maximum-quality preset. Input handling never lowers rendering quality.
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true, alpha: true, precision: "highp", powerPreference: "high-performance",
+    });
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFShadowMap;
-    this.renderer.shadowMap.autoUpdate = false;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.autoUpdate = true;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.15;
@@ -591,7 +592,9 @@ class ThreeBoard {
     const sun = new THREE.DirectionalLight(0xedffe4, 3);
     sun.position.set(-7, 17, 8);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(512, 512);
+    // Only the GPU's actual texture limit can constrain the 4K shadow map.
+    const shadowSize = Math.min(4096, this.renderer.capabilities.maxTextureSize);
+    sun.shadow.mapSize.set(shadowSize, shadowSize);
     Object.assign(sun.shadow.camera, { left: -13, right: 13, top: 13, bottom: -13, near: 1, far: 50 });
     sun.shadow.normalBias = .035;
     sun.shadow.bias = -.0004;
@@ -604,7 +607,7 @@ class ThreeBoard {
       this.scene.add(mesh);
       return mesh;
     };
-    const base = add(new RoundedBoxGeometry(19, .7, 19, 2, .22), material(0x263e2d), 0, -.52);
+    const base = add(new RoundedBoxGeometry(19, .7, 19, 6, .22), material(0x263e2d), 0, -.52);
     base.castShadow = true;
     const floor = add(new THREE.PlaneGeometry(35, 35), new THREE.ShadowMaterial({ opacity: .25 }), 0, -.9);
     floor.rotation.x = -Math.PI / 2;
@@ -632,7 +635,7 @@ class ThreeBoard {
     }
     for (let i = 0; i < 6; i++) add(new THREE.BoxGeometry(.15, .1, .015), accent, -7.4 + i * .3, -.51, 9.505);
     this.body = new THREE.InstancedMesh(
-      new RoundedBoxGeometry(.92, .64, .92, 2, .15),
+      new RoundedBoxGeometry(.92, .64, .92, 6, .15),
       material(0xffffff, { roughness: .45, metalness: .05 }), 324,
     );
     this.body.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -643,7 +646,7 @@ class ThreeBoard {
     this.scene.add(this.body);
     this.head = new THREE.Group();
     const headMesh = new THREE.Mesh(
-      new RoundedBoxGeometry(.96, .72, .96, 2, .17),
+      new RoundedBoxGeometry(.96, .72, .96, 6, .17),
       material(0xc6fa70, { emissive: 0x395812, emissiveIntensity: .12, roughness: .4 }),
     );
     headMesh.castShadow = true;
@@ -651,10 +654,10 @@ class ThreeBoard {
     const white = material(0xf4ffe9);
     const pupil = material(0x162715);
     for (const z of [-.24, .24]) {
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(.12, 12, 8), white);
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(.12, 32, 24), white);
       eye.scale.y = .55;
       eye.position.set(.19, .365, z);
-      const dot = new THREE.Mesh(new THREE.SphereGeometry(.051, 10, 8), pupil);
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(.051, 24, 16), pupil);
       dot.scale.y = .48;
       dot.position.set(.23, .422, z);
       this.head.add(eye, dot);
@@ -662,15 +665,15 @@ class ThreeBoard {
     this.scene.add(this.head);
     this.food = add(new THREE.IcosahedronGeometry(.43, 0),
       material(0xff8b71, { emissive: 0xff5c3a, emissiveIntensity: .4, roughness: .34 }));
-    this.food.castShadow = false;
-    this.ring = add(new THREE.TorusGeometry(.53, .026, 6, 32),
+    this.food.castShadow = true;
+    this.ring = add(new THREE.TorusGeometry(.53, .026, 16, 96),
       new THREE.MeshBasicMaterial({ color: 0xff997d, transparent: true, opacity: .62 }), 0, -.11);
     this.ring.rotation.x = Math.PI / 2;
     this.foodLight = new THREE.PointLight(0xff7c54, 4, 3.5, 2);
     this.scene.add(this.foodLight);
     const particleGeometry = new THREE.BoxGeometry(.12, .12, .12);
     const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffb990 });
-    this.particles = Array.from({ length: 8 }, () => {
+    this.particles = Array.from({ length: 16 }, () => {
       const mesh = new THREE.Mesh(particleGeometry, particleMaterial);
       mesh.visible = false;
       this.scene.add(mesh);
@@ -683,10 +686,8 @@ class ThreeBoard {
   resize() {
     const width = sceneContainer.clientWidth, height = sceneContainer.clientHeight;
     if (!width || !height) return;
-    // Limit fullscreen fill-rate on high-DPI screens; preserve CSS resolution.
-    const ratio = Math.max(.4, this.quality *
-      Math.min(devicePixelRatio || 1, 1.5, Math.sqrt(1250000 / (width * height))));
-    this.renderer.setPixelRatio(ratio);
+    // Native display resolution, with no pixel budget or adaptive downscaling.
+    this.renderer.setPixelRatio(devicePixelRatio || 1);
     this.renderer.setSize(width, height, false);
     const aspect = width / height, span = Math.max(16.7, 20.3 / aspect);
     Object.assign(this.camera, {
@@ -696,14 +697,6 @@ class ThreeBoard {
     this.camera.updateProjectionMatrix();
     this.renderer.shadowMap.needsUpdate = true;
     lastRender = 0;
-  }
-  noteSlowFrame(delta) {
-    if (delta < 80 || this.quality <= .45 || ++this.slowFrames < 3) return;
-    this.slowFrames = 0;
-    this.quality = Math.max(.45, this.quality * .75);
-    // Prefer responsive 3D play to high-resolution shadows on slow GPUs.
-    if (this.quality < .6) this.renderer.shadowMap.enabled = false;
-    this.resize();
   }
   burst(position) {
     if (motion.matches || !position) return;
@@ -759,11 +752,6 @@ class ThreeBoard {
       particle.mesh.scale.setScalar(1 - particle.age / .6);
       particle.mesh.rotation.x += dt * 3;
     }
-    this.renderer.shadowMap.needsUpdate ||= this.shadowGame !== game ||
-      this.shadowStep !== game.steps || this.shadowAlpha !== alpha;
-    this.shadowGame = game;
-    this.shadowStep = game.steps;
-    this.shadowAlpha = alpha;
     this.renderer.render(this.scene, this.camera);
   }
   dispose() {
@@ -795,7 +783,7 @@ class CompatibilityBoard {
     this.resize();
   }
   resize() {
-    this.ratio = Math.min(devicePixelRatio || 1, 2);
+    this.ratio = devicePixelRatio || 1;
     this.canvas.width = sceneContainer.clientWidth * this.ratio;
     this.canvas.height = sceneContainer.clientHeight * this.ratio;
     lastRender = 0;
@@ -877,7 +865,6 @@ function animate(now) {
   if (disposed) return;
   const rawDelta = now - lastFrame;
   lastFrame = now;
-  if (!document.hidden) view?.noteSlowFrame?.(rawDelta);
   const dt = Math.min(rawDelta, 100);
   if (rawDelta > 500 && ["running", "countdown"].includes(state)) {
     pause("Paused automatically while the App was away or the display was busy.");
@@ -915,7 +902,9 @@ function animate(now) {
     }
   }
   const alpha = state === "running" ? movementAlpha(accumulator, engine.interval, motion.matches) : 1;
-  const cadence = state === "running" ? 15 : 200;
+  // Render every animation frame during play, including high-refresh displays.
+  // Idle screens stay static; this does not change resolution or effects.
+  const cadence = state === "running" ? 0 : 200;
   if (!document.hidden && now - lastRender >= cadence) {
     view.render(engine, alpha, now, Math.min((now - lastRender) / 1000, .1));
     lastRender = now;
@@ -988,7 +977,7 @@ async function connectHost() {
   try {
     const { App } = await import("https://cdn.jsdelivr.net/npm/@modelcontextprotocol/ext-apps@2.0.0/dist/src/app-with-deps.js");
     if (disposed) return;
-    app = new App({ name: "Neon Snake", version: "1.1.0" });
+    app = new App({ name: "Neon Snake", version: "1.2.0" });
     // Register notification handlers BEFORE the bridge handshake.
     app.ontoolresult = result => {
       try { applySnapshot(unpack(result)); }
