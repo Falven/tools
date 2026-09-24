@@ -68,7 +68,7 @@ Edit the shared `pyproject.toml` in ToolForge, then Publish to generate a matchi
 > [!WARNING]
 > Changing `pyproject.toml` alone can leave the lock out of sync and prevent activation. Do not hand-edit `requirements.lock`.
 
-Set API keys and other runtime values in ToolForge's Server Tool Environment. ToolForge passes them to the tool process without storing them in Git. Keep credentials out of tool source, supporting files, and this README.
+In ToolForge, open [CONFIGURATION → Server → Environment variables](http://localhost:3000/configuration/server#environment-section-title) to set API keys and other runtime values. ToolForge passes them to the tool process without storing them in Git. Keep credentials out of tool source, supporting files, and this README.
 
 ## Connect via MCP
 
