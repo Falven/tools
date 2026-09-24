@@ -4,7 +4,7 @@
 
 <h1 align="center">ToolForge</h1>
 
-<p align="center">Python tools for your ToolForge instance.</p>
+<p align="center">This repository stores the Python tools served by your ToolForge instance.</p>
 
 <p align="center">
   <a href="#quick-start">Quick start</a> ·
