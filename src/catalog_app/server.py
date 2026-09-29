@@ -24,9 +24,10 @@ def create_server(**kwargs):
     ):
         if entry.ispkg:
             module = importlib.import_module(entry.name)
-            if module.ENABLED:
+            register = getattr(module, "register", None)
+            if register:
                 tool_id = entry.name.rsplit(".", 1)[-1]
                 scope = getattr(server, "tool_directory", nullcontext)
                 with scope(tool_id):
-                    module.register(server)
+                    register(server)
     return server

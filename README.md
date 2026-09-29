@@ -18,22 +18,21 @@ ToolForge runs the application in this repository and serves its enabled tools t
 
 ## Quick start
 
-1. In ToolForge, create a tool and open its source. New tools start disabled.
-2. Write a Python function inside `register(server)` and register it with `@server.tool()`. Give it a docstring describing what it does.
-3. Commit and push your changes to the configured branch, then enable the tool in **Server → Tools**.
+1. In ToolForge, create a tool and open its source. New tools start with their entry module commented out.
+2. Edit the commented-out code to define a Python function inside `register(server)`. Register it with `@server.tool()` and give it a docstring.
+3. Commit and push your changes to the configured branch, then enable the tool in **Server → Tools**. Enabling removes the comment layer.
 
 For example, `src/catalog_app/tools/greet/__init__.py`:
 
 ```python
-ENABLED = False
-
-
 def register(server):
     @server.tool()
     def greet(name: str) -> str:
         """Return a greeting for a name."""
         return f"Hello, {name}!"
 ```
+
+This shows the enabled form. A newly created tool has its entire `__init__.py` commented out. Disable comments out that whole file, including imports; Enable restores it exactly. Empty and comment-only entry modules are inactive. The tool and its related registrations become available after the published change is applied.
 
 | Python                              | MCP                       |
 | ----------------------------------- | ------------------------- |
@@ -63,7 +62,7 @@ The configured Git repository and branch are the source of truth:
 - Edit tool packages and server configuration in this repository. ToolForge sandboxes connect directly to the provider as `origin`.
 - Commit and push to the configured branch. A local commit stays unpublished until the provider accepts it; a rejected push keeps your work for recovery.
 - ToolForge follows the branch and restarts the MCP application to apply accepted changes. Check the applied commit before treating a change as live.
-- Enable, Disable, and Delete in **Server → Tools** each commit and push immediately. These actions apply to the whole tool package.
+- Enable, Disable, and Delete in **Server → Tools** each commit and push immediately. Enable and Disable edit the package's `__init__.py`; Delete removes the whole package.
 
 MCP clients connect to the running ToolForge instance. A Git clone does not serve MCP requests.
 

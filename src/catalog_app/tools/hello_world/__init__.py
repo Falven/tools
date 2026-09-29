@@ -1,7 +1,5 @@
 """A simple greeting Tool."""
 
-ENABLED = True
-
 
 def register(server):
     @server.tool()
