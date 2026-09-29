@@ -7,17 +7,10 @@ from mcp.server.apps import Apps
 
 from . import tools
 
-NAME = "toolforge"
-TITLE = ""
-INSTRUCTIONS = ""
-
 
 def create_server(**kwargs):
     server_class = kwargs.pop("server_class", MCPServer)
     server = server_class(
-        name=NAME,
-        title=TITLE,
-        instructions=INSTRUCTIONS,
         extensions=[Apps()],
         **kwargs,
     )

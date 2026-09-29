@@ -10,7 +10,7 @@ Keep the scaffold's `tool_directory` scope around each `register(server)` call. 
 
 ## Server configuration
 
-`src/catalog_app/server.py` creates the MCP server. The scaffold starts with `TITLE` and `INSTRUCTIONS` constants; you may compute native metadata in source. The Server Workspace displays applied metadata read-only. Server Workspace Enable/Disable and Delete each commit and push immediately.
+`src/catalog_app/server.py` creates the MCP server. The factory passes its keyword arguments to the SDK constructor. Configure native metadata through constructor arguments in source. The Server Workspace displays applied metadata read-only. Server Workspace Enable/Disable and Delete each commit and push immediately.
 
 ## Publish and dependencies
 
