@@ -46,6 +46,7 @@ This shows the enabled form. A newly created tool has its entire `__init__.py` c
 | Path                                          | Purpose                                   |
 | --------------------------------------------- | ----------------------------------------- |
 | `src/catalog_app/server.py`                   | MCP server construction and configuration |
+| `src/catalog_app/auth.py`                     | Public MCP authentication configuration   |
 | `src/catalog_app/tools/<tool_id>/__init__.py` | Tool enablement and registration          |
 | `src/catalog_app/tools/<tool_id>/`            | Supporting code and data for that tool    |
 | `pyproject.toml`                              | Dependencies shared by the application    |
@@ -53,7 +54,7 @@ This shows the enabled form. A newly created tool has its entire `__init__.py` c
 
 The tool ID is its Python package directory name. Keep it stable when changing the tool's MCP name. Each managed package registers one model-facing tool and may include related App Handlers, resources, modules, and assets. You can register other native SDK capabilities elsewhere in the application and manage them in source.
 
-`server.py` creates the official MCP SDK server with `name="toolforge"`, `title=""`, `description=""`, and `instructions=""` set directly in the constructor. Edit these arguments in the repository. The Server page displays the applied title and instructions read-only; `**kwargs` supplies hosting options such as authentication.
+`server.py` creates `EntraMCPServer`, an official MCP SDK subclass, with `name="toolforge"`, `title=""`, `description=""`, and `instructions=""` set directly in the constructor. Edit these arguments in the repository. The Server page displays the applied title and instructions read-only. `auth.py` builds its public Entra authorization and OBO settings. You can edit how those settings are composed without changing ToolForge's private management authentication.
 
 ## Work with Git
 
@@ -75,16 +76,18 @@ toolforge-mcp lock "$PWD/pyproject.toml" --output requirements.lock
 ```
 
 > [!WARNING]
-> Commit the manifest and generated lock together. Changing `pyproject.toml` alone can prevent activation. Do not hand-edit `requirements.lock`.
+> Commit the manifest and generated lock together. Changing `pyproject.toml` alone can prevent activation. Lock generation checks the `toolforge-mcp` pin against the serving runtime and hash-pins third-party dependencies. It omits the runtime and local application packages because ToolForge installs them separately. Do not hand-edit `requirements.lock`.
 
 In ToolForge, open **Server → Environment variables** to set API keys and other runtime values. ToolForge passes them to the tool process without storing them in Git. Keep credentials out of tool source, supporting files, and this README.
+
+`auth.py` reads the MCP tenant, audience, client ID, required permission and resource URL from `TOOLFORGE_MCP_ENTRA_*` and `TOOLFORGE_MCP_RESOURCE_URL` environment variables supplied by the deployment. Set either an Entra client secret or managed identity client ID there for downstream OBO calls. These startup values are separate from the Tool Environment edited in Server. The application declares `toolforge-mcp` at the serving version, `azure-identity` and `PyJWT[crypto]` in `pyproject.toml`; keep its lock in sync. The optional MISE wheel remains a deployment choice.
 
 During an authenticated MCP call, `mcp.server.auth.middleware.auth_context.get_access_token()` provides verified caller claims. For delegated downstream API calls, use `toolforge.get_caller_credential()` and request the target API's scopes through `get_token()`.
 
 ## Connect via MCP
 
 1. In ToolForge, open **Server → MCP → Server information** and copy the endpoint. The instance's `/mcp` endpoint uses Streamable HTTP.
-2. Configure your client to send a Microsoft Entra bearer token for the instance's tenant and audience. It must include the delegated scope or application role shown under Required permission in the same panel.
+2. Configure your client using the tenant, audience and required permission defined by `src/catalog_app/auth.py`. The generated defaults use the deployment values shown in the same panel. Send a Microsoft Entra bearer token with the required delegated scope or application role.
 
 ### Check with MCP Inspector
 

@@ -2,20 +2,25 @@ import importlib
 import pkgutil
 from contextlib import nullcontext
 
-from mcp.server import MCPServer
 from mcp.server.apps import Apps
+from toolforge import EntraMCPServer
 
 from . import tools
+from .auth import build_auth
 
 
 def create_server(**kwargs):
-    server_class = kwargs.pop("server_class", MCPServer)
+    server_class = kwargs.pop("server_class", EntraMCPServer)
+    auth, token_verifier, obo_settings = build_auth()
     server = server_class(
         name="toolforge",
         title="",
         description="",
         instructions="",
         extensions=[Apps()],
+        auth=auth,
+        token_verifier=token_verifier,
+        obo_settings=obo_settings,
         **kwargs,
     )
     for entry in sorted(
