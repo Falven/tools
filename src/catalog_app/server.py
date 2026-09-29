@@ -11,6 +11,10 @@ from . import tools
 def create_server(**kwargs):
     server_class = kwargs.pop("server_class", MCPServer)
     server = server_class(
+        name="toolforge",
+        title="",
+        description="",
+        instructions="",
         extensions=[Apps()],
         **kwargs,
     )

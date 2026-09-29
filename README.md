@@ -11,7 +11,7 @@ src/catalog_app/server.py
 src/catalog_app/tools/
 ```
 
-`server.py` creates the official MCP SDK server. The factory passes its keyword arguments to the SDK constructor. To customize the name, title or instructions, set those constructor arguments in this file. Server shows the applied native metadata read-only.
+`server.py` creates the official MCP SDK server. The constructor sets `name="toolforge"`, `title=""`, `description=""` and `instructions=""` directly. Edit these values in this file; `**kwargs` supplies hosting options such as authentication. Server shows the applied native metadata read-only.
 
 Each Tool has one readable Python package under `src/catalog_app/tools/`. Its directory name is its Tool ID. Keep that name when changing the Tool's public MCP Name. A Tool package defines `ENABLED` and `register(server)`:
 
