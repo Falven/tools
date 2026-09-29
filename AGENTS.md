@@ -1,56 +1,19 @@
-# ToolForge repository
+# ToolForge Catalog
 
-## Layout and Tool contract
+## Work on a Tool
 
-Each Tool lives in `tools/<tool-id>/`, with its entrypoint in `tool.py`
-and supporting code and data alongside it.
+Find the Tool at `src/catalog_app/tools/<tool_id>/`. The readable Python package name is its Tool ID; edits inside that directory preserve it. Keep one model-facing Tool and any related App Handlers or resources in that package.
 
-Export one top-level function through a literal one-item `__all__` list.
-Existing tools may instead expose a single public top-level function.
-The function's lowercase ASCII snake_case name, limited to 48 characters,
-is its MCP name and must be unique across the catalog. Its signature
-defines the input schema. Its docstring becomes the MCP tool description
-for calling agents and should explain inputs, outputs, and side effects.
+The package's `__init__.py` defines a literal `ENABLED` value and `register(server)`. Register the Tool and related capabilities inside that callback with the official MCP SDK. Other Python modules and assets can live beside it. Registrations outside this convention belong to the MCP Application but are not managed by ToolForge's Tool list.
 
-## Python environment and dependencies
+Keep the scaffold's `tool_directory` scope around each `register(server)` call. ToolForge hosting uses that scope to associate registrations with the Tool ID, including callables imported from shared modules. Its `nullcontext` fallback lets the same application run with a plain official SDK server.
 
-The repository-root `pyproject.toml` defines shared Python configuration.
-`[project].requires-python` selects Python. Declare additional dependencies
-there or in declared local package manifests.
+## Server configuration
 
-`requirements.lock` is generated. In ToolForge sandboxes, the Git
-pre-commit hook generates and stages it from staged dependency manifests.
+`src/catalog_app/server.py` creates the MCP server. The scaffold starts with `TITLE` and `INSTRUCTIONS` constants; you may compute native metadata in source. The Server Workspace displays applied metadata read-only. Server Workspace Enable/Disable and Delete each commit and push immediately.
 
-Without that hook, use the service's ToolForge package version and run
-this from the repository root:
+## Publish and dependencies
 
-`toolforge-mcp lock "$PWD/pyproject.toml" --output requirements.lock`
+Commit and push to the configured Git branch; provider acceptance defines Publish. A local commit is recoverable work, not a published Tool. The sandbox pre-commit hook generates `requirements.lock` when staged dependency manifests change. Outside a ToolForge sandbox, run `toolforge-mcp lock "$PWD/pyproject.toml" --output requirements.lock` with the service's ToolForge version and commit the generated lock with its manifest.
 
-Commit changed manifests together with their generated lock.
-
-## MCP runtime and authentication
-
-Published tools run on ToolForge's MCP server with Microsoft Entra
-authentication. The runtime includes MCP Python SDK v2 (`mcp`) and
-Azure Identity (`azure.identity`).
-
-Inside the entrypoint during an authenticated MCP invocation,
-`mcp.server.auth.middleware.auth_context.get_access_token()` provides
-the caller's token and verified claims.
-
-For delegated user calls, ToolForge's included
-`toolforge.get_caller_credential()` helper provides an invocation-scoped
-Azure credential for downstream APIs. Request the target API's
-authorized scopes through its `get_token()` method.
-
-Ordinary terminal execution has no authenticated MCP caller context.
-
-## Publication
-
-Publication requires committing and pushing changes to the Catalog's
-configured branch. A local commit or a push only to an external Git
-remote does not publish to ToolForge.
-
-Publication, MCP activation, and Tool enablement are separate states.
-MCP calls execute the currently active published code; a successful
-push alone does not establish that the changed Tool is being served.
+Store runtime secrets in ToolForge's Tool Environment, not in Git. During an authenticated MCP call, use the verified request context for caller claims. `toolforge.get_caller_credential()` supplies delegated downstream credentials; terminal execution has no MCP caller context.

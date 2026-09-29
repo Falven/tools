@@ -1,0 +1,35 @@
+import importlib
+import pkgutil
+from contextlib import nullcontext
+
+from mcp.server import MCPServer
+from mcp.server.apps import Apps
+
+from . import tools
+
+NAME = "toolforge"
+TITLE = ""
+INSTRUCTIONS = ""
+
+
+def create_server(**kwargs):
+    server_class = kwargs.pop("server_class", MCPServer)
+    server = server_class(
+        name=NAME,
+        title=TITLE,
+        instructions=INSTRUCTIONS,
+        extensions=[Apps()],
+        **kwargs,
+    )
+    for entry in sorted(
+        pkgutil.iter_modules(tools.__path__, tools.__name__ + "."),
+        key=lambda entry: entry.name,
+    ):
+        if entry.ispkg:
+            module = importlib.import_module(entry.name)
+            if module.ENABLED:
+                tool_id = entry.name.rsplit(".", 1)[-1]
+                scope = getattr(server, "tool_directory", nullcontext)
+                with scope(tool_id):
+                    module.register(server)
+    return server
