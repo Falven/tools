@@ -4,7 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
   "mcp==2.0.0",
-  "toolforge-mcp==19.0.1",
+  "toolforge==19.0.1",
   "azure-identity==1.25.3",
   "PyJWT[crypto]==2.14.0",
 ]

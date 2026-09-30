@@ -28,13 +28,13 @@ effects. The return value is sent back to the caller.
 The repository-root `pyproject.toml` defines shared Python configuration.
 `[project].requires-python` selects Python. Declare additional dependencies
 there or in declared local package manifests. Keep `mcp`, `azure-identity`,
-`PyJWT[crypto]`, and `toolforge-mcp` in the dependencies; the `toolforge-mcp`
+`PyJWT[crypto]`, and `toolforge` in the dependencies; the `toolforge`
 pin must match the serving version.
 
 `requirements.lock` is generated. In ToolForge sandboxes, the Git
 pre-commit hook generates and stages it from staged dependency manifests.
 
-Without that hook, use the service's ToolForge package version and run
+Without that hook, install the service's matching `toolforge-mcp` CLI and run
 this from the repository root:
 
 `toolforge-mcp lock "$PWD/pyproject.toml" --output requirements.lock`

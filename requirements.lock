@@ -1,5 +1,5 @@
-# toolforge-pyproject-sha256: e63672b92a424206c2ce51cb706eebba431291da9c3b1b4d3c712128ddd1692f
-# toolforge-lock-input-sha256: c4c960f458b63569ccb843f7aa48a6986733e1b71783a7486e2d475444206f45
+# toolforge-pyproject-sha256: cb4f749f5a4c40484ac0498e74b3fd0043e1cd6d39b33ccca0ba790bc8b244d6
+# toolforge-lock-input-sha256: dd8e7114c146ead4107d95490a929dd2080825c8fd16b9e93b00cab21796f0f1
 annotated-types==0.8.0 \
     --hash=md5:1959042ee69ece0a558a30aa700cfc59 \
     --hash=md5:e82458911a4050ecf61f2a4c6015b7e9 \
