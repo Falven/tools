@@ -29,15 +29,16 @@ The repository-root `pyproject.toml` defines shared Python configuration.
 `[project].requires-python` selects Python. Declare additional dependencies
 there or in declared local package manifests. Keep `mcp`, `azure-identity`,
 `PyJWT[crypto]`, and `toolforge` in the dependencies; the `toolforge`
-pin must match the serving version.
+pin must match the serving version. The public `toolforge` API is a local
+uv workspace package under `packages/toolforge`.
 
-`requirements.lock` is generated. In ToolForge sandboxes, the Git
-pre-commit hook generates and stages it from staged dependency manifests.
+`uv.lock` is the dependency lock. In ToolForge sandboxes, the Git pre-commit
+hook runs `uv sync --all-packages` and stages the resulting lock when a
+fully staged dependency manifest changes.
 
-Without that hook, install the service's matching `toolforge-mcp` CLI and run
-this from the repository root:
+Without the hook, run this from the repository root:
 
-`toolforge-mcp lock "$PWD/pyproject.toml" --output requirements.lock`
+`uv sync --all-packages`
 
 Commit changed manifests together with their generated lock.
 
@@ -70,8 +71,9 @@ These values are available to all Tools on the server and kept out of Git.
 Commit and push to the configured remote branch to publish changes.
 ToolForge's Source Control pushes after committing; terminal commands must
 push explicitly. ToolForge automatically pulls that branch and restarts the
-MCP application. Check **Server → Tools** for activation; a successful push
-does not establish that the changed Tool is being served.
+MCP application, which can take a few seconds. Check **Server → Tools** for
+activation; a successful push does not establish that the changed Tool is being
+served.
 
 Enable and Disable remove or add one comment layer around the entry module.
 Empty or comment-only entry modules are disabled; newly authored Tools can

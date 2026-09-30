@@ -4,10 +4,16 @@ version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
   "mcp==2.0.0",
-  "toolforge==19.0.1",
+  "toolforge==20.0.0",
   "azure-identity==1.25.3",
   "PyJWT[crypto]==2.14.0",
 ]
+
+[tool.uv.workspace]
+members = ["packages/toolforge"]
+
+[tool.uv.sources]
+toolforge = { workspace = true }
 
 [build-system]
 requires = ["uv_build>=0.12.3,<0.13"]

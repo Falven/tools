@@ -62,7 +62,7 @@ The `server` argument exposes the server's `name`, `title`, `description`, and `
 
 The MCP server uses GitOps: it automatically pulls and applies changes from the configured remote branch.
 
-Push your commits to publish them. ToolForge's Source Control pushes automatically after a commit. The sandbox's pre-commit hook updates `requirements.lock` when dependencies change.
+Push your commits to publish them. ToolForge's Source Control pushes automatically after a commit. The sandbox's pre-commit hook runs `uv sync --all-packages` and stages `uv.lock` when a fully staged package manifest changes.
 
 Check the tool's status in **Server → Tools**. **Active** means the tool is available; hover over its status indicator for details.
 
