@@ -1,21 +1,79 @@
-# ToolForge Catalog
+# ToolForge repository
 
-## Work on a Tool
+## Layout and Tool contract
 
-Find the Tool at `src/catalog_app/tools/<tool_id>/`. The readable Python package name is its Tool ID; edits inside that directory preserve it. Keep one model-facing Tool and any related App Handlers or resources in that package.
+Each Tool lives in `src/catalog_app/tools/<tool_id>/`, with its entry module
+in `__init__.py` and supporting code and data alongside it. The package name
+is its Tool ID; renaming the package changes that identity.
 
-Give each MCP tool a name that is unique across the server. `@server.tool()` uses the function name unless `name=` overrides it; the Tool ID and package path do not namespace that name. Check existing registrations before adding or renaming a tool, including disabled tools so they can be re-enabled without collisions.
+Expose `register(server: MCPServer) -> None` from the entry module, importing
+`MCPServer` from `mcp.server`. Inside the callback, register exactly one
+model-facing Tool with `@server.tool()`. Related App Handlers and resources
+may share the package; mark App Handlers with
+`meta={"ui": {"visibility": ["app"]}}`. Preserve the scaffold's
+`tool_directory` scope around each callback so ToolForge can associate
+registrations with their Tool ID.
 
-An active package `__init__.py` defines `register(server)`. Register the Tool and related capabilities inside that callback with the official MCP SDK. A new Tool starts with this entire file commented out; Disable adds one `# ` layer to the whole file, and Enable removes it to restore the source exactly. Empty and comment-only entry modules are inactive. Other Python modules and assets can live beside it. Registrations outside this convention belong to the MCP Application but are not managed by ToolForge's Tool list.
+Use lowercase snake_case for new Tool IDs and tool names. The function name
+is its MCP name unless `name=` overrides it. MCP tool names must be unique
+across the server; package paths do not prefix them. Check existing registrations,
+including disabled Tools, before choosing a name.
 
-Keep the scaffold's `tool_directory` scope around each `register(server)` call. ToolForge hosting uses that scope to associate registrations with the Tool ID, including callables imported from shared modules. Its `nullcontext` fallback lets the same application run with the public SDK subclass outside ToolForge hosting.
+The signature defines the input schema. The docstring is the default Tool
+description for calling agents and should explain inputs, outputs, and side
+effects. The return value is sent back to the caller.
 
-## Server configuration
+## Python environment and dependencies
 
-`src/catalog_app/server.py` creates `EntraMCPServer`, an official MCP SDK subclass. Keep the name, title, description and instructions as explicit constructor arguments in repository source, without separate metadata constants. The scaffold uses `name="toolforge"` and empty strings for the other three values. `src/catalog_app/auth.py` builds public MCP authentication and OBO settings from the existing MCP environment variables. Edit that file to change how the application configures authentication; keep secrets in the deployment environment. `**kwargs` carries hosting options. The Server Workspace displays applied metadata read-only. Server Workspace Enable/Disable and Delete each commit and push immediately.
+The repository-root `pyproject.toml` defines shared Python configuration.
+`[project].requires-python` selects Python. Declare additional dependencies
+there or in declared local package manifests. Keep `mcp`, `azure-identity`,
+`PyJWT[crypto]`, and `toolforge-mcp` in the dependencies; the `toolforge-mcp`
+pin must match the serving version.
 
-## Publish and dependencies
+`requirements.lock` is generated. In ToolForge sandboxes, the Git
+pre-commit hook generates and stages it from staged dependency manifests.
 
-Commit and push to the configured Git branch; provider acceptance defines Publish. A local commit is recoverable work, not a published Tool. The sandbox pre-commit hook generates `requirements.lock` when staged dependency manifests change. Outside a ToolForge sandbox, run `toolforge-mcp lock "$PWD/pyproject.toml" --output requirements.lock` with the service's ToolForge version and commit the generated lock with its manifest. Lock generation rejects a mismatched `toolforge-mcp` pin and hash-pins third-party dependencies; ToolForge installs its own runtime separately.
+Without that hook, use the service's ToolForge package version and run
+this from the repository root:
 
-Store Tool secrets in ToolForge's Tool Environment and MCP auth secrets in the deployment environment, never in Git. Keep `toolforge-mcp` at the serving version, `azure-identity` and `PyJWT[crypto]` in `pyproject.toml` with a matching lock. During an authenticated MCP call, use the verified request context for caller claims. `toolforge.get_caller_credential()` supplies delegated downstream credentials; terminal execution has no MCP caller context.
+`toolforge-mcp lock "$PWD/pyproject.toml" --output requirements.lock`
+
+Commit changed manifests together with their generated lock.
+
+## MCP runtime and authentication
+
+`src/catalog_app/server.py` creates `EntraMCPServer` using MCP Python SDK v2.
+Set `name`, `title`, `description`, and `instructions` directly in its
+constructor; `**kwargs` supplies hosting options. The **Server** page displays
+the applied title and instructions read-only.
+
+`src/catalog_app/auth.py` configures Microsoft Entra authentication and OBO.
+The default server requires authentication for all MCP calls, before Tool
+code runs. It accepts both user and application tokens. Keep auth secrets
+in the deployment environment.
+
+During an authenticated Tool call,
+`mcp.server.auth.middleware.auth_context.get_access_token()` provides the
+caller's token and verified claims.
+
+For delegated user calls, `toolforge.get_caller_credential()` provides an
+invocation-scoped Azure credential for downstream APIs. Request the target
+API's authorized scopes through `get_token()`. Application-only calls cannot
+use this OBO credential. Terminal execution has no MCP caller context.
+
+Set shared Tool credentials under **Server → Environment variables**.
+These values are available to all Tools on the server and kept out of Git.
+
+## Publication
+
+Commit and push to the configured remote branch to publish changes.
+ToolForge's Source Control pushes after committing; terminal commands must
+push explicitly. ToolForge automatically pulls that branch and restarts the
+MCP application. Check **Server → Tools** for activation; a successful push
+does not establish that the changed Tool is being served.
+
+Enable and Disable remove or add one comment layer around the entry module.
+Empty or comment-only entry modules are disabled; newly authored Tools can
+register directly without a separate Enable step. Delete removes the Tool's
+folder. Each UI action commits and pushes immediately.
