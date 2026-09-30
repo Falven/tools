@@ -11,8 +11,8 @@ Expose `register(server: MCPServer) -> None` from the entry module, importing
 model-facing Tool with `@server.tool()`. Related App Handlers and resources
 may share the package; mark App Handlers with
 `meta={"ui": {"visibility": ["app"]}}`. Preserve the scaffold's
-`tool_directory` scope around each callback so ToolForge can associate
-registrations with their Tool ID.
+`tool_directory` scope around each import and callback so ToolForge can associate
+registrations and startup failures with their Tool ID.
 
 Use lowercase snake_case for new Tool IDs and tool names. The function name
 is its MCP name unless `name=` overrides it. MCP tool names must be unique

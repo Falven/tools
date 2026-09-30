@@ -28,11 +28,18 @@ def create_server(**kwargs):
         key=lambda entry: entry.name,
     ):
         if entry.ispkg:
-            module = importlib.import_module(entry.name)
-            register = getattr(module, "register", None)
-            if register:
-                tool_id = entry.name.rsplit(".", 1)[-1]
-                scope = getattr(server, "tool_directory", nullcontext)
-                with scope(tool_id):
+            tool_id = entry.name.rsplit(".", 1)[-1]
+            scope = getattr(server, "tool_directory", nullcontext)
+            with scope(tool_id):
+                module = importlib.import_module(entry.name)
+                register = getattr(module, "register", None)
+                if register:
                     register(server)
+                    if (
+                        hasattr(server, "tool_ids_by_mcp_name")
+                        and tool_id not in server.tool_ids_by_mcp_name.values()
+                    ):
+                        raise ValueError(
+                            f"Tool Directory {tool_id} registered no model-facing Tool"
+                        )
     return server
