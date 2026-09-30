@@ -4,6 +4,8 @@
 
 Find the Tool at `src/catalog_app/tools/<tool_id>/`. The readable Python package name is its Tool ID; edits inside that directory preserve it. Keep one model-facing Tool and any related App Handlers or resources in that package.
 
+Give each MCP tool a name that is unique across the server. `@server.tool()` uses the function name unless `name=` overrides it; the Tool ID and package path do not namespace that name. Check existing registrations before adding or renaming a tool, including disabled tools so they can be re-enabled without collisions.
+
 An active package `__init__.py` defines `register(server)`. Register the Tool and related capabilities inside that callback with the official MCP SDK. A new Tool starts with this entire file commented out; Disable adds one `# ` layer to the whole file, and Enable removes it to restore the source exactly. Empty and comment-only entry modules are inactive. Other Python modules and assets can live beside it. Registrations outside this convention belong to the MCP Application but are not managed by ToolForge's Tool list.
 
 Keep the scaffold's `tool_directory` scope around each `register(server)` call. ToolForge hosting uses that scope to associate registrations with the Tool ID, including callables imported from shared modules. Its `nullcontext` fallback lets the same application run with the public SDK subclass outside ToolForge hosting.
