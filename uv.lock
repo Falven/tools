@@ -83,7 +83,7 @@ dependencies = [
 requires-dist = [
     { name = "azure-identity", specifier = "==1.25.3" },
     { name = "mcp", specifier = "==2.0.0" },
-    { name = "pyjwt", extras = ["crypto"], specifier = "==2.14.0" },
+    { name = "pyjwt", extras = ["crypto"], specifier = "==2.15.0" },
     { name = "toolforge", editable = "packages/toolforge" },
 ]
 
@@ -534,11 +534,11 @@ wheels = [
 
 [[package]]
 name = "pyjwt"
-version = "2.14.0"
+version = "2.15.0"
 source = { registry = "https://packagefeedproxy.microsoft.io/pypi/simple/" }
-sdist = { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/pyjwt/2.14/pyjwt-2.14.0.tar.gz", hash = "sha256:77283c83fb56ecf566a886c757a714bc83668e38156de2cce8263302f42e0b86", size = 113177, upload-time = "2026-09-18T19:36:56Z" }
+sdist = { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/pyjwt/2.15/pyjwt-2.15.0.tar.gz", hash = "sha256:b11c5f9791d7bf51c2b39a81ed669f6b2dbbd669df2942f6c60167e9e3d1abe4", size = 120513, upload-time = "2026-09-30T17:28:47Z" }
 wheels = [
-    { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/pyjwt/2.14/pyjwt-2.14.0-py3-none-any.whl", hash = "sha256:ad0cef71c756a56e74863c2919cf0985f72decbcfcb550ee2f422e7c62b5eedc", size = 32896, upload-time = "2026-09-18T13:11:54Z" },
+    { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/pyjwt/2.15/pyjwt-2.15.0-py3-none-any.whl", hash = "sha256:7a3742debf6b879e912dbb9819ceec1594be812452b78c5f2e2dfc56564954f8", size = 33680, upload-time = "2026-09-30T16:56:00Z" },
 ]
 
 [package.optional-dependencies]
@@ -689,7 +689,7 @@ wheels = [
 
 [[package]]
 name = "toolforge"
-version = "20.0.0"
+version = "22.0.2"
 source = { editable = "packages/toolforge" }
 dependencies = [
     { name = "azure-identity" },
@@ -701,7 +701,7 @@ dependencies = [
 requires-dist = [
     { name = "azure-identity", specifier = "==1.25.3" },
     { name = "mcp", specifier = "==2.0.0" },
-    { name = "pyjwt", extras = ["crypto"], specifier = "==2.14.0" },
+    { name = "pyjwt", extras = ["crypto"], specifier = "==2.15.0" },
 ]
 
 [[package]]
