@@ -23,11 +23,19 @@ class HelloWorldAppTests(unittest.TestCase):
             self.assertEqual(len(resources), 1)
             self.assertEqual(str(resources[0].uri), APP_URI)
             self.assertEqual(resources[0].mime_type, APP_MIME_TYPE)
+            self.assertEqual(
+                resources[0].meta["ui"]["csp"]["resourceDomains"],
+                ["https://cdn.jsdelivr.net"],
+            )
 
             html_resource = list(await server.read_resource(APP_URI))
             self.assertEqual(len(html_resource), 1)
             self.assertEqual(html_resource[0].mime_type, APP_MIME_TYPE)
             self.assertIn("<h1>Hello World</h1>", html_resource[0].content)
+            self.assertIn('<script type="module">', html_resource[0].content)
+            self.assertIn("@modelcontextprotocol/ext-apps@2.0.0", html_resource[0].content)
+            self.assertIn("app.connect()", html_resource[0].content)
+            self.assertNotIn("<!-- app.js -->", html_resource[0].content)
 
             result = await server.call_tool("hello_world", {})
             self.assertFalse(result.is_error)

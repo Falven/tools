@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hello World</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: var(--font-sans, system-ui, sans-serif);
+        color: var(--color-text-primary, light-dark(#172033, #f1f5f9));
+        background: var(--color-background-primary, light-dark(#ffffff, #111827));
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        box-sizing: border-box;
+        min-height: 220px;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        text-align: center;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(28px, 6vw, 48px);
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Hello World</h1>
+    </main>
+    <!-- app.js -->
+  </body>
+</html>
