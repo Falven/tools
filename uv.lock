@@ -689,7 +689,7 @@ wheels = [
 
 [[package]]
 name = "toolforge"
-version = "23.0.0"
+version = "23.0.1"
 source = { editable = "packages/toolforge" }
 dependencies = [
     { name = "azure-identity" },
