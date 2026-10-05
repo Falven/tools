@@ -14,7 +14,9 @@
   <a href="#connect-to-your-mcp-server">Connect to your MCP Server</a>
 </p>
 
-## Included game App
+## Included game Apps
+
+`rally_pong()` opens **Rally — After Hours**, a full-viewport Three.js 2.5D Pong arcade with responsive controls, original synth music, independent music/SFX switches, and replay-verified signed-in high scores held only in server memory. See the [controls, build, privacy and verification notes](<src/catalog_app/tools/rally_pong/README.md>). Practice never posts scores; the leaderboard resets on server restart.
 
 `gloaming_road()` opens **The Gloaming Road**, an original first-person fantasy MCP App with a seeded streamed world, directional swordplay, local saves, original art/audio, and a single castle rescue. See the [game's build, controls, provenance and verification notes](<src/catalog_app/tools/gloaming_road/README.md>). Opening the tool does not start a save or write server state.
 
