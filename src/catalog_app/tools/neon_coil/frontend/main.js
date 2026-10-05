@@ -13,7 +13,7 @@ const $ = id => document.getElementById(id);
 const ui = Object.fromEntries(['scene','intro','scene-caption','start-button','start-label','identity-label','score','best','level','level-track','pause-button','pause-overlay','pause-reason','resume-button','gameover-overlay','end-score','end-foods','end-level','end-title','end-eyebrow','record-label','save-status','retry-save','restart-button','leaderboard-button','end-leaderboard','scoreboard','close-scoreboard','score-list','empty-scores','empty-title','empty-description','board-player','board-best','refresh-scores','load-more-scores','sfx-button','music-button','quality-button','touch-controls','swipe-hint','footer-state','arena-label','arena-coordinates','toast','live-announcement','renderer-error','renderer-error-message'].map(id => [id,$(id)]));
 const audio = new ArcadeAudio();
 const app = new App({name:'Neon Coil',version:'1.0.0'},{availableDisplayModes:['inline','fullscreen']},{autoResize:false});
-const touchDevice = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+let touchDevice = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 const MAX_STEPS = 18000;
 let renderer, phase='intro', game=null, previous=null, run=null, queued=[], accumulator=0, interval=150;
 let connected=false, practice=window.parent===window, canPost=false, player=null, scores=[], epoch=null, best=0, nextOffset=null;
@@ -70,6 +70,10 @@ function setPhase(next){
 }
 async function unlock(){await audio.unlock();if(!audio.available){ui['sfx-button'].disabled=true;ui['music-button'].disabled=true;ui['sfx-button'].title=ui['music-button'].title='Web Audio is unavailable in this browser';}}
 function focusScene(){ui.scene.focus({preventScroll:true});}
+function syncHostTouch(context){
+  touchDevice=touchDevice||Boolean(context?.deviceCapabilities?.touch);
+  ui['swipe-hint'].hidden=!touchDevice;ui['touch-controls'].hidden=!touchDevice||phase!=='playing';
+}
 async function requestFullscreen(){
   if(fullscreenRequested||!connected)return;fullscreenRequested=true;
   const context=app.getHostContext();
@@ -143,7 +147,7 @@ async function save(pending){
     ui['retry-save'].hidden=true;
     if(ui.scoreboard.open)void refreshScores();
     // Deliberately do not copy scores/replays into conversation history via updateModelContext.
-    // The score's only durable owner is the current MCP process's volatile memory.
+    // Live scores stay in the current MCP process's volatile memory.
   }catch(error){
     if(!disposed&&pending===submission){ui['save-status'].textContent=`Score not saved. ${error.message}`;ui['retry-save'].hidden=false;}
   }finally{pending.busy=false;}
@@ -206,7 +210,7 @@ ui['quality-button'].addEventListener('click',()=>{if(!renderer)return;const mod
 ui['swipe-hint'].hidden=!touchDevice;
 ui.scene.addEventListener('pointerdown',()=>{if(phase==='playing')focusScene();});
 let gesture=null;
-ui.scene.addEventListener('pointerdown',event=>{if(event.pointerType==='mouse'||phase!=='playing')return;event.preventDefault();gesture={id:event.pointerId,x:event.clientX,y:event.clientY};ui.scene.setPointerCapture(event.pointerId);},{passive:false});
+ui.scene.addEventListener('pointerdown',event=>{if(event.pointerType==='mouse'||phase!=='playing')return;event.preventDefault();gesture={id:event.pointerId,x:event.clientX,y:event.clientY};try{ui.scene.setPointerCapture(event.pointerId);}catch{ /* Continue swiping inside the board if capture is unavailable. */ }},{passive:false});
 ui.scene.addEventListener('pointermove',event=>{
   if(!gesture||gesture.id!==event.pointerId||phase!=='playing')return;event.preventDefault();const dx=event.clientX-gesture.x,dy=event.clientY-gesture.y;
   if(Math.max(Math.abs(dx),Math.abs(dy))<12)return;
@@ -267,7 +271,7 @@ function frame(now){
 function dispose(){if(disposed)return;disposed=true;cancelAnimationFrame(raf);clearTimeout(toastTimer);audio.dispose();renderer?.dispose();queued=[];game=null;previous=null;scores=[];submission=null;run=null;}
 app.onteardown=async()=>{dispose();return {};};
 app.ontoolresult=result=>{if(connected||epoch||disposed)return;try{updateIdentity(readResult(result));}catch(error){toast(error.message);}};
-app.onhostcontextchanged=context=>{if(context.displayMode)document.body.dataset.displayMode=context.displayMode;renderer?.resize();};
+app.onhostcontextchanged=context=>{if(context.displayMode)document.body.dataset.displayMode=context.displayMode;syncHostTouch(context);renderer?.resize();};
 app.ontoolcancelled=()=>{if(phase==='starting'){startVersion++;setPhase('intro');ui['start-button'].disabled=false;toast('The request was cancelled. You can try again.');}};
 window.addEventListener('pagehide',dispose,{once:true});
 try{
@@ -287,7 +291,7 @@ Object.defineProperty(window,'__NEON_COIL__',{value:Object.freeze({
 async function connect(){
   if(practice){updateIdentity({});ui['start-button'].disabled=!renderer;return;}
   try{
-    await app.connect(undefined,{timeout:12000});connected=true;
+    await app.connect(undefined,{timeout:12000});connected=true;syncHostTouch(app.getHostContext());
     updateIdentity(await call('neon_coil_scores'));ui['start-button'].disabled=!renderer;
     void requestFullscreen();
   }catch(error){

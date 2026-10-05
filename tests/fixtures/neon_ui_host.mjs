@@ -40,7 +40,7 @@ window.addEventListener('message',event=>{
  if(event.source!==iframe.contentWindow||!event.data||event.data.jsonrpc!=='2.0')return;
  const {id,method,params={}}=event.data;if(id===undefined)return;
  if(method==='ui/initialize'){
-  reply(event.source,id,{protocolVersion:params.protocolVersion,hostInfo:{name:'Neon Coil QA fixture',version:'1.0.0'},hostCapabilities:{serverTools:{},logging:{},sandbox:{csp:{resourceDomains:[],connectDomains:[]}}},hostContext:{theme:'dark',displayMode:'inline',availableDisplayModes:['inline','fullscreen'],locale:'en-US',timeZone:'America/New_York'}});return;
+  reply(event.source,id,{protocolVersion:params.protocolVersion,hostInfo:{name:'Neon Coil QA fixture',version:'1.0.0'},hostCapabilities:{serverTools:{},logging:{},sandbox:{csp:{resourceDomains:[],connectDomains:[]}}},hostContext:{theme:'dark',displayMode:'inline',availableDisplayModes:['inline','fullscreen'],locale:'en-US',timeZone:'America/New_York',deviceCapabilities:{touch:innerWidth<721,hover:innerWidth>=721}}});return;
  }
  if(method==='ui/request-display-mode'){fixture.displayModes.push(params.mode);reply(event.source,id,{mode:params.mode});return;}
  if(method==='tools/call'){
