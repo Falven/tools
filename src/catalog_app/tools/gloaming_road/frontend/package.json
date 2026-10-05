@@ -1,0 +1,26 @@
+{
+  "name": "the-gloaming-road",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && node build.mjs",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "0.19.3",
+    "@modelcontextprotocol/ext-apps": "2.0.0",
+    "@fontsource/cormorant-garamond": "5.2.8",
+    "@fontsource/inter": "5.2.8",
+    "simplex-noise": "4.0.3",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.180.0",
+    "esbuild": "0.25.10",
+    "typescript": "5.9.3",
+    "vite": "7.1.9"
+  }
+}

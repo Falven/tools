@@ -1,0 +1,58 @@
+{
+  "generator": "art/scenery.py",
+  "seed": "0x61042026",
+  "textures": {
+    "foliage-atlas.png": [
+      1024,
+      1024
+    ],
+    "ground-atlas.png": [
+      512,
+      512
+    ],
+    "scenery-atlas.png": [
+      512,
+      512
+    ]
+  },
+  "meshTriangles": {
+    "oak_solid": 100,
+    "oak_crown": 72,
+    "rowan_solid": 100,
+    "rowan_crown": 72,
+    "fir_solid": 12,
+    "fir_crown": 156,
+    "rock_solid": 56,
+    "log_solid": 52,
+    "ruin_solid": 168,
+    "rest_solid": 644,
+    "rest_crown": 36
+  },
+  "prototypes": [
+    "oak",
+    "rowan",
+    "fir",
+    "rock",
+    "log",
+    "ruin",
+    "rest"
+  ],
+  "foliageTiles": [
+    "rose spires",
+    "magenta spires",
+    "lilac spires",
+    "white stitchwort",
+    "lilac carpet",
+    "gold buttercups",
+    "grasses",
+    "fern",
+    "amber shrub",
+    "oak foliage",
+    "fir needles",
+    "rowan foliage",
+    "bracken",
+    "clover",
+    "blue flowers",
+    "candle flame"
+  ]
+}

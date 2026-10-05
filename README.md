@@ -14,6 +14,10 @@
   <a href="#connect-to-your-mcp-server">Connect to your MCP Server</a>
 </p>
 
+## Included game App
+
+`gloaming_road()` opens **The Gloaming Road**, an original first-person fantasy MCP App with a seeded streamed world, directional swordplay, local saves, original art/audio, and a single castle rescue. See the [game's build, controls, provenance and verification notes](<src/catalog_app/tools/gloaming_road/README.md>). Opening the tool does not start a save or write server state.
+
 ## What an agent sees
 
 When an agent connects, its MCP client receives the server's details and instructions.

@@ -1,0 +1,5843 @@
+{
+  "schema": 1,
+  "project": "The Gloaming Road",
+  "original": true,
+  "seed": 20261005,
+  "sample_rate": 24000,
+  "composition": "Original D4\u2013F4\u2013E4\u2013A4\u2013C5 motif; not an auditory match to or transcription of any source soundtrack.",
+  "render": "NumPy/SciPy offline synthesis; local ffmpeg libvorbis and libmp3lame; no third-party audio input",
+  "total_compressed_bytes": 5932787,
+  "total_uncompressed_float32_bytes": 118953576,
+  "assets": [
+    {
+      "id": "ambient_castle",
+      "group": "castle",
+      "kind": "ambience",
+      "loop": true,
+      "duration": 24.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 4608000,
+      "source_measured": {
+        "peak": 0.3560149,
+        "peak_dbfs": -8.971,
+        "rms": 0.064,
+        "rms_dbfs": -23.876,
+        "dc": 1.35e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "ambient_castle.ogg",
+          "bytes": 100821,
+          "sha256": "0aa25cd320abad2aebc1ecce44c9cbe5c294c249667de48ed69e57f96ea76270",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.3566932,
+            "peak_dbfs": -8.954,
+            "rms": 0.0642886,
+            "rms_dbfs": -23.837,
+            "dc": 1.051e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0082886
+          }
+        },
+        "mp3": {
+          "file": "ambient_castle.mp3",
+          "bytes": 72447,
+          "sha256": "5770e46460c28a824b0992ae0495ec8bb9395f8691a4debabaee91e30e4d9865",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.2820231,
+            "peak_dbfs": -10.994,
+            "rms": 0.0609585,
+            "rms_dbfs": -24.299,
+            "dc": 4.22e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0132838
+          }
+        }
+      }
+    },
+    {
+      "id": "ambient_forest",
+      "group": "forest",
+      "kind": "ambience",
+      "loop": true,
+      "duration": 24.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 4608000,
+      "source_measured": {
+        "peak": 0.3453191,
+        "peak_dbfs": -9.236,
+        "rms": 0.064,
+        "rms_dbfs": -23.876,
+        "dc": 8.97e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "ambient_forest.ogg",
+          "bytes": 169799,
+          "sha256": "4a409bf684d1b7e63b199f0402b8908443a51049a2dcdd5f69765ab8060b62c8",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.3814863,
+            "peak_dbfs": -8.37,
+            "rms": 0.0659887,
+            "rms_dbfs": -23.611,
+            "dc": 6.24e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0216216
+          }
+        },
+        "mp3": {
+          "file": "ambient_forest.mp3",
+          "bytes": 72447,
+          "sha256": "9f936e05952924017c3cb8dade2723c1eae25cdbde47171db7a29953236d8787",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.351918,
+            "peak_dbfs": -9.071,
+            "rms": 0.061819,
+            "rms_dbfs": -24.178,
+            "dc": 1.285e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0007242
+          }
+        }
+      }
+    },
+    {
+      "id": "ambient_meadow",
+      "group": "meadow",
+      "kind": "ambience",
+      "loop": true,
+      "duration": 24.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 4608000,
+      "source_measured": {
+        "peak": 0.36,
+        "peak_dbfs": -8.874,
+        "rms": 0.0613609,
+        "rms_dbfs": -24.242,
+        "dc": 1.083e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "ambient_meadow.ogg",
+          "bytes": 176583,
+          "sha256": "ed151b2574cf79c0ce05236ac760d1f686b2e2426f2956a1381c77f07d279de2",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.3914007,
+            "peak_dbfs": -8.148,
+            "rms": 0.0646027,
+            "rms_dbfs": -23.795,
+            "dc": 1.278e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0198036
+          }
+        },
+        "mp3": {
+          "file": "ambient_meadow.mp3",
+          "bytes": 72447,
+          "sha256": "f5284202b8ed0c5975729bac19c9379d51786457257c98d9d28f34395f5334a1",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.3574761,
+            "peak_dbfs": -8.935,
+            "rms": 0.0600738,
+            "rms_dbfs": -24.426,
+            "dc": 2.184e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0209195
+          }
+        }
+      }
+    },
+    {
+      "id": "ambient_night",
+      "group": "night",
+      "kind": "ambience",
+      "loop": true,
+      "duration": 24.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 4608000,
+      "source_measured": {
+        "peak": 0.36,
+        "peak_dbfs": -8.874,
+        "rms": 0.0559394,
+        "rms_dbfs": -25.046,
+        "dc": -8.47e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "ambient_night.ogg",
+          "bytes": 154428,
+          "sha256": "2d8dd2c09c27772af5dafdbaa874862c22e7bcef29f1c6e7743a28afdc6a224f",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.3483174,
+            "peak_dbfs": -9.16,
+            "rms": 0.0574084,
+            "rms_dbfs": -24.82,
+            "dc": -3.98e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0126668
+          }
+        },
+        "mp3": {
+          "file": "ambient_night.mp3",
+          "bytes": 72446,
+          "sha256": "0d22131aaa4bd885f43e2628f04c46af087e8f09e6973a79c5a256bf130c2358",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.3299785,
+            "peak_dbfs": -9.63,
+            "rms": 0.0537985,
+            "rms_dbfs": -25.385,
+            "dc": -7.84e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0073301
+          }
+        }
+      }
+    },
+    {
+      "id": "ambient_wind",
+      "group": "wind",
+      "kind": "ambience",
+      "loop": true,
+      "duration": 24.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 4608000,
+      "source_measured": {
+        "peak": 0.36,
+        "peak_dbfs": -8.874,
+        "rms": 0.0574716,
+        "rms_dbfs": -24.811,
+        "dc": 6.62e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "ambient_wind.ogg",
+          "bytes": 176487,
+          "sha256": "a97bc8c31971d8a7ee69aa97f4bd73b15815e8b78a812f5af061589fac6a1cf2",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.3437315,
+            "peak_dbfs": -9.276,
+            "rms": 0.0604154,
+            "rms_dbfs": -24.377,
+            "dc": -5.55e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0128834
+          }
+        },
+        "mp3": {
+          "file": "ambient_wind.mp3",
+          "bytes": 72445,
+          "sha256": "b2c1ec9ba081d61e876d2714b2cddbb8874d1d5ca1d9db28581eac8585ebfb2a",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 24.0,
+          "measured": {
+            "peak": 0.3498126,
+            "peak_dbfs": -9.123,
+            "rms": 0.0561449,
+            "rms_dbfs": -25.014,
+            "dc": 1.119e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0158898
+          }
+        }
+      }
+    },
+    {
+      "id": "armor_1",
+      "group": "armor",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.53,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 50880,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0356065,
+        "rms_dbfs": -28.969,
+        "dc": 8.45e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "armor_1.ogg",
+          "bytes": 5505,
+          "sha256": "12db934c399d4993e3b05ca592413ff04cc013a7587abed3516f076de640f74c",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.549333,
+          "measured": {
+            "peak": 0.5498903,
+            "peak_dbfs": -5.194,
+            "rms": 0.0352512,
+            "rms_dbfs": -29.057,
+            "dc": 9.32e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0056091
+          }
+        },
+        "mp3": {
+          "file": "armor_1.mp3",
+          "bytes": 3296,
+          "sha256": "045b9265764b0c2d3949083990c4f60a303a918ec30d1a718c3921538e17717c",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.53,
+          "measured": {
+            "peak": 0.4602254,
+            "peak_dbfs": -6.741,
+            "rms": 0.0352133,
+            "rms_dbfs": -29.066,
+            "dc": 8.68e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0096183
+          }
+        }
+      }
+    },
+    {
+      "id": "armor_2",
+      "group": "armor",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.53,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 50880,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0272996,
+        "rms_dbfs": -31.277,
+        "dc": 5.13e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "armor_2.ogg",
+          "bytes": 5059,
+          "sha256": "5001d6a1f57613c1ebdecc52deb1cc9f064e4068ac733fed62600978f6d0edc6",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.549333,
+          "measured": {
+            "peak": 0.5621012,
+            "peak_dbfs": -5.004,
+            "rms": 0.0275504,
+            "rms_dbfs": -31.197,
+            "dc": 6.26e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0062474
+          }
+        },
+        "mp3": {
+          "file": "armor_2.mp3",
+          "bytes": 3296,
+          "sha256": "1091d576de9d21041596ab1846062b8362bb7b77d3ee121577efce49248fc0d0",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.53,
+          "measured": {
+            "peak": 0.4743508,
+            "peak_dbfs": -6.478,
+            "rms": 0.0265722,
+            "rms_dbfs": -31.511,
+            "dc": 8.31e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0033691
+          }
+        }
+      }
+    },
+    {
+      "id": "armor_3",
+      "group": "armor",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.53,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 50880,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0388484,
+        "rms_dbfs": -28.213,
+        "dc": 5.59e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "armor_3.ogg",
+          "bytes": 5049,
+          "sha256": "3d798d8f69d9af3f6a35e05153d77d3dc2d7aa9eb4a12e4e17f2d95f399f5674",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.549333,
+          "measured": {
+            "peak": 0.541774,
+            "peak_dbfs": -5.324,
+            "rms": 0.0386785,
+            "rms_dbfs": -28.251,
+            "dc": 6.84e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0173562
+          }
+        },
+        "mp3": {
+          "file": "armor_3.mp3",
+          "bytes": 3296,
+          "sha256": "8562e95b9005152deaa2cbd6e50bf3da67c611ad8d611b6a5bb1a9bebfe91fbb",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.53,
+          "measured": {
+            "peak": 0.5419278,
+            "peak_dbfs": -5.321,
+            "rms": 0.0389794,
+            "rms_dbfs": -28.183,
+            "dc": 8.97e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0099667
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_flesh_1",
+      "group": "arrow_flesh",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.39,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 37440,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0670222,
+        "rms_dbfs": -23.476,
+        "dc": -0.00040584,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_flesh_1.ogg",
+          "bytes": 4425,
+          "sha256": "f1b0c83be343722140caebab7f1803063a4f14be2816fd0d3c20d3250716d6f1",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.410667,
+          "measured": {
+            "peak": 0.5383264,
+            "peak_dbfs": -5.379,
+            "rms": 0.0657565,
+            "rms_dbfs": -23.641,
+            "dc": -0.00043671,
+            "clipped_samples": 0,
+            "seam_step": 0.0046148
+          }
+        },
+        "mp3": {
+          "file": "arrow_flesh_1.mp3",
+          "bytes": 2582,
+          "sha256": "ed1f304d4916720321eac7145976eefeffec9f7a36028fa59f2af88d25352f40",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.39,
+          "measured": {
+            "peak": 0.5234256,
+            "peak_dbfs": -5.623,
+            "rms": 0.0643009,
+            "rms_dbfs": -23.836,
+            "dc": -0.00045669,
+            "clipped_samples": 0,
+            "seam_step": 0.0020383
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_flesh_2",
+      "group": "arrow_flesh",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.39,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 37440,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.06699,
+        "rms_dbfs": -23.48,
+        "dc": -0.00041437,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_flesh_2.ogg",
+          "bytes": 4445,
+          "sha256": "701b657fa336504ce01505ffd4839de3fdf4ed1c2dde733b363f05978b24ec2c",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.410667,
+          "measured": {
+            "peak": 0.56248,
+            "peak_dbfs": -4.998,
+            "rms": 0.0673524,
+            "rms_dbfs": -23.433,
+            "dc": -0.00033972,
+            "clipped_samples": 0,
+            "seam_step": 0.0002321
+          }
+        },
+        "mp3": {
+          "file": "arrow_flesh_2.mp3",
+          "bytes": 2582,
+          "sha256": "efa35a9b264dab29d67ff25210d7628b84e2012ca00af4b26dfadd093d9bb3c6",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.39,
+          "measured": {
+            "peak": 0.5292098,
+            "peak_dbfs": -5.527,
+            "rms": 0.0633713,
+            "rms_dbfs": -23.962,
+            "dc": -0.00038587,
+            "clipped_samples": 0,
+            "seam_step": 0.0002521
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_impact_1",
+      "group": "arrow_impact",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.569958,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 54716,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0375171,
+        "rms_dbfs": -28.515,
+        "dc": -0.00010695,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_impact_1.ogg",
+          "bytes": 5183,
+          "sha256": "0fd3d2140fce0248d3c8963150529301f8589db2c0f191914ae400f5eda01d32",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.581333,
+          "measured": {
+            "peak": 0.5797349,
+            "peak_dbfs": -4.735,
+            "rms": 0.0383442,
+            "rms_dbfs": -28.326,
+            "dc": -0.00015531,
+            "clipped_samples": 0,
+            "seam_step": 0.0041762
+          }
+        },
+        "mp3": {
+          "file": "arrow_impact_1.mp3",
+          "bytes": 3423,
+          "sha256": "205be4af2a7398aec343bd159fa50d09b27482e27bd8265572fa21b7e85196ce",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.569958,
+          "measured": {
+            "peak": 0.4706329,
+            "peak_dbfs": -6.546,
+            "rms": 0.0356211,
+            "rms_dbfs": -28.966,
+            "dc": -0.00011667,
+            "clipped_samples": 0,
+            "seam_step": 0.0157308
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_impact_2",
+      "group": "arrow_impact",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.569958,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 54716,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.044109,
+        "rms_dbfs": -27.109,
+        "dc": -0.00011631,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_impact_2.ogg",
+          "bytes": 5179,
+          "sha256": "e0e285394538a47fb2a7973d7994434d979d3c67230054815ca4e34474cf3f00",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.581333,
+          "measured": {
+            "peak": 0.5557708,
+            "peak_dbfs": -5.102,
+            "rms": 0.0450395,
+            "rms_dbfs": -26.928,
+            "dc": -0.00011792,
+            "clipped_samples": 0,
+            "seam_step": 0.0057549
+          }
+        },
+        "mp3": {
+          "file": "arrow_impact_2.mp3",
+          "bytes": 3423,
+          "sha256": "8128a93dda83d181eda8f1661b5014d6174e14c48b3e9af17c05e503f6e1233f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.569958,
+          "measured": {
+            "peak": 0.59903,
+            "peak_dbfs": -4.451,
+            "rms": 0.0436157,
+            "rms_dbfs": -27.207,
+            "dc": -6.116e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0442687
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_impact_3",
+      "group": "arrow_impact",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.569958,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 54716,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0439572,
+        "rms_dbfs": -27.139,
+        "dc": -0.00010121,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_impact_3.ogg",
+          "bytes": 5183,
+          "sha256": "8c4aa3e99bc0ebf235e1b94f6f090995500fe47007019471e078938db369f5a1",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.581333,
+          "measured": {
+            "peak": 0.5862966,
+            "peak_dbfs": -4.638,
+            "rms": 0.0449743,
+            "rms_dbfs": -26.941,
+            "dc": -0.00010402,
+            "clipped_samples": 0,
+            "seam_step": 0.0022268
+          }
+        },
+        "mp3": {
+          "file": "arrow_impact_3.mp3",
+          "bytes": 3423,
+          "sha256": "493d4e6d8b8a0155b8cae778f89a19453a11ab3bddb899fb567ba76ff9a53514",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.569958,
+          "measured": {
+            "peak": 0.598533,
+            "peak_dbfs": -4.458,
+            "rms": 0.0420771,
+            "rms_dbfs": -27.519,
+            "dc": -8.024e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0259505
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_pass_1",
+      "group": "arrow_pass",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.43,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 41280,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0806134,
+        "rms_dbfs": -21.872,
+        "dc": -3e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_pass_1.ogg",
+          "bytes": 5577,
+          "sha256": "b50c5c2670e1b457b883376dd19004be9616ef1bbdf17955c7ba3940e25e218d",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.442667,
+          "measured": {
+            "peak": 0.682295,
+            "peak_dbfs": -3.321,
+            "rms": 0.0900235,
+            "rms_dbfs": -20.913,
+            "dc": 3.76e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "arrow_pass_1.mp3",
+          "bytes": 2701,
+          "sha256": "0cac083529321ac7a991f8757936804afcbdce6e1c1dfaf6155ae305202d97f8",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.43,
+          "measured": {
+            "peak": 0.5960342,
+            "peak_dbfs": -4.495,
+            "rms": 0.0822056,
+            "rms_dbfs": -21.702,
+            "dc": -3e-08,
+            "clipped_samples": 0,
+            "seam_step": 1.78e-05
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_pass_2",
+      "group": "arrow_pass",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.43,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 41280,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.077131,
+        "rms_dbfs": -22.255,
+        "dc": -3e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_pass_2.ogg",
+          "bytes": 5749,
+          "sha256": "0e1e85af0be899137a5b66a02e83fe892a4c8d47b2fe5bc6b3a19f3cd9bff368",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.419333,
+          "measured": {
+            "peak": 0.5666869,
+            "peak_dbfs": -4.933,
+            "rms": 0.0876437,
+            "rms_dbfs": -21.146,
+            "dc": -1.26e-06,
+            "clipped_samples": 0,
+            "seam_step": 1.1e-05
+          }
+        },
+        "mp3": {
+          "file": "arrow_pass_2.mp3",
+          "bytes": 2701,
+          "sha256": "cde242448e71a68cac8ed975231819bc9d12a370f013aca1059d4250a9f7341c",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.43,
+          "measured": {
+            "peak": 0.6232307,
+            "peak_dbfs": -4.107,
+            "rms": 0.0798716,
+            "rms_dbfs": -21.952,
+            "dc": -3e-08,
+            "clipped_samples": 0,
+            "seam_step": 6.1e-06
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_pass_3",
+      "group": "arrow_pass",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.43,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 41280,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0805985,
+        "rms_dbfs": -21.873,
+        "dc": -3e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_pass_3.ogg",
+          "bytes": 5594,
+          "sha256": "d4ba88a6afe663ff36ebdd7d3f5af8dfa744770d2744645c5c60b62687440131",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.442667,
+          "measured": {
+            "peak": 0.6234689,
+            "peak_dbfs": -4.104,
+            "rms": 0.0882692,
+            "rms_dbfs": -21.084,
+            "dc": -2.03e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "arrow_pass_3.mp3",
+          "bytes": 2701,
+          "sha256": "dd08d0fadb857407631a746e402ac8fc666fd131aeae0939285825a87417cc3a",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.43,
+          "measured": {
+            "peak": 0.5780708,
+            "peak_dbfs": -4.76,
+            "rms": 0.0810769,
+            "rms_dbfs": -21.822,
+            "dc": -7e-08,
+            "clipped_samples": 0,
+            "seam_step": 1.1e-05
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_stone_1",
+      "group": "arrow_stone",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.65,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 62400,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.030352,
+        "rms_dbfs": -30.356,
+        "dc": 2e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_stone_1.ogg",
+          "bytes": 4394,
+          "sha256": "1b9cb9c224891f6c4f8058eb6bf49b15ab3fa15a9f7d5c958dffe02b20896622",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.639333,
+          "measured": {
+            "peak": 0.6053277,
+            "peak_dbfs": -4.36,
+            "rms": 0.0312514,
+            "rms_dbfs": -30.103,
+            "dc": -2.9e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.002609
+          }
+        },
+        "mp3": {
+          "file": "arrow_stone_1.mp3",
+          "bytes": 3902,
+          "sha256": "ccc804d9a7bbe1b4003a37fe6f74877a3d3db5d7f935c7cc9925763cf5dc1721",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.65,
+          "measured": {
+            "peak": 0.527091,
+            "peak_dbfs": -5.562,
+            "rms": 0.0303926,
+            "rms_dbfs": -30.345,
+            "dc": -1.27e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0055709
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_stone_2",
+      "group": "arrow_stone",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.65,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 62400,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0309088,
+        "rms_dbfs": -30.198,
+        "dc": -2e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_stone_2.ogg",
+          "bytes": 4387,
+          "sha256": "d05d3c36d20eb979da552c74328b5ffc7010116fb3b58876100a6551b54ffc7a",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.639333,
+          "measured": {
+            "peak": 0.5680286,
+            "peak_dbfs": -4.913,
+            "rms": 0.0318429,
+            "rms_dbfs": -29.94,
+            "dc": 5.6e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0064736
+          }
+        },
+        "mp3": {
+          "file": "arrow_stone_2.mp3",
+          "bytes": 3902,
+          "sha256": "40c95e80ada103dd383cfc713155ae6d458310e008027c2cf7cf491cfbfae430",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.65,
+          "measured": {
+            "peak": 0.7226756,
+            "peak_dbfs": -2.821,
+            "rms": 0.0310646,
+            "rms_dbfs": -30.155,
+            "dc": 1.15e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0683888
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_wood_1",
+      "group": "arrow_wood",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.55,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 52800,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0456316,
+        "rms_dbfs": -26.815,
+        "dc": -0.00013506,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_wood_1.ogg",
+          "bytes": 5182,
+          "sha256": "ab827915a2c9c433660e8e6f264f6e5df768072caa29c21926db8d396d57a557",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.539333,
+          "measured": {
+            "peak": 0.6104733,
+            "peak_dbfs": -4.287,
+            "rms": 0.0480718,
+            "rms_dbfs": -26.362,
+            "dc": -0.00021925,
+            "clipped_samples": 0,
+            "seam_step": 0.0093475
+          }
+        },
+        "mp3": {
+          "file": "arrow_wood_1.mp3",
+          "bytes": 3301,
+          "sha256": "e6e76164af2824c935806cabbfbef9a1de815454382385b847e7809595378496",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.55,
+          "measured": {
+            "peak": 0.5133121,
+            "peak_dbfs": -5.792,
+            "rms": 0.0447734,
+            "rms_dbfs": -26.98,
+            "dc": -0.00011707,
+            "clipped_samples": 0,
+            "seam_step": 0.0369125
+          }
+        }
+      }
+    },
+    {
+      "id": "arrow_wood_2",
+      "group": "arrow_wood",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.55,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 52800,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0387924,
+        "rms_dbfs": -28.225,
+        "dc": -0.00010387,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "arrow_wood_2.ogg",
+          "bytes": 5157,
+          "sha256": "58b4820c81f6064d4ac38e7a78d1b2a0a3448307bc5f43414489d3dd7313e1e2",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.539333,
+          "measured": {
+            "peak": 0.6294142,
+            "peak_dbfs": -4.021,
+            "rms": 0.0407246,
+            "rms_dbfs": -27.803,
+            "dc": -0.00012442,
+            "clipped_samples": 0,
+            "seam_step": 0.0025718
+          }
+        },
+        "mp3": {
+          "file": "arrow_wood_2.mp3",
+          "bytes": 3301,
+          "sha256": "ad4ede41a1bd4e48c0e3b70c55c1cd229b08947ae36a1096ede42244670b8ccf",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.55,
+          "measured": {
+            "peak": 0.5504127,
+            "peak_dbfs": -5.186,
+            "rms": 0.0379456,
+            "rms_dbfs": -28.417,
+            "dc": -5.932e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0163132
+          }
+        }
+      }
+    },
+    {
+      "id": "bird_1",
+      "group": "bird",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.1,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 105600,
+      "source_measured": {
+        "peak": 0.4212384,
+        "peak_dbfs": -7.509,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": 0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bird_1.ogg",
+          "bytes": 4817,
+          "sha256": "f674578fe6512225c5a7b9df62fb79cb04b5c2a977da854965d4198c8e04326d",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.4559605,
+            "peak_dbfs": -6.821,
+            "rms": 0.1149648,
+            "rms_dbfs": -18.789,
+            "dc": -0.0,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "bird_1.mp3",
+          "bytes": 6055,
+          "sha256": "67acca9ca044d274b821331d1b0ad129cd67d073c429899b0157f0745cf5d5cb",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.4089392,
+            "peak_dbfs": -7.767,
+            "rms": 0.1092439,
+            "rms_dbfs": -19.232,
+            "dc": -2e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "bird_2",
+      "group": "bird",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.21,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 116160,
+      "source_measured": {
+        "peak": 0.4417294,
+        "peak_dbfs": -7.097,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": 0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bird_2.ogg",
+          "bytes": 4807,
+          "sha256": "f175479dabaf42e4ae0dca301641124f8e550bfef7c87243a44c828b167d0a4f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.21,
+          "measured": {
+            "peak": 0.4723457,
+            "peak_dbfs": -6.515,
+            "rms": 0.1156717,
+            "rms_dbfs": -18.735,
+            "dc": -2e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "bird_2.mp3",
+          "bytes": 6655,
+          "sha256": "54fa91952376d2250bc2245c03f7a054c113d4124efe43a39b27e29f07db7e05",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.21,
+          "measured": {
+            "peak": 0.4198678,
+            "peak_dbfs": -7.538,
+            "rms": 0.1092564,
+            "rms_dbfs": -19.231,
+            "dc": -0.0,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "bird_3",
+      "group": "bird",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.32,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 126720,
+      "source_measured": {
+        "peak": 0.4614738,
+        "peak_dbfs": -6.717,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": 0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bird_3.ogg",
+          "bytes": 4855,
+          "sha256": "aff39810a8c73ab81c53ee790ffb890cc0543bb2d52255ea46ae7a1fcd7b6193",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.32,
+          "measured": {
+            "peak": 0.4870726,
+            "peak_dbfs": -6.248,
+            "rms": 0.1158995,
+            "rms_dbfs": -18.718,
+            "dc": 0.0,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "bird_3.mp3",
+          "bytes": 7135,
+          "sha256": "3127b46ee24b2265e5f0f1b505777b2106268d2a974cc771013bab9430015e0e",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.32,
+          "measured": {
+            "peak": 0.4392105,
+            "peak_dbfs": -7.147,
+            "rms": 0.1093314,
+            "rms_dbfs": -19.225,
+            "dc": -0.0,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "bird_4",
+      "group": "bird",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.43,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 137280,
+      "source_measured": {
+        "peak": 0.4801265,
+        "peak_dbfs": -6.373,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bird_4.ogg",
+          "bytes": 4880,
+          "sha256": "575dcff5f062aa6448a305e104c3bada774f109ad1f5a2ff6d242c460fc3cc58",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.43,
+          "measured": {
+            "peak": 0.5187899,
+            "peak_dbfs": -5.7,
+            "rms": 0.1152469,
+            "rms_dbfs": -18.767,
+            "dc": -0.0,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "bird_4.mp3",
+          "bytes": 7735,
+          "sha256": "365b9c1df02816c8d58142315a3f1a772c7aaf60f995eae3a7e85e823dc0bcf6",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.43,
+          "measured": {
+            "peak": 0.4559272,
+            "peak_dbfs": -6.822,
+            "rms": 0.1092621,
+            "rms_dbfs": -19.231,
+            "dc": 1e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "bird_night_1",
+      "group": "bird_night",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.1,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 105600,
+      "source_measured": {
+        "peak": 0.3300186,
+        "peak_dbfs": -9.629,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bird_night_1.ogg",
+          "bytes": 4760,
+          "sha256": "7be911086669c5092a636673c50e5ce62775ac592b0d284316be11f99cbd2982",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.3343083,
+            "peak_dbfs": -9.517,
+            "rms": 0.114811,
+            "rms_dbfs": -18.8,
+            "dc": -4.18e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "bird_night_1.mp3",
+          "bytes": 6061,
+          "sha256": "e2122d5d17e97b8531d41eda924a76239b5c67e513a298f3b1a7bb50f2cd4f71",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.3135604,
+            "peak_dbfs": -10.074,
+            "rms": 0.1092528,
+            "rms_dbfs": -19.231,
+            "dc": 4e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "bird_night_2",
+      "group": "bird_night",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.21,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 116160,
+      "source_measured": {
+        "peak": 0.3459536,
+        "peak_dbfs": -9.22,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bird_night_2.ogg",
+          "bytes": 4802,
+          "sha256": "bf431007644b77494ddb4d3362834d97916231a37fe3fdf5ec4ad73bd028bc36",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.21,
+          "measured": {
+            "peak": 0.3488725,
+            "peak_dbfs": -9.147,
+            "rms": 0.1149755,
+            "rms_dbfs": -18.788,
+            "dc": -8.4e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "bird_night_2.mp3",
+          "bytes": 6661,
+          "sha256": "698902d5b908603ab4917612d00601455eda782813dbf2c9e235916684cd2482",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.21,
+          "measured": {
+            "peak": 0.3286414,
+            "peak_dbfs": -9.666,
+            "rms": 0.1092518,
+            "rms_dbfs": -19.231,
+            "dc": -8e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "block_1",
+      "group": "block",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.569958,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 54716,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0344597,
+        "rms_dbfs": -29.254,
+        "dc": 3.015e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "block_1.ogg",
+          "bytes": 4537,
+          "sha256": "ab0f68964dca27e835b9a2d38680559551d6813c00882921b420288495e55ba3",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.559292,
+          "measured": {
+            "peak": 0.5849525,
+            "peak_dbfs": -4.658,
+            "rms": 0.035564,
+            "rms_dbfs": -28.98,
+            "dc": 6.242e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0170423
+          }
+        },
+        "mp3": {
+          "file": "block_1.mp3",
+          "bytes": 3416,
+          "sha256": "3715d481f7e7aa220f7ffa401f24218d5f6539f2b2f65ce3e36df6f4a46e9dc6",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.569958,
+          "measured": {
+            "peak": 0.5047187,
+            "peak_dbfs": -5.939,
+            "rms": 0.0330765,
+            "rms_dbfs": -29.61,
+            "dc": 1.401e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0761908
+          }
+        }
+      }
+    },
+    {
+      "id": "block_2",
+      "group": "block",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.569958,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 54716,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0347596,
+        "rms_dbfs": -29.179,
+        "dc": 2.859e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "block_2.ogg",
+          "bytes": 4549,
+          "sha256": "f42a2d4950a4028dbf973ab178316b4cb585604cdfbe755074f8fdc1e8d99c00",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.559292,
+          "measured": {
+            "peak": 0.5723894,
+            "peak_dbfs": -4.846,
+            "rms": 0.0353924,
+            "rms_dbfs": -29.022,
+            "dc": 6.044e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0247739
+          }
+        },
+        "mp3": {
+          "file": "block_2.mp3",
+          "bytes": 3416,
+          "sha256": "3c813c940243c63ef134f336e1cf9a17cf3b595bf4029c67070d79c1c3fecfa1",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.569958,
+          "measured": {
+            "peak": 0.4929301,
+            "peak_dbfs": -6.144,
+            "rms": 0.0339454,
+            "rms_dbfs": -29.384,
+            "dc": 6.82e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0782176
+          }
+        }
+      }
+    },
+    {
+      "id": "block_3",
+      "group": "block",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.569958,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 54716,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.039237,
+        "rms_dbfs": -28.126,
+        "dc": 3.006e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "block_3.ogg",
+          "bytes": 4571,
+          "sha256": "1be8f1b0228445795b437349194af4d93e00c9ae0fc369eb5baf3e38ee51b089",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.559292,
+          "measured": {
+            "peak": 0.5968278,
+            "peak_dbfs": -4.483,
+            "rms": 0.0402779,
+            "rms_dbfs": -27.899,
+            "dc": 4.928e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0200686
+          }
+        },
+        "mp3": {
+          "file": "block_3.mp3",
+          "bytes": 3416,
+          "sha256": "631655d7e967fd51a8834bb9b362b08f8d4a4000136a78e5ad3c9513685d87f9",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.569958,
+          "measured": {
+            "peak": 0.6742262,
+            "peak_dbfs": -3.424,
+            "rms": 0.0402423,
+            "rms_dbfs": -27.906,
+            "dc": 2.136e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.018518
+          }
+        }
+      }
+    },
+    {
+      "id": "bow_draw_1",
+      "group": "bow_draw",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.8,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 76800,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0957536,
+        "rms_dbfs": -20.377,
+        "dc": 1.6e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bow_draw_1.ogg",
+          "bytes": 7877,
+          "sha256": "60d9a26bb7034a503e1688b101d643d35473d3ccb6eed4dfb49f1c5547dac1f8",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.816,
+          "measured": {
+            "peak": 0.4749137,
+            "peak_dbfs": -6.468,
+            "rms": 0.0988479,
+            "rms_dbfs": -20.101,
+            "dc": 2.07e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0001284
+          }
+        },
+        "mp3": {
+          "file": "bow_draw_1.mp3",
+          "bytes": 4619,
+          "sha256": "9b78da563f5a95afad75314c7ec3fbee10de660cbb74d2d6f3a59b2ed75dcb14",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.8,
+          "measured": {
+            "peak": 0.5520303,
+            "peak_dbfs": -5.161,
+            "rms": 0.092841,
+            "rms_dbfs": -20.645,
+            "dc": 1.86e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0003728
+          }
+        }
+      }
+    },
+    {
+      "id": "bow_draw_2",
+      "group": "bow_draw",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.8,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 76800,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0959717,
+        "rms_dbfs": -20.357,
+        "dc": 6e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bow_draw_2.ogg",
+          "bytes": 8133,
+          "sha256": "34e65fc1cd3d70808fb9729775819b8f95f65183edf67964905181e21ea226a5",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.789333,
+          "measured": {
+            "peak": 0.5446612,
+            "peak_dbfs": -5.277,
+            "rms": 0.0994724,
+            "rms_dbfs": -20.046,
+            "dc": 3.889e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0007556
+          }
+        },
+        "mp3": {
+          "file": "bow_draw_2.mp3",
+          "bytes": 4619,
+          "sha256": "16f5f98c9a0fb857ae400e794d3497968e3ef704a2625b44c195326093a03afe",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.8,
+          "measured": {
+            "peak": 0.5166078,
+            "peak_dbfs": -5.737,
+            "rms": 0.0922435,
+            "rms_dbfs": -20.701,
+            "dc": 9.69e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0001289
+          }
+        }
+      }
+    },
+    {
+      "id": "bow_release_1",
+      "group": "bow_release",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.44,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 42240,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0580725,
+        "rms_dbfs": -24.721,
+        "dc": -0.00040244,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bow_release_1.ogg",
+          "bytes": 4616,
+          "sha256": "44ebd3cd0ff9f9a67fdb023dc7423e1086d910989498a2f7f99b9b1a879be3d7",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.453333,
+          "measured": {
+            "peak": 0.5334764,
+            "peak_dbfs": -5.458,
+            "rms": 0.0606353,
+            "rms_dbfs": -24.345,
+            "dc": -0.00030256,
+            "clipped_samples": 0,
+            "seam_step": 0.0059171
+          }
+        },
+        "mp3": {
+          "file": "bow_release_1.mp3",
+          "bytes": 2822,
+          "sha256": "1d98214661de77ef610fa7e8b054a5ea624e8ec216b84c2210ecc504bf47a46f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.44,
+          "measured": {
+            "peak": 0.5616955,
+            "peak_dbfs": -5.01,
+            "rms": 0.0569113,
+            "rms_dbfs": -24.896,
+            "dc": -0.00012855,
+            "clipped_samples": 0,
+            "seam_step": 0.0156511
+          }
+        }
+      }
+    },
+    {
+      "id": "bow_release_2",
+      "group": "bow_release",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.44,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 42240,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0568681,
+        "rms_dbfs": -24.903,
+        "dc": -0.00038232,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bow_release_2.ogg",
+          "bytes": 4616,
+          "sha256": "704f3c3142e0340faea863a0d8a683ee17475f95ac6804c204385851fb8f64f1",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.453333,
+          "measured": {
+            "peak": 0.573224,
+            "peak_dbfs": -4.834,
+            "rms": 0.058962,
+            "rms_dbfs": -24.589,
+            "dc": -0.00035402,
+            "clipped_samples": 0,
+            "seam_step": 0.0030515
+          }
+        },
+        "mp3": {
+          "file": "bow_release_2.mp3",
+          "bytes": 2822,
+          "sha256": "567fd14b205d0f38cd1b9161750de225ada5bc1b27309a10c6e81b63327a3e59",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.44,
+          "measured": {
+            "peak": 0.5602528,
+            "peak_dbfs": -5.032,
+            "rms": 0.0577383,
+            "rms_dbfs": -24.771,
+            "dc": -0.00034956,
+            "clipped_samples": 0,
+            "seam_step": 0.0066335
+          }
+        }
+      }
+    },
+    {
+      "id": "bow_release_3",
+      "group": "bow_release",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.44,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 42240,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0593174,
+        "rms_dbfs": -24.536,
+        "dc": -0.00038594,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "bow_release_3.ogg",
+          "bytes": 4668,
+          "sha256": "8168ad585c73c4e8e3ae8e5c76522299dfae34b5084fdf11624ffe414cb57580",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.453333,
+          "measured": {
+            "peak": 0.5774044,
+            "peak_dbfs": -4.77,
+            "rms": 0.0617164,
+            "rms_dbfs": -24.192,
+            "dc": -0.00034736,
+            "clipped_samples": 0,
+            "seam_step": 0.0095499
+          }
+        },
+        "mp3": {
+          "file": "bow_release_3.mp3",
+          "bytes": 2822,
+          "sha256": "418c92e65342790562ed509fd6acae2ea7006cba64ca09a146beb1898842b0f3",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.44,
+          "measured": {
+            "peak": 0.5973336,
+            "peak_dbfs": -4.476,
+            "rms": 0.0587407,
+            "rms_dbfs": -24.621,
+            "dc": -0.00026837,
+            "clipped_samples": 0,
+            "seam_step": 0.0361473
+          }
+        }
+      }
+    },
+    {
+      "id": "cloth_1",
+      "group": "cloth",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.47,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 45120,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0689795,
+        "rms_dbfs": -23.226,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "cloth_1.ogg",
+          "bytes": 4852,
+          "sha256": "8f6c35ddd503c3f3fb8b2fcf7865d8ac290a6dc722e9f7a5e279e45f5145d0eb",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.485333,
+          "measured": {
+            "peak": 0.6662301,
+            "peak_dbfs": -3.528,
+            "rms": 0.0723907,
+            "rms_dbfs": -22.806,
+            "dc": 9.9e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "cloth_1.mp3",
+          "bytes": 2936,
+          "sha256": "bee2553ffd380d78fde56badf5826ea1e086cff0852c50fe36c9278001dc55cb",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.47,
+          "measured": {
+            "peak": 0.5213,
+            "peak_dbfs": -5.658,
+            "rms": 0.0668518,
+            "rms_dbfs": -23.498,
+            "dc": -3.3e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "cloth_2",
+      "group": "cloth",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.47,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 45120,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0715176,
+        "rms_dbfs": -22.912,
+        "dc": 0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "cloth_2.ogg",
+          "bytes": 4611,
+          "sha256": "c0c54f755b40245b1cbfb8998fa7ca87f442afc1077d8f7e348638c79fd1d970",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.459333,
+          "measured": {
+            "peak": 0.7094266,
+            "peak_dbfs": -2.982,
+            "rms": 0.0775359,
+            "rms_dbfs": -22.21,
+            "dc": -5.12e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "cloth_2.mp3",
+          "bytes": 2936,
+          "sha256": "7d6590a5b2779480d3507d4ef7dd9b5128d64145419b005b7a22bbbddb33a941",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.47,
+          "measured": {
+            "peak": 0.5775133,
+            "peak_dbfs": -4.769,
+            "rms": 0.0683737,
+            "rms_dbfs": -23.302,
+            "dc": -5.89e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "cloth_3",
+      "group": "cloth",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.47,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 45120,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0626716,
+        "rms_dbfs": -24.059,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "cloth_3.ogg",
+          "bytes": 5410,
+          "sha256": "0c05a11a14303613144c6276d5ed8f45296a1f24e5be6e2f0ea17e376b15b938",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.459333,
+          "measured": {
+            "peak": 0.5846791,
+            "peak_dbfs": -4.662,
+            "rms": 0.0676824,
+            "rms_dbfs": -23.39,
+            "dc": -2.3e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "cloth_3.mp3",
+          "bytes": 2936,
+          "sha256": "cb3d4d33b5a5c5d10ac527e94dcdb9fe5c4388ae6fb6cb7253a1d5fcc73dc79a",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.47,
+          "measured": {
+            "peak": 0.5592475,
+            "peak_dbfs": -5.048,
+            "rms": 0.0615632,
+            "rms_dbfs": -24.214,
+            "dc": 4.43e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "death_1",
+      "group": "death",
+      "kind": "effect",
+      "loop": false,
+      "duration": 3.1,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 297600,
+      "source_measured": {
+        "peak": 0.4387278,
+        "peak_dbfs": -7.156,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": 7.5e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "death_1.ogg",
+          "bytes": 14538,
+          "sha256": "fd8b987131821d205bbb1ee9f202031663ce04899e3a3ce28294a6f4842caac3",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 3.1,
+          "measured": {
+            "peak": 0.4335551,
+            "peak_dbfs": -7.259,
+            "rms": 0.1151015,
+            "rms_dbfs": -18.778,
+            "dc": -6.68e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0006572
+          }
+        },
+        "mp3": {
+          "file": "death_1.mp3",
+          "bytes": 16136,
+          "sha256": "043d359fd354e36fa283ad7e8feeb327e7c61e222869b160b7671a8cd110ce8b",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 3.1,
+          "measured": {
+            "peak": 0.4185852,
+            "peak_dbfs": -7.564,
+            "rms": 0.1096254,
+            "rms_dbfs": -19.202,
+            "dc": 1.309e-05,
+            "clipped_samples": 0,
+            "seam_step": 2.7e-06
+          }
+        }
+      }
+    },
+    {
+      "id": "door_1",
+      "group": "door",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.45,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 139200,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0725961,
+        "rms_dbfs": -22.782,
+        "dc": -4.44e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "door_1.ogg",
+          "bytes": 9582,
+          "sha256": "860bb31601a1d413bab7fe81fb7baea98373a699c456c1e86f89e081c96fc1d8",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.45,
+          "measured": {
+            "peak": 0.5660275,
+            "peak_dbfs": -4.943,
+            "rms": 0.074216,
+            "rms_dbfs": -22.59,
+            "dc": -2.487e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0001939
+          }
+        },
+        "mp3": {
+          "file": "door_1.mp3",
+          "bytes": 7855,
+          "sha256": "1d07b0e0f73fe24af350f8ce7b2616ce67bfff110de3419320dc0321b436d91a",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.45,
+          "measured": {
+            "peak": 0.5377375,
+            "peak_dbfs": -5.389,
+            "rms": 0.0697973,
+            "rms_dbfs": -23.123,
+            "dc": 7.35e-06,
+            "clipped_samples": 0,
+            "seam_step": 1.1e-06
+          }
+        }
+      }
+    },
+    {
+      "id": "door_2",
+      "group": "door",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.45,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 139200,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0622811,
+        "rms_dbfs": -24.113,
+        "dc": -3.84e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "door_2.ogg",
+          "bytes": 9445,
+          "sha256": "2b08fedc18137e3f0be93504265873e675f5366c2d8f3f53c33e83f4502e7cc6",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.45,
+          "measured": {
+            "peak": 0.565609,
+            "peak_dbfs": -4.95,
+            "rms": 0.0635361,
+            "rms_dbfs": -23.94,
+            "dc": -6.528e-05,
+            "clipped_samples": 0,
+            "seam_step": 9e-07
+          }
+        },
+        "mp3": {
+          "file": "door_2.mp3",
+          "bytes": 7855,
+          "sha256": "e9c7646ac7175f695268e8b8b028b8ce1c28f99432b6f19b843dc093dce3a667",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.45,
+          "measured": {
+            "peak": 0.5293673,
+            "peak_dbfs": -5.525,
+            "rms": 0.0596745,
+            "rms_dbfs": -24.484,
+            "dc": 3.868e-05,
+            "clipped_samples": 0,
+            "seam_step": 1.9e-06
+          }
+        }
+      }
+    },
+    {
+      "id": "enemy_death_1",
+      "group": "enemy_death",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.08,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 103680,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.1040579,
+        "rms_dbfs": -19.654,
+        "dc": -0.0001805,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "enemy_death_1.ogg",
+          "bytes": 8476,
+          "sha256": "13df83500e325c0278df7ccaf9d3bc4fd73f7604872dbf18790a3ba65ef5ef7f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.08,
+          "measured": {
+            "peak": 0.6181788,
+            "peak_dbfs": -4.178,
+            "rms": 0.1071038,
+            "rms_dbfs": -19.404,
+            "dc": -0.00029042,
+            "clipped_samples": 0,
+            "seam_step": 0.0009288
+          }
+        },
+        "mp3": {
+          "file": "enemy_death_1.mp3",
+          "bytes": 5942,
+          "sha256": "e79af0c380d33e8b8193ee88b8951ec4d1c97a446cc86d7fc4d8719ac0f88263",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.08,
+          "measured": {
+            "peak": 0.5430706,
+            "peak_dbfs": -5.303,
+            "rms": 0.1004603,
+            "rms_dbfs": -19.96,
+            "dc": -0.00029099,
+            "clipped_samples": 0,
+            "seam_step": 0.0069485
+          }
+        }
+      }
+    },
+    {
+      "id": "enemy_death_2",
+      "group": "enemy_death",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.08,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 103680,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0982702,
+        "rms_dbfs": -20.152,
+        "dc": -0.00016919,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "enemy_death_2.ogg",
+          "bytes": 8409,
+          "sha256": "a131f1720fa89d1304eb4231ff46cd5612d958863f062f0332521d8f6e2d8eaf",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.08,
+          "measured": {
+            "peak": 0.5812033,
+            "peak_dbfs": -4.713,
+            "rms": 0.1015046,
+            "rms_dbfs": -19.87,
+            "dc": -0.00027651,
+            "clipped_samples": 0,
+            "seam_step": 0.009653
+          }
+        },
+        "mp3": {
+          "file": "enemy_death_2.mp3",
+          "bytes": 5942,
+          "sha256": "d977152b8b198b7736a024bc3d4e1203384065933fb48de84d96c1768391f1d9",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.08,
+          "measured": {
+            "peak": 0.5186697,
+            "peak_dbfs": -5.702,
+            "rms": 0.0946817,
+            "rms_dbfs": -20.475,
+            "dc": -0.00017274,
+            "clipped_samples": 0,
+            "seam_step": 0.007414
+          }
+        }
+      }
+    },
+    {
+      "id": "enemy_death_3",
+      "group": "enemy_death",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.08,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 103680,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0973338,
+        "rms_dbfs": -20.235,
+        "dc": -0.00016508,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "enemy_death_3.ogg",
+          "bytes": 8394,
+          "sha256": "83d6e3c35450d0670295bfd659ba92e0601c7e1c534695d1fe931d5d22db268b",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.08,
+          "measured": {
+            "peak": 0.5345736,
+            "peak_dbfs": -5.44,
+            "rms": 0.1005711,
+            "rms_dbfs": -19.951,
+            "dc": -0.00017916,
+            "clipped_samples": 0,
+            "seam_step": 0.0012734
+          }
+        },
+        "mp3": {
+          "file": "enemy_death_3.mp3",
+          "bytes": 5942,
+          "sha256": "98b17c49ffd37734414c1253afa47f0cc9ea63714397da179c6bf3d4aa23d081",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.08,
+          "measured": {
+            "peak": 0.5458589,
+            "peak_dbfs": -5.258,
+            "rms": 0.0932874,
+            "rms_dbfs": -20.604,
+            "dc": -0.00027555,
+            "clipped_samples": 0,
+            "seam_step": 0.0070612
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_charge_1",
+      "group": "fire_charge",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.18,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 113280,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0990848,
+        "rms_dbfs": -20.08,
+        "dc": -2e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_charge_1.ogg",
+          "bytes": 9781,
+          "sha256": "8f179b5c0bf10b1f827d7f1a3a739fb7cb59cb6de09a0669150473b3fabd5c15",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.18,
+          "measured": {
+            "peak": 0.5966282,
+            "peak_dbfs": -4.486,
+            "rms": 0.1048677,
+            "rms_dbfs": -19.587,
+            "dc": 2.867e-05,
+            "clipped_samples": 0,
+            "seam_step": 2.7e-06
+          }
+        },
+        "mp3": {
+          "file": "fire_charge_1.mp3",
+          "bytes": 6542,
+          "sha256": "92397d0c808ec7b5f30d1e8b15ee1e971ae5b3335fdfae39d66b41d50a4f611e",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.18,
+          "measured": {
+            "peak": 0.5690634,
+            "peak_dbfs": -4.897,
+            "rms": 0.0965282,
+            "rms_dbfs": -20.307,
+            "dc": -8.173e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0004443
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_charge_2",
+      "group": "fire_charge",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.18,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 113280,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0953578,
+        "rms_dbfs": -20.413,
+        "dc": -2.2e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_charge_2.ogg",
+          "bytes": 9765,
+          "sha256": "00e85b5c1182744b8821a8ba81205080c3905098f120f70a3427b8c7d938da98",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.18,
+          "measured": {
+            "peak": 0.5237951,
+            "peak_dbfs": -5.617,
+            "rms": 0.1002432,
+            "rms_dbfs": -19.979,
+            "dc": 0.00010474,
+            "clipped_samples": 0,
+            "seam_step": 4.5e-06
+          }
+        },
+        "mp3": {
+          "file": "fire_charge_2.mp3",
+          "bytes": 6542,
+          "sha256": "02af37f12495974cffaf15fec0e17156ee4e58309e6f5404d58f90976216eebe",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.18,
+          "measured": {
+            "peak": 0.5227036,
+            "peak_dbfs": -5.635,
+            "rms": 0.093302,
+            "rms_dbfs": -20.602,
+            "dc": 4.821e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0006677
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_impact_1",
+      "group": "fire_impact",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.05,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 100800,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0442494,
+        "rms_dbfs": -27.082,
+        "dc": -6.24e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_impact_1.ogg",
+          "bytes": 9452,
+          "sha256": "084c2f86441ad83569d300489cee3a37eba4262b216620ed84ff1355003504e5",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.05,
+          "measured": {
+            "peak": 0.5515288,
+            "peak_dbfs": -5.169,
+            "rms": 0.0464298,
+            "rms_dbfs": -26.664,
+            "dc": -2.415e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0023029
+          }
+        },
+        "mp3": {
+          "file": "fire_impact_1.mp3",
+          "bytes": 5822,
+          "sha256": "ec6483efb57ecacd6c0b3710870491981a004987c097f2e7e15eec0059d5bdd5",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.05,
+          "measured": {
+            "peak": 0.56132,
+            "peak_dbfs": -5.016,
+            "rms": 0.0434933,
+            "rms_dbfs": -27.232,
+            "dc": -0.00010389,
+            "clipped_samples": 0,
+            "seam_step": 0.0161771
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_impact_2",
+      "group": "fire_impact",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.05,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 100800,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0601236,
+        "rms_dbfs": -24.419,
+        "dc": -8.721e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_impact_2.ogg",
+          "bytes": 9602,
+          "sha256": "c0e8f71049ea641eae8665e438abd5aac679d88656f0bde9fd42d8ad4acdef91",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.05,
+          "measured": {
+            "peak": 0.5921605,
+            "peak_dbfs": -4.551,
+            "rms": 0.0629812,
+            "rms_dbfs": -24.016,
+            "dc": -0.00018999,
+            "clipped_samples": 0,
+            "seam_step": 0.0122433
+          }
+        },
+        "mp3": {
+          "file": "fire_impact_2.mp3",
+          "bytes": 5822,
+          "sha256": "9b23bedb9229fc3dfde4c9dda8b08db2295a94d4f85c0792807536f132618181",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.05,
+          "measured": {
+            "peak": 0.6128966,
+            "peak_dbfs": -4.252,
+            "rms": 0.0595073,
+            "rms_dbfs": -24.509,
+            "dc": -4.019e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0026136
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_impact_3",
+      "group": "fire_impact",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.05,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 100800,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0576665,
+        "rms_dbfs": -24.782,
+        "dc": -9.916e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_impact_3.ogg",
+          "bytes": 9601,
+          "sha256": "bdb48bc0f001b24bae3b954c8af4f1218d1ac80ac390ed1f9ed15dee76e51988",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.05,
+          "measured": {
+            "peak": 0.5521333,
+            "peak_dbfs": -5.159,
+            "rms": 0.0608978,
+            "rms_dbfs": -24.308,
+            "dc": -0.00023591,
+            "clipped_samples": 0,
+            "seam_step": 0.0106059
+          }
+        },
+        "mp3": {
+          "file": "fire_impact_3.mp3",
+          "bytes": 5822,
+          "sha256": "2b8c1909a7487fcc9e8cc4511546a3cd862d47a5ed4e95a379b62179d5dea6c6",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.05,
+          "measured": {
+            "peak": 0.5318738,
+            "peak_dbfs": -5.484,
+            "rms": 0.057025,
+            "rms_dbfs": -24.879,
+            "dc": -4.71e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0673007
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_linger_1",
+      "group": "fire_linger",
+      "kind": "effect",
+      "loop": false,
+      "duration": 2.8,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 268800,
+      "source_measured": {
+        "peak": 0.5599999,
+        "peak_dbfs": -5.036,
+        "rms": 0.0888212,
+        "rms_dbfs": -21.03,
+        "dc": 7e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_linger_1.ogg",
+          "bytes": 18380,
+          "sha256": "a7350cc29a8a3fa543800b130d81075d975dc2859b81b46c9da09ca271708f1f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 2.8,
+          "measured": {
+            "peak": 0.5321876,
+            "peak_dbfs": -5.479,
+            "rms": 0.0958756,
+            "rms_dbfs": -20.366,
+            "dc": 1.558e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0001922
+          }
+        },
+        "mp3": {
+          "file": "fire_linger_1.mp3",
+          "bytes": 14582,
+          "sha256": "c0a75e3ea7d4752c9a9362e43452d3a7cbdd574509784bda3fa4357468488d18",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 2.8,
+          "measured": {
+            "peak": 0.458729,
+            "peak_dbfs": -6.769,
+            "rms": 0.0874043,
+            "rms_dbfs": -21.169,
+            "dc": 4.93e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0022695
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_release_1",
+      "group": "fire_release",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.66,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 63360,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0598622,
+        "rms_dbfs": -24.457,
+        "dc": -5.286e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_release_1.ogg",
+          "bytes": 7065,
+          "sha256": "0b4584b6426d3f9981297588cd2f913963fcd4e30c026e1ed4d2293b980d8411",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.677333,
+          "measured": {
+            "peak": 0.56125,
+            "peak_dbfs": -5.017,
+            "rms": 0.062304,
+            "rms_dbfs": -24.11,
+            "dc": -1.88e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0030836
+          }
+        },
+        "mp3": {
+          "file": "fire_release_1.mp3",
+          "bytes": 3903,
+          "sha256": "d29dd5b700533c8cd8fdf4053628168b8cfa7cec5f9b6ab83a0df6a138eab79e",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.66,
+          "measured": {
+            "peak": 0.5033273,
+            "peak_dbfs": -5.963,
+            "rms": 0.0582565,
+            "rms_dbfs": -24.693,
+            "dc": -6.84e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.015065
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_release_2",
+      "group": "fire_release",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.66,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 63360,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0704571,
+        "rms_dbfs": -23.041,
+        "dc": -6.842e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_release_2.ogg",
+          "bytes": 7056,
+          "sha256": "bab3292d497c1d1fbd10fd94297494c05b243ef69a1d09523e7a14a5372416a3",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.649333,
+          "measured": {
+            "peak": 0.6635531,
+            "peak_dbfs": -3.562,
+            "rms": 0.075806,
+            "rms_dbfs": -22.406,
+            "dc": 1.576e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0054702
+          }
+        },
+        "mp3": {
+          "file": "fire_release_2.mp3",
+          "bytes": 3903,
+          "sha256": "eeb85a3671c59ac220d1924cf0c64616649536c9f12aba7acb0a92ce70c730dc",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.66,
+          "measured": {
+            "peak": 0.5556141,
+            "peak_dbfs": -5.105,
+            "rms": 0.0693176,
+            "rms_dbfs": -23.183,
+            "dc": -3.029e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0256587
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_travel_1",
+      "group": "fire_travel",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.25,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 120000,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.1063287,
+        "rms_dbfs": -19.467,
+        "dc": 1.3e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_travel_1.ogg",
+          "bytes": 10220,
+          "sha256": "98fa60cc8ba5fdc3a3623d8da6f6aa641b221e0b503f863756633dff983a3a5e",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.25,
+          "measured": {
+            "peak": 0.6562572,
+            "peak_dbfs": -3.659,
+            "rms": 0.1143891,
+            "rms_dbfs": -18.832,
+            "dc": -0.00018944,
+            "clipped_samples": 0,
+            "seam_step": 5.8e-06
+          }
+        },
+        "mp3": {
+          "file": "fire_travel_1.mp3",
+          "bytes": 6902,
+          "sha256": "eddae3575b49479d151d1bba6ae94969698141b3744e4fbb264f699a1e4eb779",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.25,
+          "measured": {
+            "peak": 0.536074,
+            "peak_dbfs": -5.416,
+            "rms": 0.1039506,
+            "rms_dbfs": -19.663,
+            "dc": 9.364e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0003293
+          }
+        }
+      }
+    },
+    {
+      "id": "fire_travel_2",
+      "group": "fire_travel",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.25,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 120000,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.1062281,
+        "rms_dbfs": -19.475,
+        "dc": -2e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "fire_travel_2.ogg",
+          "bytes": 10239,
+          "sha256": "8a05326b2819ef9898f9af6576c69e011b81a51556321ac44580ac3ae45dcb16",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.25,
+          "measured": {
+            "peak": 0.6086974,
+            "peak_dbfs": -4.312,
+            "rms": 0.1142441,
+            "rms_dbfs": -18.843,
+            "dc": 0.00010225,
+            "clipped_samples": 0,
+            "seam_step": 1.34e-05
+          }
+        },
+        "mp3": {
+          "file": "fire_travel_2.mp3",
+          "bytes": 6902,
+          "sha256": "63212991303a66298d8d16e562aacd66e21def6f805055aa4af3c982529d4c31",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.25,
+          "measured": {
+            "peak": 0.5506954,
+            "peak_dbfs": -5.182,
+            "rms": 0.1045215,
+            "rms_dbfs": -19.616,
+            "dc": 4.095e-05,
+            "clipped_samples": 0,
+            "seam_step": 9.07e-05
+          }
+        }
+      }
+    },
+    {
+      "id": "flesh_1",
+      "group": "flesh",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.37,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 35520,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0776689,
+        "rms_dbfs": -22.195,
+        "dc": -0.00048606,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "flesh_1.ogg",
+          "bytes": 4427,
+          "sha256": "d39483d40c39bc2e1a2dbe9baed33a919553d681c834cd92048c86ba508164bb",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.389333,
+          "measured": {
+            "peak": 0.5632739,
+            "peak_dbfs": -4.986,
+            "rms": 0.0771444,
+            "rms_dbfs": -22.254,
+            "dc": -0.00063986,
+            "clipped_samples": 0,
+            "seam_step": 0.0024538
+          }
+        },
+        "mp3": {
+          "file": "flesh_1.mp3",
+          "bytes": 2456,
+          "sha256": "4589db55c8b7e3040192d81a004146fed81eaed84385fb1d80e375b8d7194cba",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.37,
+          "measured": {
+            "peak": 0.5657998,
+            "peak_dbfs": -4.947,
+            "rms": 0.0750982,
+            "rms_dbfs": -22.487,
+            "dc": -0.00016797,
+            "clipped_samples": 0,
+            "seam_step": 0.0059009
+          }
+        }
+      }
+    },
+    {
+      "id": "flesh_2",
+      "group": "flesh",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.37,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 35520,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0679348,
+        "rms_dbfs": -23.358,
+        "dc": -0.00044019,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "flesh_2.ogg",
+          "bytes": 4419,
+          "sha256": "6c6df4fb66e45298e8a457710fb518dfafc822af9e528e79b1fb61e2bd93494d",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.389333,
+          "measured": {
+            "peak": 0.5524502,
+            "peak_dbfs": -5.154,
+            "rms": 0.0679632,
+            "rms_dbfs": -23.355,
+            "dc": -0.00041773,
+            "clipped_samples": 0,
+            "seam_step": 0.0023759
+          }
+        },
+        "mp3": {
+          "file": "flesh_2.mp3",
+          "bytes": 2456,
+          "sha256": "0bdae955232869eda2d6f196aedb22a656dc2ec4fb99e191362578f031640517",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.37,
+          "measured": {
+            "peak": 0.5283446,
+            "peak_dbfs": -5.542,
+            "rms": 0.0645596,
+            "rms_dbfs": -23.801,
+            "dc": -0.0004567,
+            "clipped_samples": 0,
+            "seam_step": 0.0091829
+          }
+        }
+      }
+    },
+    {
+      "id": "flesh_3",
+      "group": "flesh",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.37,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 35520,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0744348,
+        "rms_dbfs": -22.564,
+        "dc": -0.00048614,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "flesh_3.ogg",
+          "bytes": 4423,
+          "sha256": "f120e22e8f7934d883eb63d8318c843d1f65e5e14ef726fe502c328eedb17d9f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.389333,
+          "measured": {
+            "peak": 0.5900167,
+            "peak_dbfs": -4.583,
+            "rms": 0.0738506,
+            "rms_dbfs": -22.633,
+            "dc": -0.00048415,
+            "clipped_samples": 0,
+            "seam_step": 0.005043
+          }
+        },
+        "mp3": {
+          "file": "flesh_3.mp3",
+          "bytes": 2456,
+          "sha256": "111f11107908907d60ee265f35190ea34c4dbb8c26a8a5dbffb3fbbfc617dbf4",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.37,
+          "measured": {
+            "peak": 0.5689656,
+            "peak_dbfs": -4.898,
+            "rms": 0.0712786,
+            "rms_dbfs": -22.941,
+            "dc": -0.00052722,
+            "clipped_samples": 0,
+            "seam_step": 0.0035935
+          }
+        }
+      }
+    },
+    {
+      "id": "latch_1",
+      "group": "latch",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.39,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 37440,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0332623,
+        "rms_dbfs": -29.561,
+        "dc": 1.7e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "latch_1.ogg",
+          "bytes": 4534,
+          "sha256": "6f581bf00f281b63901946274c9e9a548d354bc67b8ee5735b63f1b499156d4d",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.410667,
+          "measured": {
+            "peak": 0.5269781,
+            "peak_dbfs": -5.564,
+            "rms": 0.0334832,
+            "rms_dbfs": -29.503,
+            "dc": 1.21e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0028884
+          }
+        },
+        "mp3": {
+          "file": "latch_1.mp3",
+          "bytes": 2576,
+          "sha256": "651b424b6625542802f17f2b2dc3ea9470e221ae5c92f5f0b3d75b1252cc5be9",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.39,
+          "measured": {
+            "peak": 0.5035985,
+            "peak_dbfs": -5.958,
+            "rms": 0.032804,
+            "rms_dbfs": -29.681,
+            "dc": -3.8e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0035216
+          }
+        }
+      }
+    },
+    {
+      "id": "latch_2",
+      "group": "latch",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.39,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 37440,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0412106,
+        "rms_dbfs": -27.7,
+        "dc": 2.1e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "latch_2.ogg",
+          "bytes": 4530,
+          "sha256": "a5c4d162f71d9b408548ac622292dd9c0b4fa3e26257c449cc8014e125d91683",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.410667,
+          "measured": {
+            "peak": 0.4618945,
+            "peak_dbfs": -6.709,
+            "rms": 0.0409298,
+            "rms_dbfs": -27.759,
+            "dc": -2.01e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0018461
+          }
+        },
+        "mp3": {
+          "file": "latch_2.mp3",
+          "bytes": 2576,
+          "sha256": "ce335907b3fd95c744cb3881ee62bce8c3df223ec3f0de772bfe08d3e2f6d2b5",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.39,
+          "measured": {
+            "peak": 0.5042936,
+            "peak_dbfs": -5.946,
+            "rms": 0.0394679,
+            "rms_dbfs": -28.075,
+            "dc": -1.46e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0363745
+          }
+        }
+      }
+    },
+    {
+      "id": "leaves_1",
+      "group": "leaves",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.85,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 81600,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0661058,
+        "rms_dbfs": -23.595,
+        "dc": 0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "leaves_1.ogg",
+          "bytes": 6474,
+          "sha256": "ce788d41d97879f667342db73447f91f0af60e007ee492678d9d84738b1bbca4",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.869333,
+          "measured": {
+            "peak": 0.6665106,
+            "peak_dbfs": -3.524,
+            "rms": 0.0752164,
+            "rms_dbfs": -22.474,
+            "dc": -1e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "leaves_1.mp3",
+          "bytes": 4857,
+          "sha256": "24dd9b795a839b9328110fcbefcce1dabc16cdef8dc085eec114b860d97b042b",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.85,
+          "measured": {
+            "peak": 0.5567898,
+            "peak_dbfs": -5.086,
+            "rms": 0.0658497,
+            "rms_dbfs": -23.629,
+            "dc": -2e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "leaves_2",
+      "group": "leaves",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.85,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 81600,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0966123,
+        "rms_dbfs": -20.299,
+        "dc": 0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "leaves_2.ogg",
+          "bytes": 7453,
+          "sha256": "0fdccf375382fbcf0e7d1ba779a23b913d9622653a3d83dc6d98a4eab4545a58",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.869333,
+          "measured": {
+            "peak": 0.6507258,
+            "peak_dbfs": -3.732,
+            "rms": 0.1086692,
+            "rms_dbfs": -19.278,
+            "dc": 5e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "leaves_2.mp3",
+          "bytes": 4857,
+          "sha256": "8765808741087d204b991f0bd55feaa3634164ddeba179218036294c4758cf28",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.85,
+          "measured": {
+            "peak": 0.5535424,
+            "peak_dbfs": -5.137,
+            "rms": 0.0970911,
+            "rms_dbfs": -20.256,
+            "dc": 3e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "leaves_3",
+      "group": "leaves",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.85,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 81600,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0808466,
+        "rms_dbfs": -21.847,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "leaves_3.ogg",
+          "bytes": 6094,
+          "sha256": "68bce8250404a9bdc2eadcb87bfa189ac21e0529f085b6b141e6ea90d72656c2",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.869333,
+          "measured": {
+            "peak": 0.6351967,
+            "peak_dbfs": -3.942,
+            "rms": 0.0906637,
+            "rms_dbfs": -20.851,
+            "dc": -1e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "leaves_3.mp3",
+          "bytes": 4857,
+          "sha256": "f306a2906a82df9a01d12e1b78e62b3e228c53b16f5279a72b21440c0d7c779e",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.85,
+          "measured": {
+            "peak": 0.5309474,
+            "peak_dbfs": -5.499,
+            "rms": 0.0792711,
+            "rms_dbfs": -22.018,
+            "dc": -0.0,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "miss_1",
+      "group": "miss",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.5,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 48000,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0745044,
+        "rms_dbfs": -22.556,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "miss_1.ogg",
+          "bytes": 5874,
+          "sha256": "4bfd16d18d128ba9d56c7d410afb816b1014046b54afdab6aa6cfaff9a51904a",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.489333,
+          "measured": {
+            "peak": 0.588944,
+            "peak_dbfs": -4.599,
+            "rms": 0.0847633,
+            "rms_dbfs": -21.436,
+            "dc": 2.37e-06,
+            "clipped_samples": 0,
+            "seam_step": 6.1e-06
+          }
+        },
+        "mp3": {
+          "file": "miss_1.mp3",
+          "bytes": 3055,
+          "sha256": "f761cc475d725bf6a8c30c4688137c80f03dcd23c607bddb442efc8c2c0815e9",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.5,
+          "measured": {
+            "peak": 0.4843164,
+            "peak_dbfs": -6.297,
+            "rms": 0.078392,
+            "rms_dbfs": -22.115,
+            "dc": 0.0,
+            "clipped_samples": 0,
+            "seam_step": 2.8e-06
+          }
+        }
+      }
+    },
+    {
+      "id": "miss_2",
+      "group": "miss",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.5,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 48000,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0827617,
+        "rms_dbfs": -21.643,
+        "dc": 0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "miss_2.ogg",
+          "bytes": 5988,
+          "sha256": "1dcf79de01ab23894b14abc43916555ca88784c7780c5852b585ff627d3d167f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.489333,
+          "measured": {
+            "peak": 0.6746209,
+            "peak_dbfs": -3.419,
+            "rms": 0.0927901,
+            "rms_dbfs": -20.65,
+            "dc": -3.07e-06,
+            "clipped_samples": 0,
+            "seam_step": 7e-07
+          }
+        },
+        "mp3": {
+          "file": "miss_2.mp3",
+          "bytes": 3055,
+          "sha256": "8e5b59bfef40127b4dbdb72d2153f451f22bb18ab0d3296827b35248f9575953",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.5,
+          "measured": {
+            "peak": 0.6481311,
+            "peak_dbfs": -3.767,
+            "rms": 0.0866528,
+            "rms_dbfs": -21.244,
+            "dc": 1e-08,
+            "clipped_samples": 0,
+            "seam_step": 1e-06
+          }
+        }
+      }
+    },
+    {
+      "id": "parry_1",
+      "group": "parry",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.1,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 105600,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0253426,
+        "rms_dbfs": -31.923,
+        "dc": -1.9e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "parry_1.ogg",
+          "bytes": 5398,
+          "sha256": "6a68d2ceb63f6d529b32d609854a73136f5741e1407b738dc484b2e5bac2f15e",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.5979027,
+            "peak_dbfs": -4.467,
+            "rms": 0.0257216,
+            "rms_dbfs": -31.794,
+            "dc": 1e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0102569
+          }
+        },
+        "mp3": {
+          "file": "parry_1.mp3",
+          "bytes": 6056,
+          "sha256": "8dc63e4bd2f8105f39960deee585a08b86c45468b0cc442a244593437bd42a96",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.5334252,
+            "peak_dbfs": -5.459,
+            "rms": 0.0262047,
+            "rms_dbfs": -31.632,
+            "dc": 1.14e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0472733
+          }
+        }
+      }
+    },
+    {
+      "id": "parry_2",
+      "group": "parry",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.1,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 105600,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0304603,
+        "rms_dbfs": -30.325,
+        "dc": 8e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "parry_2.ogg",
+          "bytes": 5423,
+          "sha256": "6432b2341b27da9b4f2737c57d9e8f9bbd5acbc5a74427facf375ce397184fab",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.5523106,
+            "peak_dbfs": -5.156,
+            "rms": 0.0310673,
+            "rms_dbfs": -30.154,
+            "dc": -2e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0119781
+          }
+        },
+        "mp3": {
+          "file": "parry_2.mp3",
+          "bytes": 6056,
+          "sha256": "012150768ab84522e87aea8281ac40a6dcef856c2a3c68a57a4b175f075d9475",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.5789341,
+            "peak_dbfs": -4.747,
+            "rms": 0.0303924,
+            "rms_dbfs": -30.345,
+            "dc": -5.9e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0084688
+          }
+        }
+      }
+    },
+    {
+      "id": "parry_3",
+      "group": "parry",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.1,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 105600,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0259096,
+        "rms_dbfs": -31.731,
+        "dc": -2e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "parry_3.ogg",
+          "bytes": 5431,
+          "sha256": "4e2e22db8a8cffc934c69f690ad3fc82b8f98afabe1629686f5430110ed0fa4b",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.5698595,
+            "peak_dbfs": -4.885,
+            "rms": 0.0261365,
+            "rms_dbfs": -31.655,
+            "dc": 8.9e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0258899
+          }
+        },
+        "mp3": {
+          "file": "parry_3.mp3",
+          "bytes": 6056,
+          "sha256": "e24e1ae89923122342a58d8ed064b27b9825820446e21f5ca0ae8af7ab920fe7",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.1,
+          "measured": {
+            "peak": 0.5710961,
+            "peak_dbfs": -4.866,
+            "rms": 0.0257026,
+            "rms_dbfs": -31.8,
+            "dc": -3.5e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0399363
+          }
+        }
+      }
+    },
+    {
+      "id": "respawn_1",
+      "group": "respawn",
+      "kind": "effect",
+      "loop": false,
+      "duration": 2.8,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 268800,
+      "source_measured": {
+        "peak": 0.481855,
+        "peak_dbfs": -6.342,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": -1.16e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "respawn_1.ogg",
+          "bytes": 9276,
+          "sha256": "38c381852022b0cb855d7d0d37cea1e97798911d9b8b41e9808b62349a0f5244",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 2.8,
+          "measured": {
+            "peak": 0.4917075,
+            "peak_dbfs": -6.166,
+            "rms": 0.1150775,
+            "rms_dbfs": -18.78,
+            "dc": -2.02e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0005434
+          }
+        },
+        "mp3": {
+          "file": "respawn_1.mp3",
+          "bytes": 14578,
+          "sha256": "8da7d2daaa03bd4ca0da27c94260f06ecd5a60288d7fbe6a83a5536471920c97",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 2.8,
+          "measured": {
+            "peak": 0.4578061,
+            "peak_dbfs": -6.786,
+            "rms": 0.1092532,
+            "rms_dbfs": -19.231,
+            "dc": -1.29e-06,
+            "clipped_samples": 0,
+            "seam_step": 2.6e-06
+          }
+        }
+      }
+    },
+    {
+      "id": "rest_1",
+      "group": "rest",
+      "kind": "effect",
+      "loop": false,
+      "duration": 2.5,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 240000,
+      "source_measured": {
+        "peak": 0.4471585,
+        "peak_dbfs": -6.991,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": 9.8e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "rest_1.ogg",
+          "bytes": 8610,
+          "sha256": "e956a3b747509f8720320f591ee4213401563ba619b0d9004db61d6ee769d0ec",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 2.5,
+          "measured": {
+            "peak": 0.447302,
+            "peak_dbfs": -6.988,
+            "rms": 0.1149246,
+            "rms_dbfs": -18.792,
+            "dc": -8.8e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0014388
+          }
+        },
+        "mp3": {
+          "file": "rest_1.mp3",
+          "bytes": 13135,
+          "sha256": "d7ca2ee32d65cca7a84aeb569ab689bb46d2865e1577c20a271ad06c719ae30c",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 2.5,
+          "measured": {
+            "peak": 0.4249461,
+            "peak_dbfs": -7.433,
+            "rms": 0.1092517,
+            "rms_dbfs": -19.231,
+            "dc": 9.1e-07,
+            "clipped_samples": 0,
+            "seam_step": 2.49e-05
+          }
+        }
+      }
+    },
+    {
+      "id": "shield_1",
+      "group": "shield",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.69,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 66240,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0343987,
+        "rms_dbfs": -29.269,
+        "dc": -8.573e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "shield_1.ogg",
+          "bytes": 4683,
+          "sha256": "c6672ad533a3203c3f86025ef2eb2fc9ccb04e7d7f307b434822f5358e498313",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.679333,
+          "measured": {
+            "peak": 0.5376443,
+            "peak_dbfs": -5.39,
+            "rms": 0.034876,
+            "rms_dbfs": -29.149,
+            "dc": -0.00015081,
+            "clipped_samples": 0,
+            "seam_step": 0.0065802
+          }
+        },
+        "mp3": {
+          "file": "shield_1.mp3",
+          "bytes": 4017,
+          "sha256": "a755c637fe1d514ffedb107ea2d02b0c5279db4c38726e1219d6822e369cdd4c",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.69,
+          "measured": {
+            "peak": 0.5992375,
+            "peak_dbfs": -4.448,
+            "rms": 0.0335184,
+            "rms_dbfs": -29.494,
+            "dc": -8.929e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0237629
+          }
+        }
+      }
+    },
+    {
+      "id": "shield_2",
+      "group": "shield",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.69,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 66240,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0365575,
+        "rms_dbfs": -28.74,
+        "dc": -8.49e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "shield_2.ogg",
+          "bytes": 4709,
+          "sha256": "c5e3fde0239219b8d14cf419afff33f49239d544abf9dea78a9204c0bcab856a",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.679333,
+          "measured": {
+            "peak": 0.5512293,
+            "peak_dbfs": -5.173,
+            "rms": 0.0371151,
+            "rms_dbfs": -28.609,
+            "dc": -0.00010474,
+            "clipped_samples": 0,
+            "seam_step": 0.0411957
+          }
+        },
+        "mp3": {
+          "file": "shield_2.mp3",
+          "bytes": 4017,
+          "sha256": "4e605c2aa1947de0ccc7f712fa1032d492b2fc5f11e0cf02d72cadd55cfb823a",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.69,
+          "measured": {
+            "peak": 0.5655712,
+            "peak_dbfs": -4.95,
+            "rms": 0.0365386,
+            "rms_dbfs": -28.745,
+            "dc": -0.00011613,
+            "clipped_samples": 0,
+            "seam_step": 0.0014228
+          }
+        }
+      }
+    },
+    {
+      "id": "shield_3",
+      "group": "shield",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.69,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 66240,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.035055,
+        "rms_dbfs": -29.105,
+        "dc": -7.942e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "shield_3.ogg",
+          "bytes": 4691,
+          "sha256": "8a5fa33078d9a4516c15099ffdaefa2a7e9af9e130d68fff0d65bfafa4f7103f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.679333,
+          "measured": {
+            "peak": 0.5709998,
+            "peak_dbfs": -4.867,
+            "rms": 0.0354086,
+            "rms_dbfs": -29.018,
+            "dc": -8.699e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0207135
+          }
+        },
+        "mp3": {
+          "file": "shield_3.mp3",
+          "bytes": 4017,
+          "sha256": "4ead4b44670e2c4f97850a94a84024926a154cee785a0b6c319c803d3edb2b42",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.69,
+          "measured": {
+            "peak": 0.5168437,
+            "peak_dbfs": -5.733,
+            "rms": 0.0345383,
+            "rms_dbfs": -29.234,
+            "dc": -0.00015961,
+            "clipped_samples": 0,
+            "seam_step": 0.0033245
+          }
+        }
+      }
+    },
+    {
+      "id": "shield_break_1",
+      "group": "shield_break",
+      "kind": "effect",
+      "loop": false,
+      "duration": 1.0,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 96000,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0596442,
+        "rms_dbfs": -24.489,
+        "dc": -9.555e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "shield_break_1.ogg",
+          "bytes": 5934,
+          "sha256": "ec29e7eda0f2a87969ca8ef773796ffb3261f120f122c7b44ed029a87a284f07",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.989333,
+          "measured": {
+            "peak": 0.5680009,
+            "peak_dbfs": -4.913,
+            "rms": 0.0644476,
+            "rms_dbfs": -23.816,
+            "dc": -7.399e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0119279
+          }
+        },
+        "mp3": {
+          "file": "shield_break_1.mp3",
+          "bytes": 5583,
+          "sha256": "68fd3bf5a8a7a556c18e91a01b19cf31351c0346848a8aea1202f2d7f2d0bb47",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 1.0,
+          "measured": {
+            "peak": 0.5052373,
+            "peak_dbfs": -5.93,
+            "rms": 0.0593413,
+            "rms_dbfs": -24.533,
+            "dc": -8.031e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0075116
+          }
+        }
+      }
+    },
+    {
+      "id": "step_dirt_1",
+      "group": "step_dirt",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.37,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 35520,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0708449,
+        "rms_dbfs": -22.994,
+        "dc": -5.592e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_dirt_1.ogg",
+          "bytes": 5245,
+          "sha256": "abab54ee86391fe3c87df4f269a06d380bcbe0181551720bc93b742267c37e82",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.359333,
+          "measured": {
+            "peak": 0.5705407,
+            "peak_dbfs": -4.874,
+            "rms": 0.074106,
+            "rms_dbfs": -22.603,
+            "dc": 6.825e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0028613
+          }
+        },
+        "mp3": {
+          "file": "step_dirt_1.mp3",
+          "bytes": 2460,
+          "sha256": "b56a46d97760a0584d0da068f880f01e86716bec69a5c2c955f48431635a8808",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.37,
+          "measured": {
+            "peak": 0.5402184,
+            "peak_dbfs": -5.349,
+            "rms": 0.0674702,
+            "rms_dbfs": -23.418,
+            "dc": -0.00024252,
+            "clipped_samples": 0,
+            "seam_step": 0.0145377
+          }
+        }
+      }
+    },
+    {
+      "id": "step_dirt_2",
+      "group": "step_dirt",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.37,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 35520,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0722642,
+        "rms_dbfs": -22.822,
+        "dc": -6.094e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_dirt_2.ogg",
+          "bytes": 5436,
+          "sha256": "96312c61c2ebc65c56a786bd421467ab56882eb485d331abb2ef92fed917fc40",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.359333,
+          "measured": {
+            "peak": 0.6065193,
+            "peak_dbfs": -4.343,
+            "rms": 0.0752064,
+            "rms_dbfs": -22.475,
+            "dc": -0.0001213,
+            "clipped_samples": 0,
+            "seam_step": 4.53e-05
+          }
+        },
+        "mp3": {
+          "file": "step_dirt_2.mp3",
+          "bytes": 2460,
+          "sha256": "d65e72a752a95b9a6ab01054736d0700278f8f1d50b4c36fa467deba8f8ddfb8",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.37,
+          "measured": {
+            "peak": 0.5118572,
+            "peak_dbfs": -5.817,
+            "rms": 0.0704653,
+            "rms_dbfs": -23.04,
+            "dc": -7.385e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.002945
+          }
+        }
+      }
+    },
+    {
+      "id": "step_dirt_3",
+      "group": "step_dirt",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.37,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 35520,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.070178,
+        "rms_dbfs": -23.076,
+        "dc": -6.089e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_dirt_3.ogg",
+          "bytes": 5362,
+          "sha256": "e9cf7cc400104dfe0e334c65887b61104d1142c91fb6359454fddc95723913b7",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.359333,
+          "measured": {
+            "peak": 0.5400935,
+            "peak_dbfs": -5.351,
+            "rms": 0.0729037,
+            "rms_dbfs": -22.745,
+            "dc": -3.393e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0003793
+          }
+        },
+        "mp3": {
+          "file": "step_dirt_3.mp3",
+          "bytes": 2460,
+          "sha256": "d5e4974b7ea75b20e2f14c8ad9bd9c1af4613d22e0326e88b9f710157b40a3b1",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.37,
+          "measured": {
+            "peak": 0.4925664,
+            "peak_dbfs": -6.151,
+            "rms": 0.0679614,
+            "rms_dbfs": -23.355,
+            "dc": -0.00024897,
+            "clipped_samples": 0,
+            "seam_step": 0.0029627
+          }
+        }
+      }
+    },
+    {
+      "id": "step_dirt_4",
+      "group": "step_dirt",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.37,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 35520,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0722021,
+        "rms_dbfs": -22.829,
+        "dc": -6.14e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_dirt_4.ogg",
+          "bytes": 5126,
+          "sha256": "315f47aef0ab6910af5a38f631dc754268749d8e1c9d57182a7dbd41929641d1",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.359333,
+          "measured": {
+            "peak": 0.5218081,
+            "peak_dbfs": -5.65,
+            "rms": 0.0751666,
+            "rms_dbfs": -22.479,
+            "dc": -5.109e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0003395
+          }
+        },
+        "mp3": {
+          "file": "step_dirt_4.mp3",
+          "bytes": 2460,
+          "sha256": "2486ba64d1ff2be34f870ef8837dd97a68287f056dc5d59f152e2fb3c82b9802",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.37,
+          "measured": {
+            "peak": 0.5185327,
+            "peak_dbfs": -5.704,
+            "rms": 0.0707769,
+            "rms_dbfs": -23.002,
+            "dc": -0.00016681,
+            "clipped_samples": 0,
+            "seam_step": 0.0303508
+          }
+        }
+      }
+    },
+    {
+      "id": "step_grass_1",
+      "group": "step_grass",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.42,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 40320,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.086029,
+        "rms_dbfs": -21.307,
+        "dc": -5.958e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_grass_1.ogg",
+          "bytes": 5862,
+          "sha256": "a57f62f40ff19fcd08d162a3eaa6f711e7bcf906b8dddcfaef5dc7d6ac67a140",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.409333,
+          "measured": {
+            "peak": 0.5967886,
+            "peak_dbfs": -4.484,
+            "rms": 0.0963806,
+            "rms_dbfs": -20.32,
+            "dc": -8.164e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.000599
+          }
+        },
+        "mp3": {
+          "file": "step_grass_1.mp3",
+          "bytes": 2701,
+          "sha256": "b489deb767993a04a8f085ef4c0ef8b5527cf30599c0b2ebc7c8062d8dacc0ca",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.42,
+          "measured": {
+            "peak": 0.5345191,
+            "peak_dbfs": -5.441,
+            "rms": 0.0860978,
+            "rms_dbfs": -21.3,
+            "dc": -6.074e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0007718
+          }
+        }
+      }
+    },
+    {
+      "id": "step_grass_2",
+      "group": "step_grass",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.42,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 40320,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0990712,
+        "rms_dbfs": -20.081,
+        "dc": -5.425e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_grass_2.ogg",
+          "bytes": 6040,
+          "sha256": "09ff334af97bc68b41db4814e85a52b352d5adf2340d6ce74178b732987ee026",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.409333,
+          "measured": {
+            "peak": 0.628443,
+            "peak_dbfs": -4.035,
+            "rms": 0.110546,
+            "rms_dbfs": -19.129,
+            "dc": -4.783e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.003825
+          }
+        },
+        "mp3": {
+          "file": "step_grass_2.mp3",
+          "bytes": 2701,
+          "sha256": "5c7cf4d7960b8468674aa813fb764b64b1fd8c373b9b4a6ebf5036f859845cc3",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.42,
+          "measured": {
+            "peak": 0.5877014,
+            "peak_dbfs": -4.617,
+            "rms": 0.0998646,
+            "rms_dbfs": -20.012,
+            "dc": -9.248e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0026211
+          }
+        }
+      }
+    },
+    {
+      "id": "step_grass_3",
+      "group": "step_grass",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.42,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 40320,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0911759,
+        "rms_dbfs": -20.802,
+        "dc": -5.672e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_grass_3.ogg",
+          "bytes": 5893,
+          "sha256": "3963d2ba96e05b02ad0e470a38f61c2590937ca32d14532ba1cbff58660c4db6",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.409333,
+          "measured": {
+            "peak": 0.5135936,
+            "peak_dbfs": -5.788,
+            "rms": 0.1026984,
+            "rms_dbfs": -19.769,
+            "dc": -0.00014524,
+            "clipped_samples": 0,
+            "seam_step": 0.0007466
+          }
+        },
+        "mp3": {
+          "file": "step_grass_3.mp3",
+          "bytes": 2701,
+          "sha256": "5a43647ed62938d886ba42b6089014914e15f0c9042b75e946d013a50f4e359b",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.42,
+          "measured": {
+            "peak": 0.5099918,
+            "peak_dbfs": -5.849,
+            "rms": 0.0924098,
+            "rms_dbfs": -20.686,
+            "dc": -0.00031138,
+            "clipped_samples": 0,
+            "seam_step": 0.0081751
+          }
+        }
+      }
+    },
+    {
+      "id": "step_grass_4",
+      "group": "step_grass",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.42,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 40320,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0912245,
+        "rms_dbfs": -20.798,
+        "dc": -5.835e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_grass_4.ogg",
+          "bytes": 6012,
+          "sha256": "b32d49caf9929be662debe988dc60bf0cc12c1bfb9a25b344c934fda71faac60",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.432,
+          "measured": {
+            "peak": 0.7146747,
+            "peak_dbfs": -2.918,
+            "rms": 0.0987942,
+            "rms_dbfs": -20.105,
+            "dc": -0.00011403,
+            "clipped_samples": 0,
+            "seam_step": 0.0004489
+          }
+        },
+        "mp3": {
+          "file": "step_grass_4.mp3",
+          "bytes": 2701,
+          "sha256": "da180563145c48298b2dcf1b65d159cac8016223551b957163eb8ba08e3263fc",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.42,
+          "measured": {
+            "peak": 0.6277899,
+            "peak_dbfs": -4.044,
+            "rms": 0.0916173,
+            "rms_dbfs": -20.76,
+            "dc": -5.373e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0088935
+          }
+        }
+      }
+    },
+    {
+      "id": "step_stone_1",
+      "group": "step_stone",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.33,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 31680,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0466251,
+        "rms_dbfs": -26.628,
+        "dc": -5.763e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_stone_1.ogg",
+          "bytes": 4699,
+          "sha256": "b4cab0f43564af88b06f66b1686fb57a36a41c49ce58429afaf1a933d3143e89",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.319333,
+          "measured": {
+            "peak": 0.5762635,
+            "peak_dbfs": -4.788,
+            "rms": 0.0488372,
+            "rms_dbfs": -26.225,
+            "dc": 1.923e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0010659
+          }
+        },
+        "mp3": {
+          "file": "step_stone_1.mp3",
+          "bytes": 2221,
+          "sha256": "868a8b478e7a79af7210cb893639852672027286aeb4963fec08562df26f9514",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.33,
+          "measured": {
+            "peak": 0.6282355,
+            "peak_dbfs": -4.038,
+            "rms": 0.0495865,
+            "rms_dbfs": -26.093,
+            "dc": 3.078e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0381306
+          }
+        }
+      }
+    },
+    {
+      "id": "step_stone_2",
+      "group": "step_stone",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.33,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 31680,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0466792,
+        "rms_dbfs": -26.618,
+        "dc": -5.685e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_stone_2.ogg",
+          "bytes": 4731,
+          "sha256": "8bc8c34f525d5400206fb8ec08af6a9f0a1acdd83e686496402700c321983fa2",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.319333,
+          "measured": {
+            "peak": 0.5717353,
+            "peak_dbfs": -4.856,
+            "rms": 0.0483469,
+            "rms_dbfs": -26.313,
+            "dc": -7.785e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0051367
+          }
+        },
+        "mp3": {
+          "file": "step_stone_2.mp3",
+          "bytes": 2221,
+          "sha256": "c6f52694a82c6169bd4d5f1e9c4768bd182546e1bfeb6fd8667b799c4a5959c9",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.33,
+          "measured": {
+            "peak": 0.4922222,
+            "peak_dbfs": -6.157,
+            "rms": 0.0441933,
+            "rms_dbfs": -27.093,
+            "dc": -0.00011388,
+            "clipped_samples": 0,
+            "seam_step": 0.001952
+          }
+        }
+      }
+    },
+    {
+      "id": "step_stone_3",
+      "group": "step_stone",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.33,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 31680,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0454735,
+        "rms_dbfs": -26.845,
+        "dc": -5.666e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_stone_3.ogg",
+          "bytes": 4700,
+          "sha256": "054b1ae74c0ca2abbfddb1c7a6452ab91f5ab1d09848f94abeb7cdf9a4939173",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.319333,
+          "measured": {
+            "peak": 0.5982336,
+            "peak_dbfs": -4.463,
+            "rms": 0.0471532,
+            "rms_dbfs": -26.53,
+            "dc": -6.601e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0052967
+          }
+        },
+        "mp3": {
+          "file": "step_stone_3.mp3",
+          "bytes": 2221,
+          "sha256": "ea4da25b88d6716c831de4bd670427bc02dfb4a2697573be56cbfe09800dc4e8",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.33,
+          "measured": {
+            "peak": 0.5447383,
+            "peak_dbfs": -5.276,
+            "rms": 0.0455468,
+            "rms_dbfs": -26.831,
+            "dc": -0.00015003,
+            "clipped_samples": 0,
+            "seam_step": 0.0317857
+          }
+        }
+      }
+    },
+    {
+      "id": "step_stone_4",
+      "group": "step_stone",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.33,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 31680,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0351694,
+        "rms_dbfs": -29.077,
+        "dc": -4.476e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_stone_4.ogg",
+          "bytes": 4692,
+          "sha256": "26ffa319603d2101d5cc98c387242f86c0a65d08cee9e62166712b1600ae36cb",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.319333,
+          "measured": {
+            "peak": 0.5476716,
+            "peak_dbfs": -5.23,
+            "rms": 0.0363409,
+            "rms_dbfs": -28.792,
+            "dc": -0.00011188,
+            "clipped_samples": 0,
+            "seam_step": 0.0073987
+          }
+        },
+        "mp3": {
+          "file": "step_stone_4.mp3",
+          "bytes": 2221,
+          "sha256": "7956cb6c76eb79355bc95eda095e1e097e3bb382fbab199e67d1d1be0a918638",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.33,
+          "measured": {
+            "peak": 0.5240853,
+            "peak_dbfs": -5.612,
+            "rms": 0.034152,
+            "rms_dbfs": -29.332,
+            "dc": -9.694e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0133555
+          }
+        }
+      }
+    },
+    {
+      "id": "step_wood_1",
+      "group": "step_wood",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.4,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 38400,
+      "source_measured": {
+        "peak": 0.5599999,
+        "peak_dbfs": -5.036,
+        "rms": 0.0475644,
+        "rms_dbfs": -26.454,
+        "dc": -0.00034905,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_wood_1.ogg",
+          "bytes": 5028,
+          "sha256": "efec0a346b471c0cbd414cef732ee7842a877e2eb4cebed45b3cf0eb7651384c",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.389333,
+          "measured": {
+            "peak": 0.5887601,
+            "peak_dbfs": -4.601,
+            "rms": 0.0488099,
+            "rms_dbfs": -26.23,
+            "dc": -0.00017357,
+            "clipped_samples": 0,
+            "seam_step": 0.0054789
+          }
+        },
+        "mp3": {
+          "file": "step_wood_1.mp3",
+          "bytes": 2580,
+          "sha256": "aa1e702c0dc32e4a45acc8a42289845d8b0566e8c6cce42916473252dd43384b",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.4,
+          "measured": {
+            "peak": 0.5331084,
+            "peak_dbfs": -5.464,
+            "rms": 0.0446825,
+            "rms_dbfs": -26.997,
+            "dc": -0.00021299,
+            "clipped_samples": 0,
+            "seam_step": 0.0092211
+          }
+        }
+      }
+    },
+    {
+      "id": "step_wood_2",
+      "group": "step_wood",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.4,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 38400,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0535491,
+        "rms_dbfs": -25.425,
+        "dc": -0.00038001,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_wood_2.ogg",
+          "bytes": 4986,
+          "sha256": "bc249699dfdcc76a1a00336dba1fe7ee2dcfa837f790bf474b62865b3760ada8",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.389333,
+          "measured": {
+            "peak": 0.5666891,
+            "peak_dbfs": -4.933,
+            "rms": 0.055284,
+            "rms_dbfs": -25.148,
+            "dc": -0.0003945,
+            "clipped_samples": 0,
+            "seam_step": 0.0089897
+          }
+        },
+        "mp3": {
+          "file": "step_wood_2.mp3",
+          "bytes": 2580,
+          "sha256": "d7ea9d18d854003fa550d02da3ec6950cfceac60d4e167843f222d2b584c46e7",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.4,
+          "measured": {
+            "peak": 0.5557138,
+            "peak_dbfs": -5.103,
+            "rms": 0.0494398,
+            "rms_dbfs": -26.118,
+            "dc": -0.00012079,
+            "clipped_samples": 0,
+            "seam_step": 0.0516585
+          }
+        }
+      }
+    },
+    {
+      "id": "step_wood_3",
+      "group": "step_wood",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.4,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 38400,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.051022,
+        "rms_dbfs": -25.845,
+        "dc": -0.00033501,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_wood_3.ogg",
+          "bytes": 4975,
+          "sha256": "39581f9d9173e7e57db19e5af715eef20d5177cb1bf0b247c5834de7b333361e",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.389333,
+          "measured": {
+            "peak": 0.5611769,
+            "peak_dbfs": -5.018,
+            "rms": 0.0523358,
+            "rms_dbfs": -25.624,
+            "dc": 5.329e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0086801
+          }
+        },
+        "mp3": {
+          "file": "step_wood_3.mp3",
+          "bytes": 2580,
+          "sha256": "0f895b709a9187c720cce15402dc4472cee694c1e17359fa49c9c4211f3bdf9f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.4,
+          "measured": {
+            "peak": 0.5063515,
+            "peak_dbfs": -5.911,
+            "rms": 0.0491426,
+            "rms_dbfs": -26.171,
+            "dc": -0.0005225,
+            "clipped_samples": 0,
+            "seam_step": 0.0003255
+          }
+        }
+      }
+    },
+    {
+      "id": "step_wood_4",
+      "group": "step_wood",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.4,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 38400,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0567924,
+        "rms_dbfs": -24.914,
+        "dc": -0.00034971,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "step_wood_4.ogg",
+          "bytes": 5019,
+          "sha256": "896e99c205be6e248213631ea6891d4e52d91ea6d069c7636d374c2836bb2798",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.389333,
+          "measured": {
+            "peak": 0.6209566,
+            "peak_dbfs": -4.139,
+            "rms": 0.0579869,
+            "rms_dbfs": -24.733,
+            "dc": -0.00014286,
+            "clipped_samples": 0,
+            "seam_step": 0.0197927
+          }
+        },
+        "mp3": {
+          "file": "step_wood_4.mp3",
+          "bytes": 2580,
+          "sha256": "5dd43959e7c04ea559ab3f8956b2ca211611e39892f99333a74a95b4c6520560",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.4,
+          "measured": {
+            "peak": 0.5361354,
+            "peak_dbfs": -5.415,
+            "rms": 0.054749,
+            "rms_dbfs": -25.232,
+            "dc": -0.00031351,
+            "clipped_samples": 0,
+            "seam_step": 0.0055536
+          }
+        }
+      }
+    },
+    {
+      "id": "ui_1",
+      "group": "ui",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.14,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 13440,
+      "source_measured": {
+        "peak": 0.2295597,
+        "peak_dbfs": -12.782,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": 1.93e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "ui_1.ogg",
+          "bytes": 4064,
+          "sha256": "e626bfd3e443bf406ddacdee50c4f6d7abd5b8a50651b06b5a6f6dee89dbd4da",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.154667,
+          "measured": {
+            "peak": 0.2345312,
+            "peak_dbfs": -12.596,
+            "rms": 0.1091141,
+            "rms_dbfs": -19.242,
+            "dc": -3.95e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0005766
+          }
+        },
+        "mp3": {
+          "file": "ui_1.mp3",
+          "bytes": 1253,
+          "sha256": "8d2804424f2e72fda1f7644ed17399fda36519172e1b1137de0f909cbfb510b5",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.14,
+          "measured": {
+            "peak": 0.2187088,
+            "peak_dbfs": -13.203,
+            "rms": 0.1087825,
+            "rms_dbfs": -19.269,
+            "dc": -1.5e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.002604
+          }
+        }
+      }
+    },
+    {
+      "id": "ui_2",
+      "group": "ui",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.14,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 13440,
+      "source_measured": {
+        "peak": 0.2282992,
+        "peak_dbfs": -12.83,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": 1.94e-06,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "ui_2.ogg",
+          "bytes": 4045,
+          "sha256": "4e14a3c6cdf78988e5faf942158daca615f709c430dcc15879349b22322b386b",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.154667,
+          "measured": {
+            "peak": 0.2326493,
+            "peak_dbfs": -12.666,
+            "rms": 0.1090949,
+            "rms_dbfs": -19.244,
+            "dc": 4.75e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0043384
+          }
+        },
+        "mp3": {
+          "file": "ui_2.mp3",
+          "bytes": 1253,
+          "sha256": "911f5f7a02510f7878d25a32a28e767394f11199a940e9fbb7f60f8f431593c6",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.14,
+          "measured": {
+            "peak": 0.2233501,
+            "peak_dbfs": -13.02,
+            "rms": 0.1087666,
+            "rms_dbfs": -19.27,
+            "dc": 2.24e-06,
+            "clipped_samples": 0,
+            "seam_step": 5.07e-05
+          }
+        }
+      }
+    },
+    {
+      "id": "ui_cancel_1",
+      "group": "ui_cancel",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.3,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 28800,
+      "source_measured": {
+        "peak": 0.3070968,
+        "peak_dbfs": -10.254,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": 4.377e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "ui_cancel_1.ogg",
+          "bytes": 4673,
+          "sha256": "618305946e2a582386bb1341b6347fa2bf2c1803a58c728763f573b35749a58c",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.314667,
+          "measured": {
+            "peak": 0.3045914,
+            "peak_dbfs": -10.326,
+            "rms": 0.112282,
+            "rms_dbfs": -18.994,
+            "dc": -1.13e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0038426
+          }
+        },
+        "mp3": {
+          "file": "ui_cancel_1.mp3",
+          "bytes": 2100,
+          "sha256": "fdf6a11a44f7c6428ea609aca3d736747662c181a120c3583cefbfc260518e62",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.3,
+          "measured": {
+            "peak": 0.2881353,
+            "peak_dbfs": -10.808,
+            "rms": 0.1095997,
+            "rms_dbfs": -19.204,
+            "dc": 5.084e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0013164
+          }
+        }
+      }
+    },
+    {
+      "id": "ui_confirm_1",
+      "group": "ui_confirm",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.37,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 35520,
+      "source_measured": {
+        "peak": 0.3334238,
+        "peak_dbfs": -9.54,
+        "rms": 0.115,
+        "rms_dbfs": -18.786,
+        "dc": 3.843e-05,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "ui_confirm_1.ogg",
+          "bytes": 4861,
+          "sha256": "e2772e5888a3fbc2f5598eea4498175023c68ace169d3086288f70981ce75d55",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.359333,
+          "measured": {
+            "peak": 0.3300062,
+            "peak_dbfs": -9.63,
+            "rms": 0.1166214,
+            "rms_dbfs": -18.664,
+            "dc": 2.36e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0012026
+          }
+        },
+        "mp3": {
+          "file": "ui_confirm_1.mp3",
+          "bytes": 2461,
+          "sha256": "14a3a57330ca8fea864a227a83a394879dbe00a81662a4b29c2e42e7fda6a633",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.37,
+          "measured": {
+            "peak": 0.3130886,
+            "peak_dbfs": -10.087,
+            "rms": 0.109439,
+            "rms_dbfs": -19.217,
+            "dc": 2.232e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.003257
+          }
+        }
+      }
+    },
+    {
+      "id": "whoosh_heavy_1",
+      "group": "whoosh_heavy",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.68,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 65280,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0863794,
+        "rms_dbfs": -21.272,
+        "dc": -4e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "whoosh_heavy_1.ogg",
+          "bytes": 6923,
+          "sha256": "60523891c4a7ba742aa78edc222dc93275a62c169aacc1dc0150acd0788ff2f1",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.698667,
+          "measured": {
+            "peak": 0.6383271,
+            "peak_dbfs": -3.899,
+            "rms": 0.090718,
+            "rms_dbfs": -20.846,
+            "dc": -2.81e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "whoosh_heavy_1.mp3",
+          "bytes": 4023,
+          "sha256": "58616dba4c2f4d8bf0288b028a824c97f2b5a8de85632e963db9cf1434dadb68",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.68,
+          "measured": {
+            "peak": 0.5181205,
+            "peak_dbfs": -5.711,
+            "rms": 0.08522,
+            "rms_dbfs": -21.389,
+            "dc": -1.074e-05,
+            "clipped_samples": 0,
+            "seam_step": 2.18e-05
+          }
+        }
+      }
+    },
+    {
+      "id": "whoosh_heavy_2",
+      "group": "whoosh_heavy",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.68,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 65280,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0813667,
+        "rms_dbfs": -21.791,
+        "dc": -4e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "whoosh_heavy_2.ogg",
+          "bytes": 7011,
+          "sha256": "41d1473d581e84683cddbb00c95de3b27634bcb83c24c6ca69ea38aced9643f5",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.698667,
+          "measured": {
+            "peak": 0.5270107,
+            "peak_dbfs": -5.564,
+            "rms": 0.0851807,
+            "rms_dbfs": -21.393,
+            "dc": -9.342e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "whoosh_heavy_2.mp3",
+          "bytes": 4023,
+          "sha256": "598f293ffae699b0bcd980e91b1f8b2bdf523a0f7f33d0ca8b8b135a892efa00",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.68,
+          "measured": {
+            "peak": 0.5380117,
+            "peak_dbfs": -5.384,
+            "rms": 0.0803346,
+            "rms_dbfs": -21.902,
+            "dc": -3.136e-05,
+            "clipped_samples": 0,
+            "seam_step": 3.56e-05
+          }
+        }
+      }
+    },
+    {
+      "id": "whoosh_heavy_3",
+      "group": "whoosh_heavy",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.68,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 65280,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0995589,
+        "rms_dbfs": -20.038,
+        "dc": -4e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "whoosh_heavy_3.ogg",
+          "bytes": 6890,
+          "sha256": "ee5539666f4b36645f26edaddf59dc8736ecd912d6f12737877d3217891e3726",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.698667,
+          "measured": {
+            "peak": 0.6149377,
+            "peak_dbfs": -4.223,
+            "rms": 0.1048059,
+            "rms_dbfs": -19.592,
+            "dc": -1.742e-05,
+            "clipped_samples": 0,
+            "seam_step": 1.4e-06
+          }
+        },
+        "mp3": {
+          "file": "whoosh_heavy_3.mp3",
+          "bytes": 4023,
+          "sha256": "f757ae8027bde1de8b3f1cee526325927f33dbe251f87648634a74f65a09547f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.68,
+          "measured": {
+            "peak": 0.6226221,
+            "peak_dbfs": -4.116,
+            "rms": 0.0974449,
+            "rms_dbfs": -20.225,
+            "dc": 4.289e-05,
+            "clipped_samples": 0,
+            "seam_step": 6.05e-05
+          }
+        }
+      }
+    },
+    {
+      "id": "whoosh_light_1",
+      "group": "whoosh_light",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.39,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 37440,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.077157,
+        "rms_dbfs": -22.252,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "whoosh_light_1.ogg",
+          "bytes": 5538,
+          "sha256": "796d5d8f407d31d9c10b856ac0ccaa55618b31b080ee05cb4802dece52fa9b4f",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.379333,
+          "measured": {
+            "peak": 0.5295612,
+            "peak_dbfs": -5.522,
+            "rms": 0.0879919,
+            "rms_dbfs": -21.111,
+            "dc": 4.89e-06,
+            "clipped_samples": 0,
+            "seam_step": 2.9e-06
+          }
+        },
+        "mp3": {
+          "file": "whoosh_light_1.mp3",
+          "bytes": 2583,
+          "sha256": "cc74c8fb1bf95c5a3c99633727b6934c903b580e9818121945e630e725d95bcf",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.39,
+          "measured": {
+            "peak": 0.5397893,
+            "peak_dbfs": -5.356,
+            "rms": 0.0792885,
+            "rms_dbfs": -22.016,
+            "dc": -1e-08,
+            "clipped_samples": 0,
+            "seam_step": 8e-06
+          }
+        }
+      }
+    },
+    {
+      "id": "whoosh_light_2",
+      "group": "whoosh_light",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.39,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 37440,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0801204,
+        "rms_dbfs": -21.925,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "whoosh_light_2.ogg",
+          "bytes": 5418,
+          "sha256": "89fdf57555457a8b0b6b3bd12ae5f38de6482a3e4025b51c7abd90e658c0d8f4",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.379333,
+          "measured": {
+            "peak": 0.6124338,
+            "peak_dbfs": -4.259,
+            "rms": 0.090289,
+            "rms_dbfs": -20.887,
+            "dc": -9.1e-07,
+            "clipped_samples": 0,
+            "seam_step": 2.7e-06
+          }
+        },
+        "mp3": {
+          "file": "whoosh_light_2.mp3",
+          "bytes": 2583,
+          "sha256": "d1c57082bf370e412696a9953f43b1aa3207e6fc243f8341e4226adde557f025",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.39,
+          "measured": {
+            "peak": 0.580105,
+            "peak_dbfs": -4.73,
+            "rms": 0.0833501,
+            "rms_dbfs": -21.582,
+            "dc": 1e-08,
+            "clipped_samples": 0,
+            "seam_step": 7.1e-06
+          }
+        }
+      }
+    },
+    {
+      "id": "whoosh_light_3",
+      "group": "whoosh_light",
+      "kind": "effect",
+      "loop": false,
+      "duration": 0.39,
+      "sample_rate": 24000,
+      "channels": 1,
+      "pcm_bytes": 37440,
+      "source_measured": {
+        "peak": 0.56,
+        "peak_dbfs": -5.036,
+        "rms": 0.0779699,
+        "rms_dbfs": -22.161,
+        "dc": 0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "whoosh_light_3.ogg",
+          "bytes": 5548,
+          "sha256": "6335a07a028667cd22d28c98054650bcbb2a7219cb669eb956a4832e663ba723",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.379333,
+          "measured": {
+            "peak": 0.5616193,
+            "peak_dbfs": -5.011,
+            "rms": 0.0883674,
+            "rms_dbfs": -21.074,
+            "dc": 1.15e-06,
+            "clipped_samples": 0,
+            "seam_step": 6.6e-06
+          }
+        },
+        "mp3": {
+          "file": "whoosh_light_3.mp3",
+          "bytes": 2583,
+          "sha256": "ab937d5ad63d0619676780706285e2ef56056e7c9dfd2100d62cad52505f4c24",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 0.39,
+          "measured": {
+            "peak": 0.5023127,
+            "peak_dbfs": -5.981,
+            "rms": 0.0794183,
+            "rms_dbfs": -22.002,
+            "dc": 3e-08,
+            "clipped_samples": 0,
+            "seam_step": 1.54e-05
+          }
+        }
+      }
+    },
+    {
+      "id": "room_ir",
+      "group": "room_ir",
+      "kind": "ir",
+      "loop": false,
+      "duration": 1.35,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 259200,
+      "source_measured": {
+        "peak": 0.42,
+        "peak_dbfs": -7.535,
+        "rms": 0.0058514,
+        "rms_dbfs": -44.655,
+        "dc": -0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "room_ir.ogg",
+          "bytes": 12964,
+          "sha256": "c7a58b44eab14d4f04e9ec89e1b100d300f814e953494f61e98b8f703ccc7c76",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 1.35,
+          "measured": {
+            "peak": 0.3381359,
+            "peak_dbfs": -9.418,
+            "rms": 0.00612,
+            "rms_dbfs": -44.265,
+            "dc": 3.66e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "room_ir.mp3",
+          "bytes": 7376,
+          "sha256": "0a1c23ea9d4cee7f0470317c406df4366ce46ccc15523b4b65388ef9bf0d8f91",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 1.35,
+          "measured": {
+            "peak": 0.2179599,
+            "peak_dbfs": -13.232,
+            "rms": 0.0053926,
+            "rms_dbfs": -45.364,
+            "dc": -1.72e-06,
+            "clipped_samples": 0,
+            "seam_step": 3e-07
+          }
+        }
+      }
+    },
+    {
+      "id": "music_duel",
+      "group": "duel",
+      "kind": "music",
+      "loop": true,
+      "duration": 64.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 12288000,
+      "source_measured": {
+        "peak": 0.4277878,
+        "peak_dbfs": -7.375,
+        "rms": 0.092,
+        "rms_dbfs": -20.724,
+        "dc": 7.4e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "music_duel.ogg",
+          "bytes": 360788,
+          "sha256": "9226d02cb6d65eb434fa3049326b8c7befd93840b54e8af6af91c9bc423cc1ae",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 64.0,
+          "measured": {
+            "peak": 0.4372454,
+            "peak_dbfs": -7.185,
+            "rms": 0.092065,
+            "rms_dbfs": -20.718,
+            "dc": -8.8e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0056956
+          }
+        },
+        "mp3": {
+          "file": "music_duel.mp3",
+          "bytes": 192467,
+          "sha256": "47b83bf397f3e5ac8d45af4e100699e1e60eb74556a4ecfd2f8a4bb9be9df877",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 64.0,
+          "measured": {
+            "peak": 0.5267923,
+            "peak_dbfs": -5.567,
+            "rms": 0.1209405,
+            "rms_dbfs": -18.349,
+            "dc": -2.09e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0047309
+          }
+        }
+      }
+    },
+    {
+      "id": "music_forest",
+      "group": "forest",
+      "kind": "music",
+      "loop": true,
+      "duration": 120.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 23040000,
+      "source_measured": {
+        "peak": 0.4214759,
+        "peak_dbfs": -7.505,
+        "rms": 0.092,
+        "rms_dbfs": -20.724,
+        "dc": 4e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "music_forest.ogg",
+          "bytes": 659845,
+          "sha256": "a7bc5e581e474909e697d2bf0523881b8c7c547b2a6ec75cc0a0c86f367d22f4",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 120.0,
+          "measured": {
+            "peak": 0.4264032,
+            "peak_dbfs": -7.404,
+            "rms": 0.0920467,
+            "rms_dbfs": -20.72,
+            "dc": 1.54e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0014753
+          }
+        },
+        "mp3": {
+          "file": "music_forest.mp3",
+          "bytes": 360445,
+          "sha256": "d1e01ef9ad8392ee189238007d9346d5803dcf751ddaf21d797e3adae3e49eb3",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 120.0,
+          "measured": {
+            "peak": 0.5211489,
+            "peak_dbfs": -5.661,
+            "rms": 0.1204425,
+            "rms_dbfs": -18.384,
+            "dc": -1.609e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.000247
+          }
+        }
+      }
+    },
+    {
+      "id": "music_meadow",
+      "group": "meadow",
+      "kind": "music",
+      "loop": true,
+      "duration": 120.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 23040000,
+      "source_measured": {
+        "peak": 0.47,
+        "peak_dbfs": -6.558,
+        "rms": 0.0912492,
+        "rms_dbfs": -20.795,
+        "dc": 1e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "music_meadow.ogg",
+          "bytes": 551291,
+          "sha256": "b0f75a772106c7696be15b5d73b39ef2034735f551a9d847ba51b566cb1bbe15",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 120.0,
+          "measured": {
+            "peak": 0.4705768,
+            "peak_dbfs": -6.547,
+            "rms": 0.0913235,
+            "rms_dbfs": -20.788,
+            "dc": 1.09e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0079594
+          }
+        },
+        "mp3": {
+          "file": "music_meadow.mp3",
+          "bytes": 360445,
+          "sha256": "8abcd62ee25fc0da0dc0fd29e071233b87a250d5b91290796adf4ead93ff37ef",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 120.0,
+          "measured": {
+            "peak": 0.6077039,
+            "peak_dbfs": -4.326,
+            "rms": 0.1200955,
+            "rms_dbfs": -18.409,
+            "dc": -3.46e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0057672
+          }
+        }
+      }
+    },
+    {
+      "id": "music_rescue",
+      "group": "rescue",
+      "kind": "music",
+      "loop": false,
+      "duration": 35.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 6720000,
+      "source_measured": {
+        "peak": 0.4284733,
+        "peak_dbfs": -7.362,
+        "rms": 0.092,
+        "rms_dbfs": -20.724,
+        "dc": 1e-08,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "music_rescue.ogg",
+          "bytes": 180732,
+          "sha256": "6ed9026045d19b13ee19cc57265dcd11b71422c7a00c3181fd688f38e67559ee",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 35.0,
+          "measured": {
+            "peak": 0.4293205,
+            "peak_dbfs": -7.344,
+            "rms": 0.0920629,
+            "rms_dbfs": -20.718,
+            "dc": -9e-08,
+            "clipped_samples": 0,
+            "seam_step": 0.0001768
+          }
+        },
+        "mp3": {
+          "file": "music_rescue.mp3",
+          "bytes": 105493,
+          "sha256": "e7da695c00bf547ea12e6e0007364a052162c890101594d5eac7d9357310655d",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 35.0,
+          "measured": {
+            "peak": 0.5123108,
+            "peak_dbfs": -5.809,
+            "rms": 0.1209288,
+            "rms_dbfs": -18.349,
+            "dc": -2.76e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0006487
+          }
+        }
+      }
+    },
+    {
+      "id": "music_royal",
+      "group": "royal",
+      "kind": "music",
+      "loop": true,
+      "duration": 64.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 12288000,
+      "source_measured": {
+        "peak": 0.47,
+        "peak_dbfs": -6.558,
+        "rms": 0.0916889,
+        "rms_dbfs": -20.754,
+        "dc": 5.9e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "music_royal.ogg",
+          "bytes": 367682,
+          "sha256": "07f42c8e75593f5dc665dbadfd97e0a20f717cbcdfe27ef2306c43a13381e47a",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 64.0,
+          "measured": {
+            "peak": 0.4620454,
+            "peak_dbfs": -6.706,
+            "rms": 0.0917693,
+            "rms_dbfs": -20.746,
+            "dc": 3.4e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0073236
+          }
+        },
+        "mp3": {
+          "file": "music_royal.mp3",
+          "bytes": 192468,
+          "sha256": "f87b4f0c8412db33e307a29e5becfc99fca451e8c5ed02a88a0055cffb8517f6",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 64.0,
+          "measured": {
+            "peak": 0.6111393,
+            "peak_dbfs": -4.277,
+            "rms": 0.1202891,
+            "rms_dbfs": -18.395,
+            "dc": 8.3e-07,
+            "clipped_samples": 0,
+            "seam_step": 0.0017939
+          }
+        }
+      }
+    },
+    {
+      "id": "music_title",
+      "group": "title",
+      "kind": "music",
+      "loop": true,
+      "duration": 60.0,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 11520000,
+      "source_measured": {
+        "peak": 0.4687807,
+        "peak_dbfs": -6.581,
+        "rms": 0.092,
+        "rms_dbfs": -20.724,
+        "dc": 2.1e-07,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "music_title.ogg",
+          "bytes": 279025,
+          "sha256": "8ca11303525bcc0ef85d02efbf934bda8a387752f01267069dee69e150583889",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 60.0,
+          "measured": {
+            "peak": 0.4766622,
+            "peak_dbfs": -6.436,
+            "rms": 0.0920873,
+            "rms_dbfs": -20.716,
+            "dc": -3.5e-06,
+            "clipped_samples": 0,
+            "seam_step": 0.0041551
+          }
+        },
+        "mp3": {
+          "file": "music_title.mp3",
+          "bytes": 180444,
+          "sha256": "d6733bb4b82df75b771c9e651d08c2c0fb44d0a5dd2b3018a0ac52a0a2373406",
+          "channels": 1,
+          "sample_rate": 24000,
+          "decoded_duration": 60.0,
+          "measured": {
+            "peak": 0.6181836,
+            "peak_dbfs": -4.178,
+            "rms": 0.1214017,
+            "rms_dbfs": -18.316,
+            "dc": 1.359e-05,
+            "clipped_samples": 0,
+            "seam_step": 0.0072517
+          }
+        }
+      }
+    },
+    {
+      "id": "silence",
+      "group": "silence",
+      "kind": "silence",
+      "loop": true,
+      "duration": 0.25,
+      "sample_rate": 24000,
+      "channels": 2,
+      "pcm_bytes": 48000,
+      "source_measured": {
+        "peak": 0.0,
+        "peak_dbfs": -180.0,
+        "rms": 0.0,
+        "rms_dbfs": -180.0,
+        "dc": 0.0,
+        "clipped_samples": 0,
+        "seam_step": 0.0
+      },
+      "encodings": {
+        "ogg": {
+          "file": "silence.ogg",
+          "bytes": 3779,
+          "sha256": "095c4d65f9ba39217d07a9273e0087cee79baa8a1bf6e9da239269972fbfde03",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 0.239333,
+          "measured": {
+            "peak": 0.0,
+            "peak_dbfs": -180.0,
+            "rms": 0.0,
+            "rms_dbfs": -180.0,
+            "dc": 0.0,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        },
+        "mp3": {
+          "file": "silence.mp3",
+          "bytes": 1856,
+          "sha256": "1fc9ce72bb06ccb6d6da06b22ea95b3c631b4f5b9436e1343988dd47652f9bab",
+          "channels": 2,
+          "sample_rate": 24000,
+          "decoded_duration": 0.25,
+          "measured": {
+            "peak": 0.0,
+            "peak_dbfs": -180.0,
+            "rms": 0.0,
+            "rms_dbfs": -180.0,
+            "dc": 0.0,
+            "clipped_samples": 0,
+            "seam_step": 0.0
+          }
+        }
+      }
+    }
+  ]
+}
