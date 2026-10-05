@@ -49,7 +49,7 @@ export class Combat {
       if(e.state==='notice'){e.view.play('idle');e.view.update(dt);if(e.t>.65){e.state='approach';e.t=0;}this.moveEnemy(e,0,0,dt);continue;}
       if(e.state==='telegraph'||e.state==='attack'){this.enemyAttack(e,dt);this.moveEnemy(e,0,0,dt);continue;}
       if(e.state==='charge'){this.rangedAttack(e,dt);this.moveEnemy(e,0,0,dt);continue;}
-      if(e.state==='recover'){e.view.play('idle',.12);e.view.update(dt);this.moveEnemy(e,0,0,dt);if(e.cooldown<=0){e.state='approach';e.t=0;}continue;}
+      if(e.state==='recover'){if((e.kind==='archer'||e.kind==='mage')&&e.t<.72)e.view.pose(e.kind==='mage'?'cast':'release',e.t+(e.kind==='mage'?.24:.12));else{e.view.play('idle',.12);e.view.update(dt);}this.moveEnemy(e,0,0,dt);if(e.cooldown<=0){e.state='approach';e.t=0;}continue;}
       const targetYaw=Math.atan2(to.x,to.z);if(e.alert)e.yaw=turn(e.yaw,targetYaw,dt*7);e.view.root.rotation.y=e.yaw;
       if(!e.alert){if(e.pos.distanceTo(e.home)>2){const home=e.home.clone().sub(e.pos);const l=Math.hypot(home.x,home.z);e.yaw=turn(e.yaw,Math.atan2(home.x,home.z),dt*4);e.view.root.rotation.y=e.yaw;this.moveEnemy(e,home.x/l*1.4,home.z/l*1.4,dt);e.view.play('walk');}else{this.moveEnemy(e,0,0,dt);e.view.play('idle');}e.view.update(dt);continue;}
       if(p.attack||p.charge!==null){if(!e.sawWindup)e.sawWindup=time;}else{if(e.state==='defend'){e.state='recover';e.t=0;e.cooldown=.32;}e.sawWindup=0;e.decided=false;}
