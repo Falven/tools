@@ -140,7 +140,7 @@ Played355 incorrectly displayed “Armor struck” for an approaching royal's no
 
 The corrected isolated DOM fixture414 passed with exit0: muted/locked notice suppression and real-contact preemption of a release cue were exercised. The first combined fixture failed only because its mock omitted `document` during `audio.dispose`; that was corrected in the fixture, not treated as an in-game failure. These are component checks, **not physical listening, actual-host observations or a browser replay of the notice/contact-caption cases**. The later415 empty-hall smoke did not involve contact.
 
-Candidate415 passed strict TypeScript/build at24.68MiB HTML /12.03MiB gzip. Its publication/activation remains pending: the latest verified live activation is still `95d2745094ed517139e3bc96912fd82eb95f67fb` at 06:13:55 UTC, with the actual live main-tool/resource call belonging to `92dfca7`. The actual Harness GUI at `http://127.0.0.1:3001` was freshly rechecked as `ECONNREFUSED`; no replacement GUI was used.
+Candidate415 passed strict TypeScript/build at24.68MiB HTML /12.03MiB gzip. Its code release `ad121301be2f71da3328e47a0656a4fd28d065e4` was catalog/runtime-activated at10:50:56 UTC on5 October2026; the live main-tool invocation and expected resource listing then succeeded. The [publication record](<src/catalog_app/tools/gloaming_road/VERIFICATION.md#published-candidate415>) pins the tested bundle independently of subsequent documentation-only commits. The actual Harness GUI at `http://127.0.0.1:3001` was freshly rechecked as `ECONNREFUSED`; no replacement GUI was used.
 
 ### Final415 normal reload and native-media resume
 
