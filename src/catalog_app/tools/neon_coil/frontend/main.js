@@ -73,6 +73,7 @@ function focusScene(){ui.scene.focus({preventScroll:true});}
 function syncHostTouch(context){
   touchDevice=touchDevice||Boolean(context?.deviceCapabilities?.touch);
   ui['swipe-hint'].hidden=!touchDevice;ui['touch-controls'].hidden=!touchDevice||phase!=='playing';
+  if(renderer&&renderer.touchControls!==touchDevice){renderer.touchControls=touchDevice;renderer.resize();}
 }
 async function requestFullscreen(){
   if(fullscreenRequested||!connected)return;fullscreenRequested=true;

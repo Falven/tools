@@ -30,6 +30,7 @@ export class NeonRenderer {
   constructor(container, onContextLost) {
     this.container = container;
     this.reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.touchControls = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0x111314, .013);
     this.camera = new THREE.OrthographicCamera(-20,20,12,-12,.1,150);
@@ -155,15 +156,23 @@ export class NeonRenderer {
   }
   updateCamera() {
     const aspect=this.width/this.height;
-    const normalHeight=Math.max(22.5,28/aspect);
-    const introHeight=this.mobile?Math.max(37,28/aspect):Math.max(22.5,27/(aspect*.62));
+    const cameraY=this.mobile?30:28, cameraZ=this.mobile?18:22;
+    const pitch=cameraY/Math.hypot(cameraY,cameraZ);
+    // Fit the board to the usable screen, rather than leaving a fixed wide margin.
+    const side=Math.min(this.mobile?8:16,this.width*.025);
+    const top=Math.min(this.mobile?116:this.height<420?66:90,this.height*.3);
+    const bottom=Math.min(this.touchControls?(this.mobile?132:112):26,this.height*.3);
+    const scale=Math.min((this.width-2*side)/(WIDTH+1.4),Math.max(1,this.height-top-bottom)/((HEIGHT+1.4)*pitch+1));
+    const normalHeight=this.height/scale;
+    const normalZ=-(top-bottom)/(2*scale*pitch);
+    const introHeight=this.mobile?Math.max(35,26.5/aspect):Math.max(20.5,26.4/(aspect*.64));
     const viewHeight=THREE.MathUtils.lerp(normalHeight,introHeight,this.introMix);
     const targetX=this.mobile?0:-viewHeight*aspect*.176*this.introMix;
-    const targetZ=this.mobile?6.3*this.introMix:0;
+    const targetZ=THREE.MathUtils.lerp(normalZ,this.mobile?6.3:0,this.introMix);
     this.camera.left=-viewHeight*aspect/2; this.camera.right=viewHeight*aspect/2; this.camera.top=viewHeight/2; this.camera.bottom=-viewHeight/2;
     // No sideways orbit or roll: screen axes match the grid and arrow keys.
     // A small forward tilt preserves the raised tiles and visible front edge.
-    this.camera.position.set(targetX,this.mobile?30:28,(this.mobile?18:22)+targetZ); this.camera.lookAt(targetX,0,targetZ); this.camera.updateProjectionMatrix();
+    this.camera.position.set(targetX,cameraY,cameraZ+targetZ); this.camera.lookAt(targetX,0,targetZ); this.camera.updateProjectionMatrix();
   }
   cycleQuality() {
     this.mode=this.mode==='auto'?'ultra':this.mode==='ultra'?'lite':'auto';
