@@ -27,7 +27,9 @@ win bonus  = (1,000 + max(0, 1,000 − floor(elapsed seconds))) × multiplier
 
 **Only wins are posted.** Each verified delegated user retains one personal best across all difficulties. The shared top 50 are sorted by score descending, then server elapsed milliseconds ascending, then first achieved. Equal-score faster runs replace that user's best; exact ties retain the original achievement.
 
-Scores and active games are **process-local, in-memory, and ephemeral**. There is no database, score file, browser score storage, or score copied into the conversation. A server restart clears them. Games expire two hours after issuance; only the newest three games per player are retained, including terminal receipts. Shared memory is bounded to 1,024 runs and 5,000 scored players. Active games reserve a player slot so a valid issued win can always be recorded.
+Scores and active games are **process-local, in-memory, and ephemeral**. There is no database, score file, or browser score storage. A server restart clears the live games and standings. Games expire two hours after issuance; only the newest three games per player are retained, including terminal receipts. Shared memory is bounded to 1,024 runs and 5,000 scored players. Active games reserve a player slot so a valid issued win can always be recorded.
+
+The App does not push live moves or scores into model context. The read-only main Tool does return a current standings snapshot as a normal MCP result, which the caller's client may retain in conversation history. Such snapshots are never used to restore the server's leaderboard.
 
 The timer starts on the first actual reveal, not opening the App or placing a flag. It keeps running while the tab is hidden or help is open. The nostalgic display caps at 999 seconds; the server and accessible label retain actual elapsed time.
 
