@@ -14,6 +14,10 @@
   <a href="#connect-to-your-mcp-server">Connect to your MCP Server</a>
 </p>
 
+## Included utility Apps
+
+`celsius_to_fahrenheit(celsius=25)` opens an interactive temperature converter and returns **25 °C = 77 °F**, with a structured/text fallback for clients without Apps. It supports negatives and decimals, quick presets, keyboard input, and host light/dark themes. See the [usage, privacy and test notes](<src/catalog_app/tools/celsius_to_fahrenheit/README.md>).
+
 ## Included game Apps
 
 `rally_pong()` opens **Rally — After Hours**, a full-viewport Three.js 2.5D Pong arcade with responsive controls, original synth music, independent music/SFX switches, and replay-verified signed-in high scores held only in server memory. See the [controls, build, privacy and verification notes](<src/catalog_app/tools/rally_pong/README.md>). Practice never posts scores; the leaderboard resets on server restart.
