@@ -1,0 +1,240 @@
+{
+  "referenceImagesBundled": false,
+  "imagesUnaltered": true,
+  "captures": [
+    {
+      "id": "A",
+      "path": "src/catalog_app/tools/gloaming_road/review/A-meadow.png",
+      "source": "artifacts/gloaming-approach.png",
+      "sha256": "ea082aff3db8117e32a5dd41755213364f951101a4eebbc9b7cbea78d43c3a6b",
+      "viewport": [
+        640,
+        400
+      ],
+      "gameTarget": [
+        320,
+        200
+      ],
+      "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T04:55:31.198Z",
+      "kind": "actual gameplay capture",
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "B",
+      "path": "src/catalog_app/tools/gloaming_road/review/B-woodland.png",
+      "source": "artifacts/gloaming-woodland-entry.png",
+      "sha256": "15b5ce03808527844d6a3b4269bee164da7f8a2254ae685530ac80603494f1a0",
+      "viewport": [
+        640,
+        400
+      ],
+      "gameTarget": [
+        320,
+        200
+      ],
+      "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T04:58:53.831Z",
+      "kind": "actual gameplay capture",
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "C",
+      "path": "src/catalog_app/tools/gloaming_road/review/C-armored-human.png",
+      "source": "artifacts/gloaming-first-knight.png",
+      "sha256": "796aa1ccc7f7e74abafcdf2b79156ef6f6a5a75176000e1e910bf4808c782fa5",
+      "viewport": [
+        640,
+        400
+      ],
+      "gameTarget": [
+        320,
+        200
+      ],
+      "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T05:06:45.256Z",
+      "kind": "actual gameplay capture",
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "D",
+      "path": "src/catalog_app/tools/gloaming_road/review/D-archer.png",
+      "source": "artifacts/gloaming-archer-wounded.png",
+      "sha256": "d76aa5cbc9ebf16f7731c82d86b322002a2112583bb2f8beaad37175c56c3e3d",
+      "viewport": [
+        640,
+        400
+      ],
+      "gameTarget": [
+        320,
+        200
+      ],
+      "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T06:29:08.320Z",
+      "kind": "actual gameplay capture",
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "E",
+      "path": "src/catalog_app/tools/gloaming_road/review/E-caster.png",
+      "source": "artifacts/gloaming-mage-close.png",
+      "sha256": "d77ac49a0edcb6d66865dd8f0bf7a7c282b4e43522c93bf4caf620c7771e7a46",
+      "viewport": [
+        640,
+        400
+      ],
+      "gameTarget": [
+        320,
+        200
+      ],
+      "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T05:38:33.502Z",
+      "kind": "actual gameplay capture",
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "block-before",
+      "path": "src/catalog_app/tools/gloaming_road/review/arrow-block-before-refinement.png",
+      "source": "artifacts/gloaming-arrow-block.png",
+      "sha256": "4a06a0bdf98a6703084effc6ae31e4fec535169ab96d983c84c3308bd08cd45d",
+      "viewport": [
+        640,
+        400
+      ],
+      "gameTarget": [
+        320,
+        200
+      ],
+      "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T06:29:00.984Z",
+      "kind": "actual gameplay capture",
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "muted-caption",
+      "path": "src/catalog_app/tools/gloaming_road/review/muted-caption-balanced.png",
+      "source": "artifacts/gloaming-caption-muted.png",
+      "sha256": "4e6941ff2c8d8cf0cbbe11035b7cc5ef6a2253617c6a70e820973cfc6b3d6c67",
+      "viewport": [
+        640,
+        400
+      ],
+      "gameTarget": [
+        640,
+        400
+      ],
+      "detail": "balanced",
+      "sourceFileWrittenUtc": "2026-10-05T06:11:04.827Z",
+      "kind": "actual gameplay capture",
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "hearth-rest",
+      "path": "src/catalog_app/tools/gloaming_road/review/hearth-rest.png",
+      "source": "artifacts/travel-21-hearth-rested.png",
+      "sha256": "fd2282c43492bb0ea57c8d9c2027f99534a14a607019ccf42e85f1e76c2c5bdf",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T07:42:01.361Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 306,
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "natural-night",
+      "path": "src/catalog_app/tools/gloaming_road/review/natural-blood-night.png",
+      "source": "artifacts/gloaming-natural-blood-night-hearth.png",
+      "sha256": "eb1ff7534a0a68a618dc0d869158a8ebf67368b1ee845dcf96e096fce06f6574",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T08:23:27.994Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 306,
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "castle-exterior",
+      "path": "src/catalog_app/tools/gloaming_road/review/castle-exterior-blood.png",
+      "source": "artifacts/rescue-run-03-castle-exterior.png",
+      "sha256": "91aeae2f5a1c10cff6c98fa8f87605191b52b34a2fb5968718d473e01efc535a",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T09:04:57.691Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 355,
+      "sourceAppSha256": "84c13e96f9c25fafa0b9410ce3da795dda9b15450a79335a09886241fd75b660",
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "castle-gate",
+      "path": "src/catalog_app/tools/gloaming_road/review/castle-gate-open.png",
+      "source": "artifacts/rescue-run-05-opened-gate.png",
+      "sha256": "d8b97eb012a23e6a2750700f5b962c10078a9584aa07407d42ea09733229f1bd",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T09:05:20.011Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 355,
+      "sourceAppSha256": "84c13e96f9c25fafa0b9410ce3da795dda9b15450a79335a09886241fd75b660",
+      "status": "development evidence; final frozen-build acceptance pending"
+    },
+    {
+      "id": "C-contact",
+      "path": "src/catalog_app/tools/gloaming_road/review/C-armored-contact.png",
+      "source": "artifacts/rescue-run-10-royal-heavy-followup.png",
+      "sha256": "d04daf77aefd2c7d69f4a669b3ba265cae01b7c110e651ef35c4d08f7073f802",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T09:12:13.965Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 355,
+      "sourceAppSha256": "84c13e96f9c25fafa0b9410ce3da795dda9b15450a79335a09886241fd75b660",
+      "status": "development evidence; actual blocked contact, not a confirmed parry; final set pending"
+    },
+    {
+      "id": "dawn-hearth",
+      "path": "src/catalog_app/tools/gloaming_road/review/dawn-hearth.png",
+      "source": "artifacts/rescue-run-36-second-wake-again.png",
+      "sha256": "c1e63358b0687af29442a68fc3f6ba578316b8d989cc66349bffddeddb6a7a68",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T09:55:29.476Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 355,
+      "sourceAppSha256": "84c13e96f9c25fafa0b9410ce3da795dda9b15450a79335a09886241fd75b660",
+      "status": "second recovery after natural clock1800 crossing; rescue not yet completed in this frame"
+    },
+    {
+      "id": "F-conversation",
+      "path": "src/catalog_app/tools/gloaming_road/review/F-princess-conversation.png",
+      "source": "artifacts/rescue-run-43-conversation-final-beat.png",
+      "sha256": "70f413953cc885b0b1b2b9f1d819faa43a84acdd5a97a1d29ee16d6d478760c8",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T10:07:30.303Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 355,
+      "sourceAppSha256": "84c13e96f9c25fafa0b9410ce3da795dda9b15450a79335a09886241fd75b660",
+      "status": "final conversation beat BEFORE acknowledgement; not alone proof of rescued=true"
+    },
+    {
+      "id": "F-rescue",
+      "path": "src/catalog_app/tools/gloaming_road/review/F-rescue-acknowledged.png",
+      "source": "artifacts/rescue-run-44-rescue-acknowledged.png",
+      "sha256": "0a86e40896649954e6bd52219ad6eac30935b2bf22aa05a79487337352996ffe",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T10:07:33.607Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 355,
+      "sourceAppSha256": "84c13e96f9c25fafa0b9410ce3da795dda9b15450a79335a09886241fd75b660",
+      "status": "playing after final acknowledgement; all3 defeats and rescued=true separately verified in read-only save"
+    },
+    {
+      "id": "post-rescue-continue",
+      "path": "src/catalog_app/tools/gloaming_road/review/post-rescue-continued.png",
+      "source": "artifacts/rescue-run-49-control-after-continue.png",
+      "sha256": "03530df728bbc0ddcff4cef0d60d7726ff01d379e8ecbb35eec1f9aa6eae9e51",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T10:11:01.044Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 355,
+      "sourceAppSha256": "84c13e96f9c25fafa0b9410ce3da795dda9b15450a79335a09886241fd75b660",
+      "status": "actual movement after in-App Save/Quit and Continue; completed mission persisted"
+    },
+    {
+      "id": "final-415-continuation",
+      "path": "src/catalog_app/tools/gloaming_road/review/final-build-continued.png",
+      "source": "artifacts/gloaming-final-415-moved.png",
+      "sha256": "1bef64210b18076234da6183c29fe0a7880a4bb4f0e74924af55eae4e3ab60a2",
+      "viewport": [640, 400], "gameTarget": [320, 200], "detail": "low",
+      "sourceFileWrittenUtc": "2026-10-05T10:36:36.290Z",
+      "kind": "actual gameplay capture", "sourceBuildJob": 415,
+      "sourceAppSha256": "9b290bf424c4255f1e4f1c59dfa8827ba3b7ba24cb143faf3f2a941b76ed087a",
+      "status": "final415 normal HTTP reload/Continue and subsequent real movement; completed mission preserved"
+    }
+  ]
+}

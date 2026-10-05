@@ -15,17 +15,40 @@ export class Input {
     this.listen(window,'blur',()=>{this.clear();if(this.active)this.onPause();});
     this.listen(document,'visibilitychange',()=>{if(document.hidden){this.clear();if(this.active)this.onPause();}});
     this.listen(window,'gamepadconnected',()=>{this.padConnected=true;this.notice('Controller connected. Right stick looks; D-pad selects your guard.');});
-    this.listen(window,'gamepaddisconnected',()=>{this.padConnected=false;this.clear();if(this.active)this.onPause();this.notice('Controller disconnected. Resume with keyboard and mouse or reconnect.');});
+    this.listen(window,'gamepaddisconnected',()=>{this.padConnected=false;if(this.mode==='gamepad')this.mode='keyboard';this.clear();if(this.active)this.onPause();this.notice('Controller disconnected. Resume with keyboard and mouse or reconnect.');});
   }
   private listen(target:EventTarget,type:string,cb:EventListener){target.addEventListener(type,cb);this.disposers.push(()=>target.removeEventListener(type,cb));}
-  enter(controller=false){this.clear();this.active=true;this.ignoreUntil=performance.now()+250;this.mode=controller?'gamepad':'mouse';this.canvas.focus({preventScroll:true});if(!controller){try{const result=this.canvas.requestPointerLock();if(result&&typeof result.catch==='function')result.catch(()=>{this.notice('This host did not grant mouse capture. Arrow keys look; J strikes; K defends. A controller also works.');});}catch{this.notice('Mouse capture is unavailable. Arrow keys look; J strikes; K defends.');}}}
+  // Optional controller access can be denied by an iframe's Permissions Policy.
+  private readPad():Gamepad|undefined {try{return Array.from(navigator.getGamepads?.()||[]).find(p=>p?.connected)??undefined;}catch{return undefined;}}
+  enter(controller=false){this.clear();this.padLast=this.readPad()?.buttons.map(b=>b.pressed||b.value>.45)??[];this.active=true;this.ignoreUntil=performance.now()+250;this.mode=controller?'gamepad':'mouse';this.canvas.focus({preventScroll:true});if(!controller){try{const result=this.canvas.requestPointerLock();if(result&&typeof result.catch==='function')result.catch(()=>{this.notice('This host did not grant mouse capture. Arrow keys look; J strikes; K defends. A controller also works.');});}catch{this.notice('Mouse capture is unavailable. Arrow keys look; J strikes; K defends.');}}}
   leave(){this.active=false;this.clear();if(document.pointerLockElement===this.canvas)document.exitPointerLock();}
   clear(){this.held.clear();this.attack=false;this.defend=false;this.attackDown=false;this.attackUp=false;this.guardDown=false;this.dodge=false;this.interact=false;this.mx=this.my=this.gx=this.gy=0;this.padX=this.padZ=0;this.padSprint=false;this.padLast=[];}
-  poll(dt:number){const pad=Array.from(navigator.getGamepads?.()||[]).find(p=>p?.connected);if(!pad)return;this.padConnected=true;const btn=pad.buttons.map(b=>b.pressed||b.value>.45);const edge=(i:number)=>btn[i]&&!this.padLast[i];const dz=(v:number)=>Math.abs(v)<.16?0:Math.sign(v)*(Math.abs(v)-.16)/.84;
+  poll(dt:number){
+    const pad=this.readPad();
+    if(!pad){
+      const lost=this.padConnected&&this.mode==='gamepad';
+      this.padConnected=false;this.padX=this.padZ=0;this.padSprint=false;this.padLast=[];
+      if(lost){this.clear();this.mode='keyboard';if(this.active)this.onPause();this.notice('Controller unavailable. Resume with keyboard and mouse or reconnect.');}
+      return;
+    }
+    this.padConnected=true;
+    const btn=pad.buttons.map(b=>b.pressed||b.value>.45),edge=(i:number)=>btn[i]&&!this.padLast[i];
+    const dz=(v:number)=>Math.abs(v)<.16?0:Math.sign(v)*(Math.abs(v)-.16)/.84;
     if(!this.active){if(btn.some(Boolean))this.mode='gamepad';if(edge(12)||edge(14))this.menuMove(-1,false,false);if(edge(13)||edge(15))this.menuMove(1,false,false);if(edge(0))this.menuMove(0,true,false);if(edge(1))this.menuMove(0,false,true);}
-    else {this.padX=dz(pad.axes[0]||0);this.padZ=dz(pad.axes[1]||0);if(Math.abs(this.padX)+Math.abs(this.padZ)+Math.abs(pad.axes[2]||0)+Math.abs(pad.axes[3]||0)>.1||btn.some(Boolean)){this.mode='gamepad';}
-      this.mx+=dz(pad.axes[2]||0)*dt*620;this.my+=dz(pad.axes[3]||0)*dt*500;if(edge(7)){this.attack=true;this.attackDown=true;}if(!btn[7]&&this.padLast[7]){this.attack=false;this.attackUp=true;}if(edge(6))this.guardDown=true;this.defend=Boolean(btn[6]);if(edge(1))this.dodge=true;if(edge(0))this.interact=true;if(edge(9))this.onPause();if(edge(10))this.padSprint=!this.padSprint;
-      if(btn[12])this.sector='high';if(btn[13])this.sector='low';if(btn[14])this.sector='left';if(btn[15])this.sector='right';}
+    else {
+      this.padX=dz(pad.axes[0]||0);this.padZ=dz(pad.axes[1]||0);
+      const lookX=dz(pad.axes[2]||0),lookY=dz(pad.axes[3]||0);
+      if(Math.abs(this.padX)+Math.abs(this.padZ)+Math.abs(lookX)+Math.abs(lookY)>.1||btn.some(Boolean))this.mode='gamepad';
+      // A connected but idle controller must not erase keyboard/mouse guard input.
+      if(this.mode==='gamepad'){
+        this.mx+=lookX*dt*620;this.my+=lookY*dt*500;
+        if(edge(7)){this.attack=true;this.attackDown=true;}
+        if(!btn[7]&&this.padLast[7]&&this.attack){this.attack=false;this.attackUp=true;}
+        if(edge(6))this.guardDown=true;this.defend=Boolean(btn[6]);
+        if(edge(1))this.dodge=true;if(edge(0))this.interact=true;if(edge(9))this.onPause();if(edge(10))this.padSprint=!this.padSprint;
+        if(btn[12])this.sector='high';if(btn[13])this.sector='low';if(btn[14])this.sector='left';if(btn[15])this.sector='right';
+      }
+    }
     this.padLast=btn;
   }
   frame(dt:number):InputFrame {const b=this.settings.bindings;const x=(this.held.has(b.right)?1:0)-(this.held.has(b.left)?1:0)+this.padX;const z=(this.held.has(b.back)?1:0)-(this.held.has(b.forward)?1:0)+this.padZ;const l=Math.max(1,Math.hypot(x,z));const out={x:x/l,z:z/l,sprint:this.held.has(b.sprint)||this.held.has('ShiftRight')||this.padSprint,attackDown:this.attackDown,attackUp:this.attackUp,guardDown:this.guardDown,guard:this.defend,dodge:this.dodge,interact:this.interact,sector:this.sector,lookX:this.mx+((this.held.has('ArrowRight')?1:0)-(this.held.has('ArrowLeft')?1:0))*dt*590,lookY:this.my+((this.held.has('ArrowDown')?1:0)-(this.held.has('ArrowUp')?1:0))*dt*460};this.attackDown=this.attackUp=this.guardDown=this.dodge=this.interact=false;this.mx=this.my=0;return out;}

@@ -26,7 +26,7 @@ const aliases: Record<string, string> = {
   step: 'step_dirt', swing: 'whoosh_light', light: 'whoosh_light', heavy: 'whoosh_heavy',
   swing_light: 'whoosh_light', swing_heavy: 'whoosh_heavy', impact_stone: 'arrow_stone', impact_wood: 'arrow_wood',
   death_enemy: 'enemy_death',
-  hit: 'flesh', hit_flesh: 'flesh', hit_armor: 'armor', hit_shield: 'shield',
+  hit: 'flesh', hit_flesh: 'flesh', hit_armor: 'armor', hit_shield: 'shield', armor_rustle: 'armor',
   arrow_hit: 'arrow_impact', arrow_release: 'bow_release', fire_hit: 'fire_impact',
   fire_cast: 'fire_release', fire_loop: 'fire_linger', cloth_move: 'cloth',
   select: 'ui', confirm: 'ui_confirm', cancel: 'ui_cancel', door_open: 'door',
@@ -48,7 +48,11 @@ type Voice = { source: AudioBufferSourceNode; gain: GainNode; panner?: PannerNod
 type MediaSlot = {
   element: HTMLAudioElement; source: MediaElementAudioSourceNode; gain: GainNode;
   asset?: AudioAsset; target: number; serial: number; retireTimer?: number;
+  playing: boolean; playPromise?: Promise<boolean>; cancelPlay?: () => void;
 };
+type Activation = { epoch: number; cancel: () => void };
+const CONTACT_CAPTIONS = new Set(['parry', 'block', 'shield', 'armor', 'flesh', 'arrow_flesh']);
+const PLAY_TIMEOUT_MS = 10000;
 
 function finite(n: number, fallback = 0): number { return Number.isFinite(n) ? n : fallback; }
 function clamp(n: number, low = 0, high = 1): number { return Math.max(low, Math.min(high, finite(n))); }
@@ -69,7 +73,8 @@ function point(p: AudioPosition): AudioPosition { return { x: finite(p.x), y: fi
 export class GameAudio {
   /** Optional sound-event accessibility feed; independent of mute/unlock. The UI gates display. */
   onCaption?: (text: string) => void;
-  private captionSeen = new Map<string, number>();
+  private lastCaptionText = '';
+  private lastCaptionPriority = 0;
   private lastCaptionAt = -Infinity;
   private ctx?: AudioContext;
   private decoder?: OfflineAudioContext;
@@ -94,6 +99,10 @@ export class GameAudio {
   private paused = false;
   private disposed = false;
   private unlocking?: Promise<boolean>;
+  private activation?: Activation;
+  private mediaEpoch = 0;
+  private retryRequired = false;
+  private playbackError = '';
   private loading?: Promise<void>;
   private format: 'ogg' | 'mp3' = 'ogg';
   private lastError = '';
@@ -166,60 +175,96 @@ export class GameAudio {
     return this.loading;
   }
 
-  /** Must be invoked inside the parent's genuine user gesture, not an async loader. */
+  /** First activation/retry requires a gesture; an already ready transport is a no-op. */
   async unlock(): Promise<boolean> {
     if (this.disposed || typeof window === 'undefined') return false;
     if (this.unlocking) return this.unlocking;
+    if (this.playbackReady) return true;
     const activeGesture = navigator.userActivation
       ? navigator.userActivation.isActive
       : performance.now() - this.lastGesture < 1200;
-    // Even an already running context cannot be used to bypass first-gesture consent.
     if (!activeGesture) return false;
-    try {
-      this.createGraph();
-    } catch (error) {
+    try { this.createGraph(); }
+    catch (error) {
       this.lastError = `Audio unavailable: ${String(error).slice(0, 140)}`;
       return false;
     }
-    const ctx = this.ctx!;
+    return this.beginPlayback(true);
+  }
+
+  private ownsActivation(owner: Activation): boolean {
+    return this.activation === owner && owner.epoch === this.mediaEpoch && !this.disposed && !this.paused;
+  }
+
+  private beginPlayback(retry = false): Promise<boolean> {
+    if (this.unlocking) return this.unlocking;
+    if (!this.ctx || this.disposed || (this.retryRequired && !retry)) return Promise.resolve(false);
+    if (retry) this.retryRequired = false;
     this.paused = false;
-    // The resume and all four play() calls happen before the first await. Reusing these
-    // same media elements is important for Safari's per-element activation policy.
-    const contextResume = ctx.resume();
-    const priming = [...this.musicSlots, ...this.ambientSlots].map(slot => {
-      if (!slot.asset) {
+    let cancel!: () => void;
+    const cancelled = new Promise<boolean>(resolve => { cancel = () => resolve(false); });
+    const owner: Activation = { epoch: this.mediaEpoch, cancel: () => undefined };
+    const timer = window.setTimeout(() => {
+      if (this.ownsActivation(owner)) this.failPlayback('Audio activation timed out. Click Enable sound to retry.', owner.epoch);
+    }, PLAY_TIMEOUT_MS);
+    owner.cancel = () => { window.clearTimeout(timer); cancel(); };
+    this.activation = owner;
+    // runActivation reaches resume()/the FIRST four play() calls synchronously,
+    // inside unlock's gesture. All later callers join this one owner.
+    const promise = Promise.race([this.runActivation(owner), cancelled]).then(ok => {
+      if (!this.ownsActivation(owner)) return false;
+      window.clearTimeout(timer);
+      this.activation = undefined;
+      this.unlocking = undefined;
+      if (ok) {
+        if (this.lastError === this.playbackError) this.lastError = '';
+        this.playbackError = '';
+        // Apply a newer world/cue request only after the owned starts have settled.
+        this.applyMix();
+      }
+      return ok && !this.retryRequired && !this.paused && this.ctx?.state === 'running';
+    });
+    // A synchronous media/context exception may already have cancelled this owner.
+    // Never retain its resolved-false promise as the next gesture's activation.
+    if (this.activation === owner) this.unlocking = promise;
+    return promise;
+  }
+
+  private async runActivation(owner: Activation): Promise<boolean> {
+    const ctx = this.ctx!;
+    try {
+      const firstPrime = !this.started;
+      const slots = [...this.musicSlots, ...this.ambientSlots];
+      const contextResume = ctx.resume();
+      const starts = firstPrime ? slots.map(slot => {
         slot.element.src = this.url(assets.get('silence')!);
         slot.element.loop = true;
-      }
-      return slot.element.play();
-    });
-    this.unlocking = (async () => {
-      try {
-        const [, results] = await Promise.all([contextResume, Promise.allSettled(priming)]);
-        if (this.disposed || this.paused || ctx.state !== 'running') return false;
-        const failures = results.filter((result): result is PromiseRejectedResult => result.status === 'rejected');
-        if (failures.length) {
-          this.lastError = failures.every(result => result.reason?.name === 'AbortError')
-            ? 'Audio activation was interrupted by a scene reset. Click Enable sound to retry.'
-            : 'The browser declined audio playback; retry from a click with sound enabled.';
-          for (const slot of [...this.musicSlots, ...this.ambientSlots]) slot.element.pause();
-          return false;
-        }
-        this.started = true;
-        if (/^(The browser declined audio playback|Audio activation |Playback requires activation:|Resume needs a gesture:)/.test(this.lastError)) this.lastError = '';
-        for (const slot of [...this.musicSlots, ...this.ambientSlots]) if (!slot.asset) slot.element.pause();
-        this.applyMix(true);
-        // Decoding is independent of gesture activation and bounded; no start is queued.
-        void this.load();
-        return true;
-      } catch (error) {
-        this.lastError = `Audio activation failed: ${String(error).slice(0, 120)}`;
+        return this.safePlay(slot);
+      }) : slots.filter(slot => slot.asset && slot.target > 0).map(slot => this.safePlay(slot));
+      const [, results] = await Promise.all([contextResume, Promise.all(starts)]);
+      if (!this.ownsActivation(owner)) return false;
+      if (ctx.state !== 'running' || results.some(ok => !ok)) {
+        this.failPlayback('Audio could not resume. Click Enable sound to retry.', owner.epoch);
         return false;
-      } finally {
-        this.unlocking = undefined;
       }
-    })();
-    return this.unlocking;
+      if (firstPrime) {
+        this.started = true; // Per-element gesture approval survives pause/clear.
+        for (const slot of slots) { slot.element.pause(); slot.playing = false; }
+      }
+      this.applyMix(true, owner);
+      const ready = await Promise.all(slots.filter(slot => slot.asset && slot.target > 0)
+        .map(slot => slot.playPromise ?? Promise.resolve(slot.playing && !slot.element.paused)));
+      if (!this.ownsActivation(owner)) return false;
+      if (ready.some(ok => !ok)) {
+        this.failPlayback('Local music playback failed. Click Enable sound to retry.', owner.epoch);
+        return false;
+      }
+      void this.load();
+      return true;
+    } catch (error) {
+      if (this.ownsActivation(owner)) this.failPlayback(`Audio activation failed: ${String(error).slice(0, 100)}. Click Enable sound to retry.`, owner.epoch);
+      return false;
+    }
   }
 
   settings(value: AudioLevels): void {
@@ -278,7 +323,8 @@ export class GameAudio {
     }
     // Caption the requested gameplay event even with muted buses or locked audio.
     // Audio variation, scheduling and gain behavior below remain unchanged.
-    if (Number.isFinite(gain) && gain > 0) this.emitCaption(group, position);
+    // Armor movement/notice shares rendered foley, not a contact event or its priority.
+    if (Number.isFinite(gain) && gain > 0 && normal !== 'armor_rustle') this.emitCaption(group, position);
     if (!this.audible || !Number.isFinite(gain) || gain <= 0) return;
     const choices = groups.get(group);
     let asset: AudioAsset | undefined;
@@ -320,18 +366,23 @@ export class GameAudio {
   private emitCaption(group: string, position?: AudioPosition): void {
     if (!this.onCaption) return;
     const exact = assets.get(group);
-    const text = SOUND_CAPTIONS[exact?.kind === 'effect' ? exact.group : group];
+    const canonical = exact?.kind === 'effect' ? exact.group : group;
+    const text = SOUND_CAPTIONS[canonical];
     if (!text) return;
     if (position) {
       const p = point(position), listener = this.listenerPosition;
       if (Math.hypot(p.x - listener.x, p.y - listener.y, p.z - listener.z) > 75) return;
     }
-    const now = performance.now();
-    // The same meaning (including aliases/variants) cannot repeat within 1.6s;
-    // unrelated captions cannot replace one another more than once every 350ms.
-    if (now - this.lastCaptionAt < 350 || now - (this.captionSeen.get(text) ?? -Infinity) < 1600) return;
+    const now = performance.now(), age = now - this.lastCaptionAt;
+    const priority = CONTACT_CAPTIONS.has(canonical) ? 2 : /release|impact/.test(canonical) ? 1 : 0;
+    // Contact can immediately supersede a close release/charge. Once shown, protect
+    // that outcome for one second from low-priority cues. No deferred caption queue.
+    if (text === this.lastCaptionText && age < 1600) return;
+    if (this.lastCaptionPriority === 2 && priority < 2 && age < 1000) return;
+    if (age < 350 && priority <= this.lastCaptionPriority) return;
     this.lastCaptionAt = now;
-    this.captionSeen.set(text, now);
+    this.lastCaptionText = text;
+    this.lastCaptionPriority = priority;
     try { this.onCaption(text); }
     catch (error) { console.warn('Sound caption handler failed', error); }
   }
@@ -347,7 +398,8 @@ export class GameAudio {
   pause(): void {
     if (this.disposed) return;
     this.paused = true;
-    this.captionSeen.clear(); this.lastCaptionAt = -Infinity;
+    this.invalidateMediaWork();
+    this.lastCaptionText = ''; this.lastCaptionPriority = 0; this.lastCaptionAt = -Infinity;
     this.stopEffects();
     this.resetReverb();
     for (const slot of [...this.musicSlots, ...this.ambientSlots]) {
@@ -355,25 +407,20 @@ export class GameAudio {
       if (slot.retireTimer !== undefined) { window.clearTimeout(slot.retireTimer); slot.retireTimer = undefined; }
       if (slot.target === 0) this.releaseSlot(slot);
     }
-    if (this.ctx?.state === 'running') void this.ctx.suspend().catch(() => undefined);
+    if (this.ctx && this.ctx.state !== 'closed') void this.ctx.suspend().catch(() => undefined);
   }
 
   resume(): void {
-    if (this.disposed || !this.started || !this.ctx) return;
-    this.paused = false;
-    const generation = this.generation;
-    void this.ctx.resume().then(() => {
-      if (this.disposed || this.paused || generation !== this.generation) return;
-      for (const slot of [...this.musicSlots, ...this.ambientSlots]) {
-        if (slot.asset && slot.target > 0) this.safePlay(slot);
-      }
-      this.applyMix();
-    }).catch(error => { this.lastError = `Resume needs a gesture: ${String(error).slice(0, 100)}`; });
+    // An in-flight unlock owns both context and slots; finishEntry may safely call
+    // resume immediately without starting another context/primer/transition path.
+    if (this.disposed || !this.started || !this.ctx || this.activation || this.retryRequired || this.playbackReady) return;
+    void this.beginPlayback();
   }
 
   /** Clears transients, reverb tails, cues and streaming players, but keeps the small LRU. */
   clear(): void {
     if (this.disposed) return;
+    this.invalidateMediaWork();
     this.stopEffects();
     for (const slot of [...this.musicSlots, ...this.ambientSlots]) this.releaseSlot(slot);
     this.resetReverb();
@@ -384,7 +431,7 @@ export class GameAudio {
     this.deathUntil = 0;
     this.accentIn = 18;
     this.cooldown.clear();
-    this.captionSeen.clear(); this.lastCaptionAt = -Infinity;
+    this.lastCaptionText = ''; this.lastCaptionPriority = 0; this.lastCaptionAt = -Infinity;
     this.state = { ...DEFAULT_STATE };
   }
 
@@ -433,9 +480,50 @@ export class GameAudio {
     if (this.ctx && this.ctx.state !== 'closed') void this.ctx.close().catch(() => undefined);
   }
 
+  /** Confirmed media transport readiness, not a claim of audible output or listening. */
+  get playbackReady(): boolean {
+    if (!this.started || this.paused || this.disposed || this.retryRequired || this.activation || this.ctx?.state !== 'running') return false;
+    const live = (slots: MediaSlot[]) => slots.some(slot => !!slot.asset && slot.playing && !slot.element.paused && !slot.element.ended && !slot.element.error);
+    return live(this.musicSlots) && live(this.ambientSlots);
+  }
+
+  /** Context/primer activation OR a bounded media-start handoff is still pending. */
+  get activationPending(): boolean {
+    return !this.disposed && (!!this.activation || [...this.musicSlots, ...this.ambientSlots].some(slot => !!slot.playPromise));
+  }
+
+  private invalidateMediaWork(): void {
+    this.mediaEpoch++;
+    const owner = this.activation;
+    this.activation = undefined;
+    this.unlocking = undefined;
+    owner?.cancel();
+    for (const slot of [...this.musicSlots, ...this.ambientSlots]) {
+      slot.serial++;
+      slot.cancelPlay?.();
+      slot.cancelPlay = undefined;
+      slot.playPromise = undefined;
+      slot.playing = false;
+    }
+  }
+
+  private failPlayback(message: string, epoch: number): void {
+    if (this.disposed || epoch !== this.mediaEpoch) return;
+    this.retryRequired = true;
+    this.playbackError = message;
+    this.lastError = message;
+    this.invalidateMediaWork();
+    this.stopEffects();
+    for (const slot of [...this.musicSlots, ...this.ambientSlots]) this.releaseSlot(slot);
+    // Preserve requested cue/world state, but never latch a failed track as current.
+    // Only an explicit gesture retry clears the fault; mix() cannot retry per frame.
+    this.currentMusic = ''; this.currentAmbience = ''; this.zoneKey = '';
+  }
+
   /** Numeric resource diagnostics for the parent's debug panel; no listening assertion. */
   get diagnostics(): Readonly<Record<string, number | boolean | string>> {
     return { activated: this.started, paused: this.paused, format: this.format,
+      playbackReady: this.playbackReady, activationPending: this.activationPending, retryRequired: this.retryRequired,
       context: this.ctx?.state ?? 'not-created', cachedSounds: this.cache.size,
       decodedBytes: this.cacheBytes + (this.impulse ? this.impulse.length * this.impulse.numberOfChannels * 4 : 0)
         + (this.reverbImpulse && this.reverbImpulse !== this.impulse ? this.reverbImpulse.length * this.reverbImpulse.numberOfChannels * 4 : 0),
@@ -446,7 +534,7 @@ export class GameAudio {
       lastError: this.lastError };
   }
 
-  private get audible(): boolean { return this.started && !this.paused && !this.disposed && this.ctx?.state === 'running'; }
+  private get audible(): boolean { return this.started && !this.paused && !this.disposed && !this.retryRequired && this.ctx?.state === 'running'; }
   private url(asset: AudioAsset): string { return asset[this.format]; }
 
   private createGraph(): void {
@@ -482,17 +570,7 @@ export class GameAudio {
       element.preload = 'none'; element.setAttribute('playsinline', '');
       const source = ctx.createMediaElementSource(element), gain = ctx.createGain();
       gain.gain.value = 0; source.connect(gain).connect(bus);
-      const slot: MediaSlot = { element, source, gain, target: 0, serial: 0 };
-      element.onerror = () => {
-        if (this.disposed) return;
-        this.lastError = `Local ${slot.asset?.id ?? 'audio'} playback failed (${element.error?.code ?? 'unknown'}).`;
-        if (this.format === 'ogg' && slot.asset) {
-          // Browser codec declarations are not always reliable. All files have MP3 twins.
-          this.format = 'mp3'; element.src = slot.asset.mp3;
-          if (this.audible) this.safePlay(slot);
-        }
-      };
-      return slot;
+      return { element, source, gain, target: 0, serial: 0, playing: false };
     };
     this.musicSlots = [makeSlot(this.musicBus), makeSlot(this.musicBus)];
     this.ambientSlots = [makeSlot(this.ambienceBus), makeSlot(this.ambienceBus)];
@@ -515,19 +593,17 @@ export class GameAudio {
     this.ramp(this.effectsBus?.gain, this.levels.effects * .78);
   }
 
-  private applyMix(force = false): void {
-    if (!this.audible || !this.ctx || this.ctx.currentTime < this.deathUntil) return;
-    const s = this.state, forest = /forest|wood|pine|bog|marsh/i.test(s.biome);
+  private applyMix(force = false, owner?: Activation): void {
+    if (!this.audible || !this.ctx || this.ctx.currentTime < this.deathUntil || (this.activation && this.activation !== owner)) return;
+    const s = this.state, forest = /forest|wood|pine|conifer|bog|marsh/i.test(s.biome);
     const music = this.cueName ?? (s.royal ? 'royal' : s.threat ? 'duel' : forest || s.blood || s.inside ? 'forest' : 'meadow');
-    const ambience = s.inside ? 'castle' : s.night || s.blood ? 'night' : forest ? 'forest' : /snow|mountain|heath|wind|ash/i.test(s.biome) ? 'wind' : 'meadow';
+    const ambience = s.inside ? 'castle' : s.night || s.blood ? 'night' : forest ? 'forest' : /snow|mountain|upland|heath|wind|ash/i.test(s.biome) ? 'wind' : 'meadow';
     if (force || this.currentMusic !== music) {
-      this.currentMusic = music;
-      this.transition(this.musicSlots, assets.get(`music_${music}`)!, music === 'rescue' ? 1.3 : 2.5);
+      if (this.transition(this.musicSlots, assets.get(`music_${music}`)!, music === 'rescue' ? 1.3 : 2.5) && !this.retryRequired) this.currentMusic = music;
     }
     const ambientWanted = this.cueName === 'title' ? 'wind' : ambience;
     if (force || this.currentAmbience !== ambientWanted) {
-      this.currentAmbience = ambientWanted;
-      this.transition(this.ambientSlots, assets.get(`ambient_${ambientWanted}`)!, 3.1);
+      if (this.transition(this.ambientSlots, assets.get(`ambient_${ambientWanted}`)!, 3.1) && !this.retryRequired) this.currentAmbience = ambientWanted;
     }
     const key = `${s.inside}/${s.blood}/${s.night}/${s.threat}/${forest}`;
     if (force || key !== this.zoneKey) {
@@ -539,55 +615,112 @@ export class GameAudio {
     }
   }
 
-  private transition(slots: MediaSlot[], asset: AudioAsset, seconds: number): void {
-    if (!asset || !this.ctx || slots.length !== 2) return;
+  private transition(slots: MediaSlot[], asset: AudioAsset, seconds: number): boolean {
+    if (!asset || !this.ctx || slots.length !== 2 || this.retryRequired) return false;
+    // Do not abort an owned play() when mix/cue changes rapidly. State is already
+    // saved by the caller; the settled start will apply the latest request once.
+    if (slots.some(slot => !!slot.playPromise)) return false;
     const same = slots.find(slot => slot.asset?.id === asset.id && slot.target > 0);
-    if (same) { if (same.element.paused && this.audible) this.safePlay(same); return; }
-    // Reuse the quieter slot if a zone changes again before the old crossfade ends.
+    if (same) {
+      this.ramp(same.gain.gain, 1, .12);
+      if (!same.playing || same.element.paused) void this.safePlay(same);
+      return true;
+    }
     const incoming = slots.find(slot => !slot.asset) ?? slots.reduce((a, b) => a.target < b.target ? a : b);
     this.releaseSlot(incoming);
     incoming.asset = asset; incoming.target = 1;
-    const serial = ++incoming.serial;
+    const serial = ++incoming.serial, epoch = this.mediaEpoch;
     incoming.element.src = this.url(asset); incoming.element.loop = asset.loop; incoming.element.preload = 'auto';
-    incoming.element.onended = () => {
-      if (this.disposed || incoming.serial !== serial || incoming.asset?.id !== asset.id) return;
-      if (asset.id === 'music_rescue' && this.cueName === 'rescue') {
-        this.cueName = undefined; this.currentMusic = ''; this.applyMix(true);
+    incoming.gain.gain.cancelScheduledValues(this.ctx.currentTime);
+    incoming.gain.gain.setValueAtTime(0, this.ctx.currentTime);
+    void this.safePlay(incoming).then(ok => {
+      if (!ok || this.disposed || this.paused || epoch !== this.mediaEpoch || incoming.serial !== serial || !this.ctx) return;
+      // Hold the outgoing stream until the incoming element actually starts. A
+      // slow decoder cannot fade the old music to silence while a play is pending.
+      const now = this.ctx.currentTime;
+      incoming.gain.gain.cancelScheduledValues(now);
+      incoming.gain.gain.setValueAtTime(incoming.gain.gain.value, now);
+      incoming.gain.gain.linearRampToValueAtTime(1, now + seconds);
+      for (const outgoing of slots) {
+        if (outgoing === incoming || !outgoing.asset) continue;
+        outgoing.target = 0;
+        if (outgoing.retireTimer !== undefined) window.clearTimeout(outgoing.retireTimer);
+        const gain = outgoing.gain.gain, oldSerial = outgoing.serial;
+        const current = gain.value;
+        gain.cancelScheduledValues(now); gain.setValueAtTime(current, now); gain.linearRampToValueAtTime(0, now + seconds);
+        outgoing.retireTimer = window.setTimeout(() => {
+          if (epoch !== this.mediaEpoch || oldSerial !== outgoing.serial) return;
+          outgoing.retireTimer = undefined;
+          if (outgoing.target === 0) this.releaseSlot(outgoing);
+        }, seconds * 1000 + 80);
       }
-    };
-    const now = this.ctx.currentTime;
-    incoming.gain.gain.cancelScheduledValues(now); incoming.gain.gain.setValueAtTime(0, now);
-    incoming.gain.gain.linearRampToValueAtTime(1, now + seconds);
-    this.safePlay(incoming);
-    for (const outgoing of slots) {
-      if (outgoing === incoming || !outgoing.asset) continue;
-      outgoing.target = 0;
-      if (outgoing.retireTimer !== undefined) window.clearTimeout(outgoing.retireTimer);
-      const gain = outgoing.gain.gain;
-      const current = gain.value;
-      gain.cancelScheduledValues(now); gain.setValueAtTime(current, now); gain.linearRampToValueAtTime(0, now + seconds);
-      outgoing.retireTimer = window.setTimeout(() => {
-        outgoing.retireTimer = undefined;
-        if (outgoing.target === 0) this.releaseSlot(outgoing);
-      }, seconds * 1000 + 80);
-    }
+      if (!this.activation) this.applyMix();
+    });
+    return true;
   }
 
-  private safePlay(slot: MediaSlot): void {
-    const serial = slot.serial;
-    void slot.element.play().catch(error => {
-      if (this.disposed || slot.serial !== serial || this.paused) return;
-      this.lastError = `Playback requires activation: ${String(error).slice(0, 110)}`;
+  private safePlay(slot: MediaSlot): Promise<boolean> {
+    if (slot.playPromise) return slot.playPromise;
+    if (this.disposed || this.paused || this.retryRequired) return Promise.resolve(false);
+    if (slot.playing && !slot.element.paused && !slot.element.ended && !slot.element.error) return Promise.resolve(true);
+    const serial = slot.serial, epoch = this.mediaEpoch, asset = slot.asset, codec = this.format;
+    const current = () => !this.disposed && !this.paused && epoch === this.mediaEpoch && serial === slot.serial;
+    slot.element.onerror = () => {
+      if (!current() || !slot.element.error) return;
+      const code = slot.element.error.code;
+      const fallback = codec === 'ogg' && (code === 3 || code === 4);
+      if (fallback) this.format = 'mp3';
+      // Changing src here would race a pending play; select fallback for the next
+      // explicit retry instead, after the failure owner has cancelled all starts.
+      this.failPlayback(`Local ${asset?.id ?? 'activation primer'} playback failed (${code}). ${fallback ? 'MP3 fallback selected. ' : ''}Click Enable sound to retry.`, epoch);
+    };
+    slot.element.onended = () => {
+      if (!current() || !slot.playing || !slot.element.ended || slot.asset !== asset) return;
+      slot.playing = false;
+      if (asset?.id === 'music_rescue' && this.cueName === 'rescue') {
+        this.cueName = undefined; this.currentMusic = ''; this.applyMix(true);
+      } else if (asset?.loop) this.failPlayback('A local audio loop stopped. Click Enable sound to retry.', epoch);
+    };
+    let cancel!: () => void;
+    const cancelled = new Promise<boolean>(resolve => { cancel = () => resolve(false); });
+    const timer = window.setTimeout(() => {
+      if (current()) this.failPlayback(`Local ${asset?.id ?? 'activation primer'} playback timed out. Click Enable sound to retry.`, epoch);
+    }, PLAY_TIMEOUT_MS);
+    slot.cancelPlay = () => { window.clearTimeout(timer); cancel(); };
+    let raw: Promise<void>;
+    try { raw = Promise.resolve(slot.element.play()); }
+    catch (error) { raw = Promise.reject(error); }
+    const observed = raw.then(() => {
+      if (!current()) return false;
+      slot.playing = !slot.element.paused && !slot.element.ended;
+      if (!slot.playing) this.failPlayback('Audio playback did not start. Click Enable sound to retry.', epoch);
+      return slot.playing;
+    }, error => {
+      if (!current()) return false;
+      const reason = (error as { name?: string })?.name;
+      if (reason === 'NotSupportedError' && codec === 'ogg') this.format = 'mp3';
+      this.failPlayback(reason === 'AbortError'
+        ? 'Audio playback was interrupted. Click Enable sound to retry.'
+        : `Audio playback failed: ${String(error).slice(0, 100)}. Click Enable sound to retry.`, epoch);
+      return false;
     });
+    const promise = Promise.race([observed, cancelled]).then(ok => {
+      window.clearTimeout(timer);
+      if (slot.playPromise === promise) { slot.playPromise = undefined; slot.cancelPlay = undefined; }
+      return ok;
+    });
+    slot.playPromise = promise;
+    return promise;
   }
 
   private releaseSlot(slot: MediaSlot): void {
     if (slot.retireTimer !== undefined) { window.clearTimeout(slot.retireTimer); slot.retireTimer = undefined; }
-    slot.serial++; slot.element.pause(); slot.element.onended = null;
+    slot.serial++;
+    slot.cancelPlay?.(); slot.cancelPlay = undefined; slot.playPromise = undefined; slot.playing = false;
+    slot.element.onended = null; slot.element.onerror = null; slot.element.pause();
     slot.asset = undefined; slot.target = 0;
     if (this.ctx) { slot.gain.gain.cancelScheduledValues(this.ctx.currentTime); slot.gain.gain.setValueAtTime(0, this.ctx.currentTime); }
-    // Releasing src frees the browser's media decoder/buffer, without replacing the
-    // gesture-approved element or the once-only MediaElementAudioSource connection.
+    // Keep the same gesture-approved element/source, but release its media decoder.
     slot.element.removeAttribute('src'); slot.element.load();
   }
 
