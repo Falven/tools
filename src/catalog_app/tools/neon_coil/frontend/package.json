@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node --test ../../../../../tests/test_neon_core.mjs"
+    "test": "node --test ../../../../../tests/test_neon_core.mjs ../../../../../tests/test_neon_camera.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/ext-apps": "2.0.0",

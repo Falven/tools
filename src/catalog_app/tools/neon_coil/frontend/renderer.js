@@ -155,13 +155,15 @@ export class NeonRenderer {
   }
   updateCamera() {
     const aspect=this.width/this.height;
-    const normalHeight=Math.max(26,(this.mobile?31.5:34)/aspect);
-    const introHeight=this.mobile?Math.max(39,31.5/aspect):Math.max(26,31/(aspect*.64));
+    const normalHeight=Math.max(22.5,28/aspect);
+    const introHeight=this.mobile?Math.max(37,28/aspect):Math.max(22.5,27/(aspect*.62));
     const viewHeight=THREE.MathUtils.lerp(normalHeight,introHeight,this.introMix);
     const targetX=this.mobile?0:-viewHeight*aspect*.176*this.introMix;
     const targetZ=this.mobile?6.3*this.introMix:0;
     this.camera.left=-viewHeight*aspect/2; this.camera.right=viewHeight*aspect/2; this.camera.top=viewHeight/2; this.camera.bottom=-viewHeight/2;
-    this.camera.position.set(targetX+(this.mobile?4:10),this.mobile?30:24,(this.mobile?22:26)+targetZ); this.camera.lookAt(targetX,0,targetZ); this.camera.updateProjectionMatrix();
+    // No sideways orbit or roll: screen axes match the grid and arrow keys.
+    // A small forward tilt preserves the raised tiles and visible front edge.
+    this.camera.position.set(targetX,this.mobile?30:28,(this.mobile?18:22)+targetZ); this.camera.lookAt(targetX,0,targetZ); this.camera.updateProjectionMatrix();
   }
   cycleQuality() {
     this.mode=this.mode==='auto'?'ultra':this.mode==='ultra'?'lite':'auto';
