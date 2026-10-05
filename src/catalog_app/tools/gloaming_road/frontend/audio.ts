@@ -33,6 +33,15 @@ const aliases: Record<string, string> = {
   knight_death: 'enemy_death', player_death: 'death', leaf: 'leaves', birds: 'bird',
 };
 
+// Deliberately selective: footsteps, cloth, UI clicks and ambience must not flood captions.
+const SOUND_CAPTIONS: Readonly<Record<string, string>> = {
+  bow_draw: 'Bowstring draws taut', bow_release: 'Arrow released',
+  fire_charge: 'Fire gathers', fire_release: 'Fire released', fire_impact: 'Fire bursts',
+  parry: 'Steel rings — parry', block: 'Blow blocked', shield: 'Shield struck',
+  armor: 'Armor struck', flesh: 'Hit lands', arrow_flesh: 'Hit lands',
+  door: 'Door creaks', latch: 'Latch clicks', rest: 'Rest chimes',
+};
+
 type Cached = { buffer: AudioBuffer; bytes: number; used: number };
 type DecodeTask = { asset: AudioAsset; resolve: (buffer: AudioBuffer | undefined) => void };
 type Voice = { source: AudioBufferSourceNode; gain: GainNode; panner?: PannerNode; position?: AudioPosition; ended: boolean };
@@ -58,6 +67,10 @@ function point(p: AudioPosition): AudioPosition { return { x: finite(p.x), y: fi
  * use a two-job decoder, a 40-entry / 8 MiB LRU, and at most 24 live source nodes.
  */
 export class GameAudio {
+  /** Optional sound-event accessibility feed; independent of mute/unlock. The UI gates display. */
+  onCaption?: (text: string) => void;
+  private captionSeen = new Map<string, number>();
+  private lastCaptionAt = -Infinity;
   private ctx?: AudioContext;
   private decoder?: OfflineAudioContext;
   private masterBus?: GainNode;
@@ -263,6 +276,9 @@ export class GameAudio {
       this.clear();
       this.deathUntil = group === 'death' ? (this.ctx?.currentTime ?? 0) + 2.9 : 0;
     }
+    // Caption the requested gameplay event even with muted buses or locked audio.
+    // Audio variation, scheduling and gain behavior below remain unchanged.
+    if (Number.isFinite(gain) && gain > 0) this.emitCaption(group, position);
     if (!this.audible || !Number.isFinite(gain) || gain <= 0) return;
     const choices = groups.get(group);
     let asset: AudioAsset | undefined;
@@ -301,6 +317,25 @@ export class GameAudio {
     }).finally(() => { this.pendingPlays = Math.max(0, this.pendingPlays - 1); });
   }
 
+  private emitCaption(group: string, position?: AudioPosition): void {
+    if (!this.onCaption) return;
+    const exact = assets.get(group);
+    const text = SOUND_CAPTIONS[exact?.kind === 'effect' ? exact.group : group];
+    if (!text) return;
+    if (position) {
+      const p = point(position), listener = this.listenerPosition;
+      if (Math.hypot(p.x - listener.x, p.y - listener.y, p.z - listener.z) > 75) return;
+    }
+    const now = performance.now();
+    // The same meaning (including aliases/variants) cannot repeat within 1.6s;
+    // unrelated captions cannot replace one another more than once every 350ms.
+    if (now - this.lastCaptionAt < 350 || now - (this.captionSeen.get(text) ?? -Infinity) < 1600) return;
+    this.lastCaptionAt = now;
+    this.captionSeen.set(text, now);
+    try { this.onCaption(text); }
+    catch (error) { console.warn('Sound caption handler failed', error); }
+  }
+
   cue(name: 'rescue' | 'title'): void {
     if (this.disposed) return;
     this.cueName = name;
@@ -312,6 +347,7 @@ export class GameAudio {
   pause(): void {
     if (this.disposed) return;
     this.paused = true;
+    this.captionSeen.clear(); this.lastCaptionAt = -Infinity;
     this.stopEffects();
     this.resetReverb();
     for (const slot of [...this.musicSlots, ...this.ambientSlots]) {
@@ -348,6 +384,7 @@ export class GameAudio {
     this.deathUntil = 0;
     this.accentIn = 18;
     this.cooldown.clear();
+    this.captionSeen.clear(); this.lastCaptionAt = -Infinity;
     this.state = { ...DEFAULT_STATE };
   }
 
@@ -377,6 +414,7 @@ export class GameAudio {
     this.clear();
     this.disposed = true;
     this.started = false;
+    this.onCaption = undefined;
     for (const name of ['pointerdown', 'click', 'touchend', 'keydown']) document.removeEventListener(name, this.gesture, true);
     document.removeEventListener('visibilitychange', this.visibility);
     for (const slot of [...this.musicSlots, ...this.ambientSlots]) {

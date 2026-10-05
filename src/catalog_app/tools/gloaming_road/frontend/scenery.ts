@@ -127,8 +127,11 @@ export function createWorldMaterials(assets:SceneryAssets,low=false):WorldMateri
         transformed.x+=sway*0.050*position.y*position.y;
         transformed.z+=cos(uWindTime*0.84+instanceMatrix[3].z*0.21)*0.019*position.y*position.y;
       `);
+    // Both sides use the authored upward field normal, not a flipped underside.
+    // Otherwise half the crossed flower cards become implausible black silhouettes.
+    if(!low)shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_begin>','#include <normal_fragment_begin>\nnormal=normalize(vNormal);');
   };
-  plant.customProgramCacheKey=()=> 'gloaming-crossed-atlas-wind-v2';
+  plant.customProgramCacheKey=()=> 'gloaming-crossed-atlas-wind-v3';
   return {terrain:terrainMaterial(false),far:terrainMaterial(true),solid,crown,plant,time,cutCenter,cutHalf};
 }
 

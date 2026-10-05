@@ -10,7 +10,7 @@ export class Input {
     this.listen(window,'mouseup',(event:Event)=>{const e=event as MouseEvent;if(e.button===0&&this.attack){this.attack=false;if(this.active)this.attackUp=true;}if(e.button===2)this.defend=false;});
     this.listen(canvas,'contextmenu',(e:Event)=>e.preventDefault());
     this.listen(window,'mousemove',(event:Event)=>{if(!this.active||this.mode==='gamepad')return;const e=event as MouseEvent;if(document.pointerLockElement!==canvas&&e.target!==canvas)return;this.mx+=e.movementX;this.my+=e.movementY;const now=performance.now();if(now-this.gestureAt>170){this.gx=0;this.gy=0;}this.gestureAt=now;this.gx+=e.movementX;this.gy+=e.movementY;const ax=Math.abs(this.gx),ay=Math.abs(this.gy);if(Math.max(ax,ay)>80&&Math.abs(ax-ay)>28){this.sector=ax>ay?(this.gx<0?'left':'right'):(this.gy<0?'high':'low');this.gx=0;this.gy=0;}});
-    this.listen(document,'pointerlockchange',()=>{if(!document.pointerLockElement&&this.active&&this.mode==='mouse'&&performance.now()>this.ignoreUntil)this.onPause();});
+    this.listen(document,'pointerlockchange',()=>{if(document.pointerLockElement!==this.canvas&&this.active)this.onPause();});
     this.listen(document,'pointerlockerror',()=>{if(this.active)this.notice('Mouse capture is unavailable in this App host. Use arrow keys to look, J to strike, K to guard, or a controller.');});
     this.listen(window,'blur',()=>{this.clear();if(this.active)this.onPause();});
     this.listen(document,'visibilitychange',()=>{if(document.hidden){this.clear();if(this.active)this.onPause();}});

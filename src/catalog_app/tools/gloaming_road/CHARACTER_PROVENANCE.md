@@ -4,7 +4,7 @@
 
 These are original project assets, authored as contoured geometry, custom bevelled plates, folded cloth, shaped faces, individually modelled fingers, weapons and articulated glTF nodes. No downloaded character mesh, stock humanoid primitive, source-game data, photographic texture or external asset URL is used.
 
-The user-supplied [knight reference](</tmp/gloaming-reference/knight.jpg>) and [mage reference](</tmp/gloaming-reference/mage.jpg>) were viewed for the requested retro medieval direction only. Their pixels were not incorporated into the textures or exports. The supplied screenshots are not distributed as runtime assets.
+The refreshed Steam [knight reference](https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4214710/4331eeae821e64fcffe6a9cd45ef12505b92578e/ss_4331eeae821e64fcffe6a9cd45ef12505b92578e.1920x1080.jpg) and [mage reference](https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4214710/d7a8331afd7a401fcb4bd88d7e9a4d55d411153d/ss_d7a8331afd7a401fcb4bd88d7e9a4d55d411153d.1920x1080.jpg) were viewed for the requested retro medieval direction only. Their pixels were not incorporated into the textures or exports. Those reference screenshots are not distributed as runtime assets.
 
 The editable [character workshop](<src/catalog_app/tools/gloaming_road/art/characters.py>) generates the geometry, glTF binary containers, texture painting and animation keys deterministically with Python, NumPy and Pillow. No Blender is required. All GLBs embed their three original 512 × 512 PNG atlases:
 

@@ -31,7 +31,7 @@ If a local asset, graphics initialization, storage, or audio activation fails, t
 
 Guard selection persists. Aim movements below the gesture threshold do not accidentally change guard. Match the sector where the incoming blade enters **your** space: an enemy's anatomical left is your right. Begin the correct guard just before impact to parry; holding the correct guard blocks at a stamina cost. Wrong-side and late defense fail. A dodge moves the capsule and supplies **no invulnerability**. Active strikes and recovery are committed; only early windup permits a feint.
 
-Settings provide independent audio buses, mouse sensitivity, FOV, inverted Y, motion/flash reduction, blood, captions, image detail, and movement/sector key rebinding. The controls table shows defaults; the settings screen shows current bindings. Menus support keyboard and controller navigation. Soft detail preserves nearby plant texture/density while reducing resolution, shadows and foliage lighting; it is not a switch to an empty world.
+Settings provide independent audio buses, mouse sensitivity, FOV, inverted Y, motion/flash reduction, blood, selective sound captions (also while muted), image detail, and movement/sector key rebinding. The controls table shows defaults; the settings screen shows current bindings. Menus support keyboard and controller navigation. Soft detail preserves nearby plant texture/density while reducing resolution, shadows and foliage lighting; it is not a switch to an empty world.
 
 ## A single mission, without a rail
 
@@ -50,7 +50,7 @@ The princess, Elowen, and all dialogue are original. The reference game's linear
 - **Saves:** versioned IndexedDB world/mission/clock/global position, with small localStorage settings. Autosave plus pause/quit/death/rest/guard/conversation writes. Latest 64 ordinary encounter snapshots retain health/death briefly; ordinary enemies may repopulate after 600 game seconds away. Royal identities/defeats and the rescue flag never use that cache. Recovery is a quiet visited stone hearth; death restores health/stamina at that site, not at the death location.
 - **Practical extent:** no authored map edge or invisible perimeter. JavaScript/float physics are not mathematically infinite; floating-origin local coordinates preserve ordinary travel precision. Million-metre and multi-day continuous routes are not claimed as exercised.
 
-The tuning constants are centralized in [state.ts](<src/catalog_app/tools/gloaming_road/frontend/state.ts>). Key starting values: movement 3 m/s, sprint 4.6 m/s; player 100 health/stamina; light 24 damage / 12 stamina, heavy 40 / 24; heavy charge ≥0.36 s; light 0.24 s windup +0.14 contact +0.32 recovery, heavy 0.52 +0.18 +0.55; parry window 0.14 s; dodge 22 stamina /0.28 s /0.9 m; nominal melee reach 1.85 m. Baseline ordinary health 56–88; elite health 104. These are game rules, not source-game measurements.
+The tuning constants are centralized in [state.ts](<src/catalog_app/tools/gloaming_road/frontend/state.ts>). Key starting values: movement 3 m/s, sprint 4.6 m/s; player 100 health/stamina; light 24 damage / 12 stamina, heavy 40 / 24; heavy charge ≥0.36 s; light 0.24 s windup +0.14 contact +0.32 recovery, heavy 0.52 +0.18 +0.55; parry window 0.14 s; dodge 22 stamina /0.28 s /0.9 m; nominal melee reach 1.85 m. Baseline ordinary health 56–88; elite health 104. Royal armor preserves a committed attack against light-hit interruption, making heavy pressure and timed defense consequential. These are game rules, not source-game measurements.
 
 ## Local build and source
 
