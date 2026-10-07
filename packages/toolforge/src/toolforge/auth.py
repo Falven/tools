@@ -1,11 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
-import os
 from contextvars import ContextVar
-from importlib import import_module
 from typing import Any
 
 import jwt
@@ -30,7 +27,6 @@ class EntraTokenVerifier:
         tenant_id: str,
         audience: str,
         permission: str,
-        client_id: str = "",
         *,
         user_role: str | None = None,
         application_role: str | None = None,
@@ -48,109 +44,35 @@ class EntraTokenVerifier:
         self.user_role = user_role
         self.application_role = application_role
         self.actor = actor
-        self.mise = None
-        self.key_client = None
-        self._mise_validation_input = None
-        if not os.environ.get("TOOLFORGE_MISE_WHEEL", "").strip():
-            self.key_client = PyJWKClient(
-                f"https://login.microsoftonline.com/{self.tenant_id}/discovery/v2.0/keys"
-            )
-            return
-
-        mise = import_module("mise")
-        self.mise = mise.Mise()
-        self._mise_validation_input = mise.MiseValidationInput
-        configuration = {
-            "MiseVersion": "2.0",
-            "AzureAd": {
-                "Instance": "https://login.microsoftonline.com/",
-                "TenantId": self.tenant_id,
-                "ClientId": client_id,
-                "Audiences": [audience],
-                "ValidTenantIds": [self.tenant_id],
-                "Protocols": {
-                    "Bearer": {
-                        "TokenTypes": {
-                            "AccessToken": {"AppToken": True, "UserToken": True}
-                        }
-                    }
-                },
-            },
-            "Mise": {
-                # Permission and role checks run below.
-                "ClaimsOnlyAuthZModule": {
-                    "AuthorizationConfig": {
-                        "Policies": [
-                            {
-                                "Name": "mcp-users",
-                                "IsDefaultPolicy": True,
-                                "Profile": "NonAuthorizingUser",
-                            },
-                            {
-                                "Name": "mcp-applications",
-                                "IsDefaultPolicy": True,
-                                "Profile": "NonAuthorizingApp",
-                            },
-                        ]
-                    }
-                },
-                "TelemetryExporterOptions": {"EnableExportingData": True},
-            },
-        }
-        with self.mise.configure(json.dumps(configuration), "AzureAd") as result:
-            if result.error_code:
-                raise RuntimeError("MISE configuration failed.")
+        self.key_client = PyJWKClient(
+            f"https://login.microsoftonline.com/{self.tenant_id}/discovery/v2.0/keys"
+        )
 
     async def verify_token(self, token: str) -> AccessToken | None:
         try:
-            if self.mise is None:
-                assert self.key_client is not None
-                signing_key = await asyncio.to_thread(
-                    self.key_client.get_signing_key_from_jwt, token
+            signing_key = await asyncio.to_thread(
+                self.key_client.get_signing_key_from_jwt, token
+            )
+            claims = jwt.decode(
+                token,
+                signing_key.key,
+                algorithms=["RS256"],
+                audience=self.audience,
+                options={"require": ["exp", "iss", "tid"]},
+            )
+            if claims["tid"].lower() != self.tenant_id or claims["iss"] not in {
+                f"https://login.microsoftonline.com/{self.tenant_id}/v2.0",
+                f"https://sts.windows.net/{self.tenant_id}/",
+            }:
+                _logger.warning(
+                    "auth.failed",
+                    extra={
+                        "event": "auth.failed",
+                        "actor": self.actor,
+                        "reason": "issuer_or_tenant_mismatch",
+                    },
                 )
-                claims = jwt.decode(
-                    token,
-                    signing_key.key,
-                    algorithms=["RS256"],
-                    audience=self.audience,
-                    options={"require": ["exp", "iss", "tid"]},
-                )
-                if claims["tid"].lower() != self.tenant_id or claims["iss"] not in {
-                    f"https://login.microsoftonline.com/{self.tenant_id}/v2.0",
-                    f"https://sts.windows.net/{self.tenant_id}/",
-                }:
-                    _logger.warning(
-                        "auth.failed",
-                        extra={
-                            "event": "auth.failed",
-                            "actor": self.actor,
-                            "reason": "issuer_or_tenant_mismatch",
-                        },
-                    )
-                    return None
-            else:
-                assert self._mise_validation_input is not None
-                validation_input = self._mise_validation_input()
-                validation_input.authorization_header = f"Bearer {token}"
-                request = _http_request.get()
-                validation_input.original_uri_header = str(request.url)
-                validation_input.original_method_header = request.method
-                with await asyncio.to_thread(
-                    self.mise.validate, validation_input
-                ) as result:
-                    if result.http_response_status_code != 200:
-                        _logger.warning(
-                            "auth.failed",
-                            extra={
-                                "event": "auth.failed",
-                                "actor": self.actor,
-                                "reason": "mise_validation_failed",
-                                "statusCode": result.http_response_status_code,
-                            },
-                        )
-                        return None
-                    # MISE authenticated this exact bearer; preserve its JWT claim types for MCP/OBO.
-                    claims = jwt.decode(token, options={"verify_signature": False})
+                return None
             client_id = claims.get("azp") or claims.get("appid")
             if not isinstance(client_id, str):
                 _logger.warning(
