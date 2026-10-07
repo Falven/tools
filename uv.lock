@@ -74,7 +74,9 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "azure-identity" },
+    { name = "icukit-pyicu", marker = "sys_platform == 'linux'" },
     { name = "mcp" },
+    { name = "mise" },
     { name = "pyjwt", extra = ["crypto"] },
     { name = "toolforge" },
 ]
@@ -82,7 +84,9 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "azure-identity", specifier = "==1.25.3" },
+    { name = "icukit-pyicu", marker = "sys_platform == 'linux'", specifier = "==78.3.0" },
     { name = "mcp", specifier = "==2.0.0" },
+    { name = "mise", specifier = "==2.7.0" },
     { name = "pyjwt", extras = ["crypto"], specifier = "==2.15.0" },
     { name = "toolforge", editable = "packages/toolforge" },
 ]
@@ -350,9 +354,18 @@ wheels = [
 name = "httpx2-jsfetch"
 version = "1.0"
 source = { registry = "https://packagefeedproxy.microsoft.io/pypi/simple/" }
-sdist = { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/httpx2-jsfetch/1/httpx2_jsfetch-1.0.tar.gz", hash = "sha256:70a0e3eabfef7cce5ad9c629f7d01ca05e418f586646f4ddf14782e4c1454c60", size = 6872, upload-time = "2026-08-07T00:13:07Z" }
+sdist = { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/httpx2-jsfetch/1/httpx2_jsfetch-1.0.tar.gz", hash = "sha256:70a0e3eabfef7cce5ad9c629f7d01ca05e418f586646f4ddf14782e4c1454c60", size = 6872, upload-time = "2026-10-05T01:12:25Z" }
 wheels = [
     { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/httpx2-jsfetch/1/httpx2_jsfetch-1.0-py3-none-any.whl", hash = "sha256:cb916b707601e69a07721aabc8f3f6659be3a6893bc1ff5c6f9e02241df2da32", size = 6382, upload-time = "2026-08-16T09:43:07Z" },
+]
+
+[[package]]
+name = "icukit-pyicu"
+version = "78.3.0"
+source = { registry = "https://packagefeedproxy.microsoft.io/pypi/simple/" }
+wheels = [
+    { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/icukit-pyicu/78.3/icukit_pyicu-78.3.0-cp314-cp314-manylinux_2_35_x86_64.whl", hash = "sha256:928399a5954f75fc99b2add7a94dae09ad95677a4a9f71e9cdccff3ac3bb5c46", size = 64838072, upload-time = "2026-10-07T15:25:13Z" },
+    { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/icukit-pyicu/78.3/icukit_pyicu-78.3.0-cp314-cp314-manylinux_2_38_aarch64.manylinux_2_39_aarch64.whl", hash = "sha256:d3416b776b9f045687d47918a0a7d7305b0f1434d12bb94b98273e1823d31635", size = 64441694, upload-time = "2026-07-07T00:33:50Z" },
 ]
 
 [[package]]
@@ -427,6 +440,17 @@ dependencies = [
 sdist = { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/mcp-types/2/mcp_types-2.0.0.tar.gz", hash = "sha256:d7d939b9285c9961ae8866ba75ef85da34d12bafe276efbf4eb6a131786d8379", size = 66632, upload-time = "2026-07-28T13:45:33Z" }
 wheels = [
     { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/mcp-types/2/mcp_types-2.0.0-py3-none-any.whl", hash = "sha256:6b2de797ca2797f568b79529e1b25948e34de511bcc0bd82fef1039a6d1b8eb0", size = 69649, upload-time = "2026-07-29T04:14:34Z" },
+]
+
+[[package]]
+name = "mise"
+version = "2.7.0"
+source = { registry = "wheelhouse" }
+dependencies = [
+    { name = "cffi" },
+]
+wheels = [
+    { path = "mise-2.7.0-py3-none-any.whl" },
 ]
 
 [[package]]

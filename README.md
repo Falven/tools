@@ -84,7 +84,9 @@ Each action commits and pushes the change immediately.
 
 ## Authentication and credentials
 
-The default setup requires Microsoft Entra authentication for all MCP calls and accepts both user and application tokens. Authentication is enforced before tool code runs. Tools can use on-behalf-of (OBO) authentication to call downstream APIs with the signed-in user's delegated permissions.
+This Catalog uses MISE to verify Microsoft Entra tokens for all MCP calls and accepts both user and application tokens. Authentication is enforced before tool code runs. Tools can use on-behalf-of (OBO) authentication to call downstream APIs with the signed-in user's delegated permissions.
+
+The approved MISE wheel is checked into `wheelhouse/` and installed through the PyProject. On Linux amd64, the PyProject also installs ICU libraries, which the Catalog loads before starting MISE. It requires no image build option or authentication-mode environment variable. A MISE initialization or verification failure does not switch to another verifier.
 
 For calls made by a signed-in user, read their identity with `get_access_token()`:
 

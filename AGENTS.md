@@ -49,7 +49,9 @@ Set `name`, `title`, `description`, and `instructions` directly in its
 constructor; `**kwargs` supplies hosting options. The **Server** page displays
 the applied title and instructions read-only.
 
-`src/catalog_app/auth.py` configures Microsoft Entra authentication and OBO.
+`src/catalog_app/auth.py` configures MISE verification of Microsoft Entra
+tokens and OBO. This Catalog always requires MISE. Its pinned wheel lives
+in `wheelhouse/`; the PyProject declares it and the Linux ICU dependency.
 The default server requires authentication for all MCP calls, before Tool
 code runs. It accepts both user and application tokens. Keep auth secrets
 in the deployment environment.
