@@ -10,11 +10,12 @@ import ctypes
 import json
 import logging
 import sys
+from collections.abc import Callable, Generator
 from contextlib import AbstractContextManager, ExitStack, contextmanager
 from contextvars import ContextVar
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Callable, Generator, Protocol
+from typing import Any, Protocol
 
 import jwt
 from azure.core.credentials import AccessToken as AzureAccessToken

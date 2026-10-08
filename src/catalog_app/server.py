@@ -10,11 +10,9 @@ from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.mcpserver.context import Context
 from mcp.types import ToolAnnotations
 from mcp_types import CallToolResult, InputRequiredResult
-
 from starlette.applications import Starlette
 
 from . import credentials
-
 from .auth import MiseAuth, MiseRequestContextMiddleware
 
 
@@ -33,7 +31,8 @@ def create_server(
         ),
     )
 
-    class CatalogServer(server_class):
+    class CatalogServer(server_class):  # ty: ignore[unsupported-base]
+        # Ty cannot resolve the host's runtime-selected MCPServer subclass.
         async def call_tool(
             self,
             name: str,
@@ -70,6 +69,8 @@ def create_server(
     with tool_directory("celsius_to_fahrenheit"):
         from .tools.celsius_to_fahrenheit import (
             RESOURCE_URI as CELSIUS_TO_FAHRENHEIT_RESOURCE_URI,
+        )
+        from .tools.celsius_to_fahrenheit import (
             celsius_to_fahrenheit,
             celsius_to_fahrenheit_app,
         )
@@ -115,6 +116,8 @@ def create_server(
     with tool_directory("gloaming_road"):
         from .tools.gloaming_road import (
             RESOURCE_URI as GLOAMING_ROAD_RESOURCE_URI,
+        )
+        from .tools.gloaming_road import (
             gloaming_road,
             gloaming_road_app,
         )
@@ -134,7 +137,11 @@ def create_server(
     with tool_directory("minesweeper"):
         from .tools.minesweeper import (
             RESOURCE_URI as MINESWEEPER_RESOURCE_URI,
+        )
+        from .tools.minesweeper import (
             _strict_inputs as _minesweeper_strict_inputs,
+        )
+        from .tools.minesweeper import (
             minesweeper,
             minesweeper_app,
             minesweeper_move,
@@ -187,6 +194,8 @@ def create_server(
     with tool_directory("neon_coil"):
         from .tools.neon_coil import (
             RESOURCE_URI as NEON_COIL_RESOURCE_URI,
+        )
+        from .tools.neon_coil import (
             neon_coil,
             neon_coil_app,
             neon_coil_begin,
@@ -224,7 +233,11 @@ def create_server(
     with tool_directory("rally_pong"):
         from .tools.rally_pong import (
             RESOURCE_URI as RALLY_PONG_RESOURCE_URI,
+        )
+        from .tools.rally_pong import (
             _strict_inputs as _rally_pong_strict_inputs,
+        )
+        from .tools.rally_pong import (
             rally_pong,
             rally_pong_app,
             rally_pong_begin,

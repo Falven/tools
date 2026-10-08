@@ -5,10 +5,11 @@ Close them when the Tool call ends and tell the client if sign-in is needed.
 
 from __future__ import annotations
 
+from collections.abc import Awaitable
 from contextlib import ExitStack
 from contextvars import ContextVar
 from threading import RLock
-from typing import TYPE_CHECKING, Any, Awaitable
+from typing import TYPE_CHECKING, Any
 
 from azure.core.credentials import AccessToken as AzureAccessToken
 from azure.core.credentials import TokenCredential
