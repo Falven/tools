@@ -2,6 +2,7 @@ import importlib
 import pkgutil
 from contextlib import nullcontext
 
+from mcp.server import MCPServer
 from mcp.server.apps import Apps
 from toolforge import EntraMCPServer
 
@@ -9,10 +10,12 @@ from . import tools
 from .auth import build_auth
 
 
-def create_server(**kwargs):
-    server_class = kwargs.pop("server_class", EntraMCPServer)
+def create_server(*, server_class=MCPServer, **kwargs):
+    class CatalogServer(EntraMCPServer, server_class):
+        pass
+
     auth, token_verifier, obo_settings = build_auth()
-    server = server_class(
+    server = CatalogServer(
         name="toolforge",
         title="",
         description="",
