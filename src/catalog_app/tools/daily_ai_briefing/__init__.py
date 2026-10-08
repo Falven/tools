@@ -7,9 +7,7 @@ from typing import Literal, TypedDict
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 
-from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
-from mcp.types import ToolAnnotations
 
 _SNAPSHOT_PATH = Path(__file__).resolve().with_name("latest.json")
 _NEW_YORK = ZoneInfo("America/New_York")
@@ -129,27 +127,20 @@ def _read_briefing() -> DailyAIBriefing:
     return {**snapshot, "is_current": edition == today}
 
 
-def register(server: MCPServer) -> None:
-    @server.tool(
-        title="Daily AI Briefing",
-        annotations=ToolAnnotations(
-            read_only_hint=True, destructive_hint=False, open_world_hint=False
-        ),
-    )
-    def get_daily_ai_briefing() -> DailyAIBriefing:
-        """Read the latest saved daily AI briefing for authorized agents; takes no inputs.
+def get_daily_ai_briefing() -> DailyAIBriefing:
+    """Read the latest saved daily AI briefing for authorized agents; takes no inputs.
 
-        Returns edition_date, covers_date, timezone (America/New_York), generated_at
-        (UTC), briefing_markdown, source_urls, source_access_limitations, and is_current.
-        The snapshot is committed on the Catalog publication Git branch and shared
-        identically with authorized callers, except for invocation-computed freshness.
-        Today's edition covers yesterday's New York calendar day. Preserve the actual
-        saved dates, timezone, generated_at, and returned freshness when presenting it.
-        Before today's publication, the prior snapshot is returned unchanged with
-        is_current=false; never relabel an older edition as today's. Freshness is
-        recomputed on every call using current UTC time converted to America/New_York.
-        Reads only bundled latest.json: no network, research, generation, publication,
-        scheduling, or writes. Missing, malformed, or invalid snapshots raise a tool
-        error instead of producing a fallback briefing.
-        """
-        return _read_briefing()
+    Returns edition_date, covers_date, timezone (America/New_York), generated_at
+    (UTC), briefing_markdown, source_urls, source_access_limitations, and is_current.
+    The snapshot is committed on the Catalog publication Git branch and shared
+    identically with authorized callers, except for invocation-computed freshness.
+    Today's edition covers yesterday's New York calendar day. Preserve the actual
+    saved dates, timezone, generated_at, and returned freshness when presenting it.
+    Before today's publication, the prior snapshot is returned unchanged with
+    is_current=false; never relabel an older edition as today's. Freshness is
+    recomputed on every call using current UTC time converted to America/New_York.
+    Reads only bundled latest.json: no network, research, generation, publication,
+    scheduling, or writes. Missing, malformed, or invalid snapshots raise a tool
+    error instead of producing a fallback briefing.
+    """
+    return _read_briefing()

@@ -6,7 +6,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Any
 
-from mcp.server import MCPServer
 from pydantic import Field
 
 from .engine import MAX_TICKS, MAX_TURNS
@@ -38,71 +37,52 @@ def _app_html() -> str:
     return html.replace("<!-- app.js -->", f'<script type="module">\n{script}\n</script>')
 
 
-def register(server: MCPServer) -> None:
-    @server.tool(
-        title="Neon Coil",
-        meta={"ui": {"resourceUri": RESOURCE_URI}},
-    )
-    def neon_coil() -> dict[str, Any]:
-        """Open Neon Coil, a Snake arcade App, or read its rules and shared top scores.
+def neon_coil() -> dict[str, Any]:
+    """Open Neon Coil, a Snake arcade App, or read its rules and shared top scores.
 
-        Takes no inputs. Returns the verified caller's player summary, current
-        leaderboard, rules, and server epoch. Scores are ephemeral, in-memory,
-        replay-verified, and reset on server restart; opening the App posts no score.
-        A delegated user account is needed to play scored runs.
-        """
-        return _STATE.overview()
+    Takes no inputs. Returns the verified caller's player summary, current
+    leaderboard, rules, and server epoch. Scores are ephemeral, in-memory,
+    replay-verified, and reset on server restart; opening the App posts no score.
+    A delegated user account is needed to play scored runs.
+    """
+    return _STATE.overview()
 
-    @server.tool(
-        title="Start Neon Coil run",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-    )
-    def neon_coil_begin() -> dict[str, Any]:
-        """Issue a two-hour, caller-bound seed/run ID for a new scored game.
 
-        Requires verified delegated user claims. Returns player, leaderboard,
-        epoch and engine constants. Keeps at most four active runs per player;
-        another start retires that player's oldest active run, never another's.
-        """
-        return _STATE.begin()
+def neon_coil_begin() -> dict[str, Any]:
+    """Issue a two-hour, caller-bound seed/run ID for a new scored game.
 
-    @server.tool(
-        title="Verify Neon Coil run",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-    )
-    def neon_coil_finish(run_id: RunId, steps: ReplaySteps, turns: ReplayTurns) -> dict[str, Any]:
-        """Verify a completed replay and update the caller's in-memory personal best.
+    Requires verified delegated user claims. Returns player, leaderboard,
+    epoch and engine constants. Keeps at most four active runs per player;
+    another start retires that player's oldest active run, never another's.
+    """
+    return _STATE.begin()
 
-        Submit the issued run_id, total steps including the fatal/victory tick,
-        and only committed [tick, direction] changes (0 up, 1 right, 2 down,
-        3 left). Both steps and turns are bounded at 18000. A still-live game
-        finishes only at the exact 18000-tick limit, returning endedByLimit true.
-        Score and name are derived on the server, never caller-supplied. Early,
-        foreign, invalid, expired, and incomplete runs cannot post. Completed
-        retries return the same receipt until the original two-hour TTL expires.
-        """
-        return _STATE.finish(run_id, steps, turns)
 
-    @server.tool(
-        title="Neon Coil scores",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-    )
-    def neon_coil_scores(offset: PageOffset = 0, limit: PageLimit = DEFAULT_PAGE_SIZE) -> dict[str, Any]:
-        """Read a ranked page of shared scores, caller's best, and ephemeral epoch.
+def neon_coil_finish(run_id: RunId, steps: ReplaySteps, turns: ReplayTurns) -> dict[str, Any]:
+    """Verify a completed replay and update the caller's in-memory personal best.
 
-        offset defaults to zero; limit defaults to 50 and must be from 1 to 100.
-        Rows retain absolute ranks; totalPlayers and nextOffset support paging.
-        No score is posted. Applications and callers without verified delegated
-        identity may view scores but receive no player identity and cannot post.
-        """
-        return _STATE.scores(offset, limit)
+    Submit the issued run_id, total steps including the fatal/victory tick,
+    and only committed [tick, direction] changes (0 up, 1 right, 2 down,
+    3 left). Both steps and turns are bounded at 18000. A still-live game
+    finishes only at the exact 18000-tick limit, returning endedByLimit true.
+    Score and name are derived on the server, never caller-supplied. Early,
+    foreign, invalid, expired, and incomplete runs cannot post. Completed
+    retries return the same receipt until the original two-hour TTL expires.
+    """
+    return _STATE.finish(run_id, steps, turns)
 
-    @server.resource(
-        RESOURCE_URI,
-        mime_type="text/html;profile=mcp-app",
-        title="Neon Coil",
-        meta={"ui": {"csp": {"resourceDomains": [], "connectDomains": []}}},
-    )
-    def neon_coil_app() -> str:
-        """Serve the self-contained App; native host controls handle fullscreen."""
-        return _app_html()
+
+def neon_coil_scores(offset: PageOffset = 0, limit: PageLimit = DEFAULT_PAGE_SIZE) -> dict[str, Any]:
+    """Read a ranked page of shared scores, caller's best, and ephemeral epoch.
+
+    offset defaults to zero; limit defaults to 50 and must be from 1 to 100.
+    Rows retain absolute ranks; totalPlayers and nextOffset support paging.
+    No score is posted. Applications and callers without verified delegated
+    identity may view scores but receive no player identity and cannot post.
+    """
+    return _STATE.scores(offset, limit)
+
+
+def neon_coil_app() -> str:
+    """Serve the self-contained App; native host controls handle fullscreen."""
+    return _app_html()

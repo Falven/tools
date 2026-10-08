@@ -18,6 +18,8 @@ import subprocess
 import tempfile
 import threading
 import unittest
+
+from tests.fixtures.catalog import register_catalog_tool
 from unittest import mock
 
 from mcp.server import MCPServer
@@ -822,7 +824,7 @@ class AppContractTests(unittest.TestCase):
 
     def test_exact_registration_one_public_zero_input_tool_and_three_app_only_handlers(self):
         with mock.patch.object(Path, "read_text", side_effect=AssertionError("registration read an asset")):
-            app_module.register(self.server)
+            register_catalog_tool(self.server, "rally_pong")
         tools = asyncio.run(self.server.list_tools())
         self.assertEqual({tool.name for tool in tools}, {"rally_pong", "rally_pong_begin", "rally_pong_finish", "rally_pong_scores"})
         public = [tool for tool in tools if tool.meta["ui"].get("visibility") != ["app"]]
@@ -846,7 +848,7 @@ class AppContractTests(unittest.TestCase):
         self.assertEqual(scores.input_schema["properties"]["limit"]["maximum"], 100)
 
     def test_resource_inlines_adjacent_assets_lazily_and_is_cached_without_network_permissions(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "rally_pong")
         resources = asyncio.run(self.server.list_resources())
         self.assertEqual(len(resources), 1)
         resource = resources[0]
@@ -880,7 +882,7 @@ class AppContractTests(unittest.TestCase):
                 self.assertIn("export {};", app_module._app_html())
 
     def test_real_mcp_calls_use_verified_context_and_never_client_score_or_name(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "rally_pong")
         with verified(claims_for()):
             overview = asyncio.run(self.server.call_tool("rally_pong", {})).structured_content
             self.assertEqual(overview["player"]["name"], "Alice")
@@ -903,7 +905,7 @@ class AppContractTests(unittest.TestCase):
             self.assertEqual(denied["error"]["code"], "ineligible")
 
     def test_mcp_forbids_spoofed_identity_score_seed_clock_and_unknown_fields(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "rally_pong")
         with verified(claims_for()):
             run = self.store.begin()
             self.clock.advance(12)
@@ -924,14 +926,14 @@ class AppContractTests(unittest.TestCase):
             return {"value": value}
 
         before = asyncio.run(self.server.list_tools())[0].input_schema
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "rally_pong")
         after = next(tool.input_schema for tool in asyncio.run(self.server.list_tools()) if tool.name == "unrelated")
         self.assertEqual(before, after)
         result = asyncio.run(self.server.call_tool("unrelated", {"value": "7", "extra": "ignored"})).structured_content
         self.assertEqual(result, {"value": 7})
 
     def test_mcp_rejects_boolean_float_string_and_oversized_replay_arguments(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "rally_pong")
         with verified(claims_for()):
             run = self.store.begin()
             self.clock.advance(12)

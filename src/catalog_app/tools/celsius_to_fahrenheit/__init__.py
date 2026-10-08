@@ -8,8 +8,6 @@ import math
 from pathlib import Path
 from typing import Annotated, TypedDict
 
-from mcp.server import MCPServer
-from mcp.types import ToolAnnotations
 from pydantic import Field
 
 RESOURCE_URI = "ui://celsius-to-fahrenheit/app.html"
@@ -59,35 +57,19 @@ def _app_html() -> str:
     return html.replace("<!-- app.js -->", f'<script type="module">\n{script}\n</script>')
 
 
-def register(server: MCPServer) -> None:
-    @server.tool(
-        title="Celsius to Fahrenheit",
-        meta={"ui": {"resourceUri": RESOURCE_URI}},
-        annotations=ToolAnnotations(
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    def celsius_to_fahrenheit(celsius: Celsius = 0.0) -> Conversion:
-        """Convert Celsius to Fahrenheit and open an interactive temperature converter.
+def celsius_to_fahrenheit(celsius: Celsius = 0.0) -> Conversion:
+    """Convert Celsius to Fahrenheit and open an interactive temperature converter.
 
-        celsius is a finite number, defaulting to 0. Negative and decimal values
-        are supported. Returns celsius, fahrenheit, the formula, and a readable
-        result for clients without App rendering. Uses °F = °C × 9/5 + 32;
-        rejects nonnumeric/nonfinite inputs and results outside float64 range.
-        This is a mathematical conversion, with no absolute-zero restriction.
-        No state, files, or external services are read or written by conversion.
-        """
-        return _convert(celsius)
+    celsius is a finite number, defaulting to 0. Negative and decimal values
+    are supported. Returns celsius, fahrenheit, the formula, and a readable
+    result for clients without App rendering. Uses °F = °C × 9/5 + 32;
+    rejects nonnumeric/nonfinite inputs and results outside float64 range.
+    This is a mathematical conversion, with no absolute-zero restriction.
+    No state, files, or external services are read or written by conversion.
+    """
+    return _convert(celsius)
 
-    @server.resource(
-        RESOURCE_URI,
-        mime_type="text/html;profile=mcp-app",
-        title="Celsius to Fahrenheit",
-        meta={"ui": {"csp": {"resourceDomains": ["https://cdn.jsdelivr.net"], "connectDomains": []}}},
-    )
-    def celsius_to_fahrenheit_app() -> str:
-        """Serve the converter with the pinned official MCP Apps browser SDK."""
-        return _app_html()
+
+def celsius_to_fahrenheit_app() -> str:
+    """Serve the converter with the pinned official MCP Apps browser SDK."""
+    return _app_html()

@@ -49,76 +49,55 @@ def _strict_inputs(server: MCPServer, names: tuple[str, ...]) -> None:
         tool.parameters = model.model_json_schema(by_alias=True)
 
 
-def register(server: MCPServer) -> None:
-    @server.tool(
-        title="Minesweeper",
-        meta={"ui": {"resourceUri": RESOURCE_URI}},
-    )
-    def minesweeper() -> dict[str, Any]:
-        """Open nostalgic Minesweeper, or read rules, difficulty choices and shared top scores.
+def minesweeper() -> dict[str, Any]:
+    """Open nostalgic Minesweeper, or read rules, difficulty choices and shared top scores.
 
-        Takes no inputs. Returns the verified caller's player summary, ephemeral
-        server epoch, and highest-score-first leaderboard. Opening posts no score
-        and starts no game. Only server-verified wins count; each delegated user
-        keeps one best across difficulties. Games and scores are in memory only
-        and disappear on server restart. A delegated user account is required to
-        play; application-only callers may read the rules and scores.
-        """
-        return _STATE.overview()
+    Takes no inputs. Returns the verified caller's player summary, ephemeral
+    server epoch, and highest-score-first leaderboard. Opening posts no score
+    and starts no game. Only server-verified wins count; each delegated user
+    keeps one best across difficulties. Games and scores are in memory only
+    and disappear on server restart. A delegated user account is required to
+    play; application-only callers may read the rules and scores.
+    """
+    return _STATE.overview()
 
-    @server.tool(
-        title="Start Minesweeper game",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-    )
-    def minesweeper_start(difficulty: DifficultyId = "beginner") -> dict[str, Any]:
-        """Start a caller-bound, two-hour game; default difficulty is beginner.
 
-        Difficulties are beginner (9x9, 10 mines, 1x), intermediate (16x16,
-        40 mines, 2x), and expert (16x30, 99 mines, 3x). Returns a covered board
-        with revision zero. No mines or clock exist until an actual reveal;
-        its cell and neighbors are safe. Only the caller's newest three games
-        are retained, including terminal receipts. No score is posted by start.
-        """
-        return _STATE.start(difficulty)
+def minesweeper_start(difficulty: DifficultyId = "beginner") -> dict[str, Any]:
+    """Start a caller-bound, two-hour game; default difficulty is beginner.
 
-    @server.tool(
-        title="Play Minesweeper move",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-    )
-    def minesweeper_move(run_id: RunId, action: Action, cell: Cell, revision: Revision) -> dict[str, Any]:
-        """Apply reveal, flag (toggle), or chord to a zero-based row-major cell.
+    Difficulties are beginner (9x9, 10 mines, 1x), intermediate (16x16,
+    40 mines, 2x), and expert (16x30, 99 mines, 3x). Returns a covered board
+    with revision zero. No mines or clock exist until an actual reveal;
+    its cell and neighbors are safe. Only the caller's newest three games
+    are retained, including terminal receipts. No score is posted by start.
+    """
+    return _STATE.start(difficulty)
 
-        cell and revision are strict integers. Send the last received revision;
-        valid nonterminal moves consume one revision even when nothing opens.
-        Exactly repeating the last (revision, action, cell) returns its original
-        response. Other stale revisions return an error with the current game
-        for resync. Terminal games are frozen. The server alone computes time,
-        mines and score, and only wins update the shared best-score leaderboard.
-        """
-        return _STATE.move(run_id, action, cell, revision)
 
-    @server.tool(
-        title="Minesweeper scores",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-    )
-    def minesweeper_scores() -> dict[str, Any]:
-        """Read the top 50 shared wins, total players, caller's best and epoch.
+def minesweeper_move(run_id: RunId, action: Action, cell: Cell, revision: Revision) -> dict[str, Any]:
+    """Apply reveal, flag (toggle), or chord to a zero-based row-major cell.
 
-        Takes no inputs and posts no score. Order is highest score, then fastest
-        server elapsed milliseconds, then first achieved. Raw caller identities
-        and other players' opaque IDs are never returned in leaderboard rows.
-        Scores are ephemeral, process-local, and reset on server restart.
-        """
-        return _STATE.scores()
+    cell and revision are strict integers. Send the last received revision;
+    valid nonterminal moves consume one revision even when nothing opens.
+    Exactly repeating the last (revision, action, cell) returns its original
+    response. Other stale revisions return an error with the current game
+    for resync. Terminal games are frozen. The server alone computes time,
+    mines and score, and only wins update the shared best-score leaderboard.
+    """
+    return _STATE.move(run_id, action, cell, revision)
 
-    _strict_inputs(server, ("minesweeper", "minesweeper_start", "minesweeper_move", "minesweeper_scores"))
 
-    @server.resource(
-        RESOURCE_URI,
-        mime_type="text/html;profile=mcp-app",
-        title="Minesweeper",
-        meta={"ui": {"csp": {"resourceDomains": [], "connectDomains": []}}},
-    )
-    def minesweeper_app() -> str:
-        """Serve adjacent HTML with the bundled official SDK and application code."""
-        return _app_html()
+def minesweeper_scores() -> dict[str, Any]:
+    """Read the top 50 shared wins, total players, caller's best and epoch.
+
+    Takes no inputs and posts no score. Order is highest score, then fastest
+    server elapsed milliseconds, then first achieved. Raw caller identities
+    and other players' opaque IDs are never returned in leaderboard rows.
+    Scores are ephemeral, process-local, and reset on server restart.
+    """
+    return _STATE.scores()
+
+
+def minesweeper_app() -> str:
+    """Serve adjacent HTML with the bundled official SDK and application code."""
+    return _app_html()

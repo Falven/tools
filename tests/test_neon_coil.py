@@ -16,6 +16,8 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+
+from tests.fixtures.catalog import register_catalog_tool
 from unittest import mock
 
 from mcp.server import MCPServer
@@ -740,7 +742,7 @@ class AppContractTests(unittest.TestCase):
 
     def test_registration_is_asset_independent_and_exactly_one_model_tool(self):
         with mock.patch.object(Path, "read_text", side_effect=AssertionError("registration read an asset")):
-            app_module.register(self.server)
+            register_catalog_tool(self.server, "neon_coil")
         tools = asyncio.run(self.server.list_tools())
         self.assertEqual({tool.name for tool in tools}, {
             "neon_coil", "neon_coil_begin", "neon_coil_finish", "neon_coil_scores",
@@ -757,7 +759,7 @@ class AppContractTests(unittest.TestCase):
         self.assertEqual(finish.input_schema["properties"]["turns"]["maxItems"], 18000)
 
     def test_resource_loads_relative_assets_lazily_and_has_no_network_permissions(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "neon_coil")
         resources = asyncio.run(self.server.list_resources())
         self.assertEqual(len(resources), 1)
         resource = resources[0]
@@ -780,7 +782,7 @@ class AppContractTests(unittest.TestCase):
                     self.assertEqual(app_module._app_html(), html)
 
     def test_real_mcp_calls_use_verified_context_and_ignore_spoofed_identity_or_score(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "neon_coil")
         with verified(claims_for("Alice")):
             main = asyncio.run(self.server.call_tool("neon_coil", {})).structured_content
             self.assertEqual(main["player"]["name"], "Alice")
@@ -805,7 +807,7 @@ class AppContractTests(unittest.TestCase):
             self.assertEqual(denied["error"]["code"], "ineligible")
 
     def test_mcp_input_validation_does_not_coerce_boolean_or_decimal_replay_events(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "neon_coil")
         with verified(claims_for()):
             run = self.store.begin()
             self.clock.advance(5)

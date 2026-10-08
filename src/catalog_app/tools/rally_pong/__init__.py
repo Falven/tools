@@ -56,78 +56,57 @@ def _strict_inputs(server: MCPServer, names: tuple[str, ...]) -> None:
         tool.parameters = model.model_json_schema(by_alias=True)
 
 
-def register(server: MCPServer) -> None:
-    @server.tool(
-        title="Rally — After Hours",
-        meta={"ui": {"resourceUri": RESOURCE_URI}},
-    )
-    def rally_pong() -> dict[str, Any]:
-        """Open Rally — After Hours, a Three.js 2.5D Pong arcade, or read top scores.
+def rally_pong() -> dict[str, Any]:
+    """Open Rally — After Hours, a Three.js 2.5D Pong arcade, or read top scores.
 
-        Takes no inputs. Returns controls, rules, the verified caller's player
-        summary, shared leaderboard and ephemeral server epoch. The full-viewport
-        App offers snappy keyboard/mouse/touch/gamepad controls, original synth
-        music and separate music/effects mutes; WebGL2 is required to play.
-        Opening starts no run, plays no audio and posts no score. Scores are
-        in-memory, replay-verified, and reset on server restart. A delegated user
-        account is required for scored play; application-only callers may read
-        scores but cannot post.
-        """
-        return _STATE.overview()
+    Takes no inputs. Returns controls, rules, the verified caller's player
+    summary, shared leaderboard and ephemeral server epoch. The full-viewport
+    App offers snappy keyboard/mouse/touch/gamepad controls, original synth
+    music and separate music/effects mutes; WebGL2 is required to play.
+    Opening starts no run, plays no audio and posts no score. Scores are
+    in-memory, replay-verified, and reset on server restart. A delegated user
+    account is required for scored play; application-only callers may read
+    scores but cannot post.
+    """
+    return _STATE.overview()
 
-    @server.tool(
-        title="Start Rally run",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-    )
-    def rally_pong_begin() -> dict[str, Any]:
-        """Issue a caller-bound seed/run ID valid for 30 minutes and game constants.
 
-        Requires verified delegated user claims. Returns player, leaderboard,
-        epoch, runId and seed. At most four runs per player remain active; a fifth
-        start retires only that player's oldest active run, never another's.
-        """
-        return _STATE.begin()
+def rally_pong_begin() -> dict[str, Any]:
+    """Issue a caller-bound seed/run ID valid for 30 minutes and game constants.
 
-    @server.tool(
-        title="Verify Rally run",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-    )
-    def rally_pong_finish(run_id: RunId, steps: ReplaySteps, inputs: ReplayInputs) -> dict[str, Any]:
-        """Verify a complete 120 Hz replay and update the caller's in-memory best.
+    Requires verified delegated user claims. Returns player, leaderboard,
+    epoch, runId and seed. At most four runs per player remain active; a fifth
+    start retires only that player's oldest active run, never another's.
+    """
+    return _STATE.begin()
 
-        Submit only the issued run_id, exact terminal steps (1..14400), and
-        canonical [1-based tick, integer target] changes. Targets are -1000..1000;
-        ticks must increase and repeated targets are invalid. Include serve ticks.
-        Terminal means first to 7 goals or exactly 14400 ticks. Timeout counts
-        earned points but is not a victory and awards no 250-point win bonus.
-        The server derives all scores/names. Early, foreign, expired, malformed
-        and incomplete replays cannot post. Successful retries return the same
-        receipt until the original run's 30-minute TTL, even if ranks change.
-        """
-        return _STATE.finish(run_id, steps, inputs)
 
-    @server.tool(
-        title="Rally scores",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-    )
-    def rally_pong_scores(offset: PageOffset = 0, limit: PageLimit = DEFAULT_PAGE_SIZE) -> dict[str, Any]:
-        """Read a ranked score page, caller summary and ephemeral server epoch.
+def rally_pong_finish(run_id: RunId, steps: ReplaySteps, inputs: ReplayInputs) -> dict[str, Any]:
+    """Verify a complete 120 Hz replay and update the caller's in-memory best.
 
-        offset defaults to zero; limit defaults to 50 and must be 1..100. Rows
-        carry absolute ranks, totalPlayers and nextOffset support pagination.
-        No score is posted. Application-only or unidentified callers may read
-        but receive canPost false and no player identity.
-        """
-        return _STATE.scores(offset, limit)
+    Submit only the issued run_id, exact terminal steps (1..14400), and
+    canonical [1-based tick, integer target] changes. Targets are -1000..1000;
+    ticks must increase and repeated targets are invalid. Include serve ticks.
+    Terminal means first to 7 goals or exactly 14400 ticks. Timeout counts
+    earned points but is not a victory and awards no 250-point win bonus.
+    The server derives all scores/names. Early, foreign, expired, malformed
+    and incomplete replays cannot post. Successful retries return the same
+    receipt until the original run's 30-minute TTL, even if ranks change.
+    """
+    return _STATE.finish(run_id, steps, inputs)
 
-    _strict_inputs(server, ("rally_pong", "rally_pong_begin", "rally_pong_finish", "rally_pong_scores"))
 
-    @server.resource(
-        RESOURCE_URI,
-        mime_type="text/html;profile=mcp-app",
-        title="Rally — After Hours",
-        meta={"ui": {"csp": {"resourceDomains": [], "connectDomains": []}}},
-    )
-    def rally_pong_app() -> str:
-        """Serve the bundled App; native host controls provide fullscreen."""
-        return _app_html()
+def rally_pong_scores(offset: PageOffset = 0, limit: PageLimit = DEFAULT_PAGE_SIZE) -> dict[str, Any]:
+    """Read a ranked score page, caller summary and ephemeral server epoch.
+
+    offset defaults to zero; limit defaults to 50 and must be 1..100. Rows
+    carry absolute ranks, totalPlayers and nextOffset support pagination.
+    No score is posted. Application-only or unidentified callers may read
+    but receive canPost false and no player identity.
+    """
+    return _STATE.scores(offset, limit)
+
+
+def rally_pong_app() -> str:
+    """Serve the bundled App; native host controls provide fullscreen."""
+    return _app_html()

@@ -14,6 +14,8 @@ from mcp.client import Client
 from mcp.server import MCPServer
 from mcp.server.apps import Apps
 
+from tests.fixtures.catalog import register_catalog_tool
+
 from catalog_app.tools import celsius_to_fahrenheit as converter
 
 HOST = r'''<!doctype html>
@@ -81,7 +83,7 @@ frame.src = '/app';
 
 def start_host():
     server = MCPServer("converter-browser-qa", extensions=[Apps()])
-    converter.register(server)
+    register_catalog_tool(server, "celsius_to_fahrenheit")
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *_args):

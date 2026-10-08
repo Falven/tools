@@ -10,6 +10,8 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+
+from tests.fixtures.catalog import register_catalog_tool
 from unittest import mock
 
 from mcp.client import Client
@@ -22,7 +24,7 @@ from catalog_app.tools import celsius_to_fahrenheit as converter
 class ConverterTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.server = MCPServer("converter-tests", extensions=[Apps()])
-        converter.register(self.server)
+        register_catalog_tool(self.server, "celsius_to_fahrenheit")
 
     async def call(self, arguments=None):
         async with Client(self.server) as client:
@@ -132,7 +134,7 @@ class ConverterTests(unittest.IsolatedAsyncioTestCase):
     async def test_registration_does_not_eagerly_read_assets(self):
         with mock.patch.object(Path, "read_text", side_effect=AssertionError("eager asset read")):
             server = MCPServer("lazy-assets", extensions=[Apps()])
-            converter.register(server)
+            register_catalog_tool(server, "celsius_to_fahrenheit")
         self.assertEqual(len(await server.list_tools()), 1)
 
 

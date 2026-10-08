@@ -2,12 +2,6 @@ version = 1
 revision = 3
 requires-python = ">=3.14"
 
-[manifest]
-members = [
-    "catalog-app",
-    "toolforge",
-]
-
 [[package]]
 name = "annotated-types"
 version = "0.8.0"
@@ -78,7 +72,6 @@ dependencies = [
     { name = "mcp" },
     { name = "mise" },
     { name = "pyjwt", extra = ["crypto"] },
-    { name = "toolforge" },
 ]
 
 [package.metadata]
@@ -88,7 +81,6 @@ requires-dist = [
     { name = "mcp", specifier = "==2.0.0" },
     { name = "mise", specifier = "==2.7.0" },
     { name = "pyjwt", extras = ["crypto"], specifier = "==2.15.0" },
-    { name = "toolforge", editable = "packages/toolforge" },
 ]
 
 [[package]]
@@ -709,23 +701,6 @@ dependencies = [
 sdist = { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/starlette/1.6/starlette-1.6.0.tar.gz", hash = "sha256:d4e3ac5e546444960c710297a3c9fc3f7ebae1b7e963f3d36173b49da535be9b", size = 2716969, upload-time = "2026-08-19T11:01:51Z" }
 wheels = [
     { url = "https://ms-feed-25.pkgs.visualstudio.com/6f084628-a36d-42cb-934d-057357e379dc/_packaging/49d7402f-07bb-4b18-a9ce-086e6e98a554/pypi/download/starlette/1.6/starlette-1.6.0-py3-none-any.whl", hash = "sha256:a86dd39d14bb45f85a3d18525215a9ef0cfd1f192ac793220e72598c90335f0c", size = 75969, upload-time = "2026-08-15T18:28:20Z" },
-]
-
-[[package]]
-name = "toolforge"
-version = "29.0.0"
-source = { editable = "packages/toolforge" }
-dependencies = [
-    { name = "azure-identity" },
-    { name = "mcp" },
-    { name = "pyjwt", extra = ["crypto"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "azure-identity", specifier = "==1.25.3" },
-    { name = "mcp", specifier = "==2.0.0" },
-    { name = "pyjwt", extras = ["crypto"], specifier = "==2.15.0" },
 ]
 
 [[package]]

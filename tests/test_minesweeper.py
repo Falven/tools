@@ -17,6 +17,8 @@ from pathlib import Path
 import random
 import threading
 import unittest
+
+from tests.fixtures.catalog import register_catalog_tool
 from unittest import mock
 
 from mcp.server import MCPServer
@@ -946,7 +948,7 @@ class AppContractTests(unittest.TestCase):
 
     def test_registration_is_asset_independent_with_one_model_facing_tool(self):
         with mock.patch.object(Path, "read_text", side_effect=AssertionError("registration read frontend")):
-            app_module.register(self.server)
+            register_catalog_tool(self.server, "minesweeper")
         tools = asyncio.run(self.server.list_tools())
         self.assertEqual({tool.name for tool in tools}, {
             "minesweeper", "minesweeper_start", "minesweeper_move", "minesweeper_scores",
@@ -960,7 +962,7 @@ class AppContractTests(unittest.TestCase):
                 self.assertEqual(tool.meta["ui"]["visibility"], ["app"])
 
     def test_input_schemas_are_exact_and_bounded(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "minesweeper")
         tools = {tool.name: tool for tool in asyncio.run(self.server.list_tools())}
         self.assertEqual(tools["minesweeper"].input_schema["properties"], {})
         self.assertEqual(tools["minesweeper_scores"].input_schema["properties"], {})
@@ -980,7 +982,7 @@ class AppContractTests(unittest.TestCase):
         self.assertEqual(move["properties"]["run_id"]["maxLength"], 128)
 
     def test_real_calls_use_verified_context_and_domain_error_shape(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "minesweeper")
         with verified(claims_for("Alice")):
             main = self.call("minesweeper", {})
             self.assertEqual(main["player"]["name"], "Alice")
@@ -1009,7 +1011,7 @@ class AppContractTests(unittest.TestCase):
             self.assertFalse(self.call("minesweeper", {})["canPlay"])
 
     def test_strict_mcp_validation_rejects_booleans_floats_strings_and_invalid_values(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "minesweeper")
         with verified(claims_for()):
             run_id = self.store.start()["game"]["runId"]
             base = {"run_id": run_id, "action": "flag", "cell": 0, "revision": 0}
@@ -1030,7 +1032,7 @@ class AppContractTests(unittest.TestCase):
             self.assertEqual(self.store._runs[run_id]["game"].flags, set())
 
     def test_unknown_identity_score_clock_and_layout_arguments_are_forbidden(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "minesweeper")
         with verified(claims_for()):
             run_id = self.store.start()["game"]["runId"]
             for name, args in [("minesweeper", {}), ("minesweeper_start", {}),
@@ -1046,7 +1048,7 @@ class AppContractTests(unittest.TestCase):
         self.assertEqual(self.store._players, {})
 
     def test_strict_schema_hardening_does_not_change_other_tools(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "minesweeper")
         @self.server.tool()
         def unrelated(value: int) -> dict[str, int]:
             return {"value": value}
@@ -1055,7 +1057,7 @@ class AppContractTests(unittest.TestCase):
         self.assertNotEqual(other.input_schema.get("additionalProperties"), False)
 
     def test_resource_csp_and_lazy_adjacent_html_js_inlining_and_cache(self):
-        app_module.register(self.server)
+        register_catalog_tool(self.server, "minesweeper")
         resources = asyncio.run(self.server.list_resources())
         self.assertEqual(len(resources), 1)
         resource = resources[0]
@@ -1092,7 +1094,7 @@ class AppContractTests(unittest.TestCase):
 
     def test_registration_and_overview_work_when_frontend_files_are_absent(self):
         with mock.patch.object(Path, "read_text", side_effect=FileNotFoundError("not built yet")):
-            app_module.register(self.server)
+            register_catalog_tool(self.server, "minesweeper")
             with verified(claims_for()):
                 self.assertEqual(self.call("minesweeper", {})["title"], "Minesweeper")
             with self.assertRaises(FileNotFoundError):

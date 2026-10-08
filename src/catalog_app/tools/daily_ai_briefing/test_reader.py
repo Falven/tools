@@ -11,13 +11,15 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+
+from tests.fixtures.catalog import register_catalog_tool
 from unittest import mock
 
 from mcp.client import Client
 from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 
-reader = importlib.import_module(__package__)
+reader = importlib.import_module("catalog_app.tools.daily_ai_briefing")
 TOOL_NAME = "get_daily_ai_briefing"
 
 
@@ -44,7 +46,7 @@ class ReaderTests(unittest.TestCase):
         }
         self.save(self.snapshot)
         self.server = MCPServer("daily-ai-briefing-test")
-        reader.register(self.server)
+        register_catalog_tool(self.server, "daily_ai_briefing")
 
     def save(self, value):
         self.path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -60,7 +62,7 @@ class ReaderTests(unittest.TestCase):
     def test_registration_is_lazy_exactly_one_read_only_no_argument_tool(self):
         server = MCPServer("registration-test")
         with mock.patch.object(Path, "read_text", side_effect=AssertionError("registration read a file")):
-            reader.register(server)
+            register_catalog_tool(server, "daily_ai_briefing")
         tools = asyncio.run(server.list_tools())
         self.assertEqual([tool.name for tool in tools], [TOOL_NAME])
         tool = tools[0]

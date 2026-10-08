@@ -4,15 +4,11 @@ version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
   "mcp==2.0.0",
-  "toolforge==29.0.0",
   "azure-identity==1.25.3",
   "PyJWT[crypto]==2.15.0",
   "mise==2.7.0",
   "icukit-pyicu==78.3.0; sys_platform == 'linux'",
 ]
-
-[tool.uv.workspace]
-members = ["packages/toolforge"]
 
 [tool.uv]
 find-links = ["wheelhouse"]
@@ -20,9 +16,6 @@ find-links = ["wheelhouse"]
 [[tool.uv.index]]
 url = "https://packagefeedproxy.microsoft.io/pypi/simple/"
 default = true
-
-[tool.uv.sources]
-toolforge = { workspace = true }
 
 [build-system]
 requires = ["uv_build>=0.12.3,<0.13"]

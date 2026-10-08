@@ -6,9 +6,9 @@ from unittest.mock import Mock, patch
 
 import jwt
 from starlette.requests import Request
-from toolforge.auth import _http_request
+from catalog_app.auth import _http_request
 
-from catalog_app.auth import MiseTokenVerifier
+from catalog_app.auth import MiseAuth
 
 
 class MiseAuthenticationTest(unittest.IsolatedAsyncioTestCase):
@@ -21,7 +21,7 @@ class MiseAuthenticationTest(unittest.IsolatedAsyncioTestCase):
         module = SimpleNamespace(Mise=lambda: mise, MiseValidationInput=SimpleNamespace)
 
         with patch("catalog_app.auth.import_module", return_value=module):
-            verifier = MiseTokenVerifier("tenant", "audience", "read", "client")
+            verifier = MiseAuth("tenant", "audience", "read", "https://example.com/mcp", client_id="client")
 
             request = Request(
                 {
@@ -78,7 +78,7 @@ class MiseAuthenticationTest(unittest.IsolatedAsyncioTestCase):
 
             mise.configure.return_value = nullcontext(SimpleNamespace(error_code=1))
             with self.assertRaisesRegex(RuntimeError, "MISE configuration failed"):
-                MiseTokenVerifier("tenant", "audience", "read", "client")
+                MiseAuth("tenant", "audience", "read", "https://example.com/mcp", client_id="client")
 
 
 if __name__ == "__main__":
