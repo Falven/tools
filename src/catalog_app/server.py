@@ -66,40 +66,6 @@ def create_server(
         **kwargs,
     )
     tool_directory = getattr(server, "tool_directory", nullcontext)
-    with tool_directory("celsius_to_fahrenheit"):
-        from .tools.celsius_to_fahrenheit import (
-            RESOURCE_URI as CELSIUS_TO_FAHRENHEIT_RESOURCE_URI,
-        )
-        from .tools.celsius_to_fahrenheit import (
-            celsius_to_fahrenheit,
-            celsius_to_fahrenheit_app,
-        )
-
-        server.add_tool(
-            celsius_to_fahrenheit,
-            title="Celsius to Fahrenheit",
-            meta={"ui": {"resourceUri": CELSIUS_TO_FAHRENHEIT_RESOURCE_URI}},
-            annotations=ToolAnnotations(
-                read_only_hint=True,
-                destructive_hint=False,
-                idempotent_hint=True,
-                open_world_hint=False,
-            ),
-        )
-        server.resource(
-            CELSIUS_TO_FAHRENHEIT_RESOURCE_URI,
-            mime_type="text/html;profile=mcp-app",
-            title="Celsius to Fahrenheit",
-            meta={
-                "ui": {
-                    "csp": {
-                        "resourceDomains": ["https://cdn.jsdelivr.net"],
-                        "connectDomains": [],
-                    }
-                }
-            },
-        )(celsius_to_fahrenheit_app)
-
     with tool_directory("daily_ai_briefing"):
         from .tools.daily_ai_briefing import (
             get_daily_ai_briefing,
