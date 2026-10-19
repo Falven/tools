@@ -230,14 +230,6 @@ class HostedMCPServer(MCPServer):
         session = context.request_context.session
         outbound = session._request_outbound
         session._request_outbound = invocation.InvocationOutbound(outbound, reporter)
-        send_log_message = session.send_log_message
-
-        async def log_message(level, data, logger=None, related_request_id=None):
-            if not invocation._reporting_output.get():
-                telemetry._operator_log(level, "tool.log", message=data, logger=logger)
-            await send_log_message(level, data, logger, related_request_id)
-
-        session.send_log_message = log_message
         token = invocation._invocation_reporter.set(reporter)
         try:
             return await super().call_tool(name, arguments, context)
@@ -250,4 +242,3 @@ class HostedMCPServer(MCPServer):
                 await reporter.drain()
             finally:
                 session._request_outbound = outbound
-                session.send_log_message = send_log_message

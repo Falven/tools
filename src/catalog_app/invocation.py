@@ -112,6 +112,13 @@ class InvocationOutbound(BaseContext[TransportContext]):
         if _reporting_output.get():
             await self.outbound.notify(method, params, opts)
             return
+        if method == "notifications/message" and params is not None:
+            telemetry._operator_log(
+                params["level"],
+                "tool.log",
+                message=params["data"],
+                logger=params.get("logger"),
+            )
         await self.reporter.wait(
             self.reporter.enqueue(lambda: self.outbound.notify(method, params, opts))
         )
