@@ -48,7 +48,7 @@ def hello_world() -> str:
 After the server constructor, `src/catalog_app/server.py` explicitly registers it:
 
 ```python
-tool_directory = getattr(server, "tool_directory", nullcontext)
+tool_directory = server.tool_directory
 with tool_directory("hello_world"):
     from .tools.hello_world import hello_world
 
@@ -79,6 +79,11 @@ Project skills live under `.agents/skills/<name>/`, with instructions in `SKILL.
 ## Publish changes
 
 The MCP server uses GitOps: it automatically pulls and applies changes from the configured remote branch.
+
+This Catalog owns its complete MCP execution application and dependency lock.
+`python -m catalog_app` runs the transport, Tool registration, invocation reporting,
+and authentication in the Catalog environment. ToolForge management supervises
+that process from a separate environment and supplies no execution dependencies.
 
 Push your commits to publish them. ToolForge's Source Control pushes automatically after a commit. The sandbox's pre-commit hook runs `uv sync --all-packages` and stages `uv.lock` when a fully staged package manifest changes.
 

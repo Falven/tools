@@ -8,8 +8,8 @@ is its Tool ID; renaming the package changes that identity. A simple Tool is a
 plain typed function in that module. `src/catalog_app/server.py` explicitly
 imports and registers it with `server.add_tool()` after constructing the server;
 source files alone are not discovered. Keep the import and registration inside
-`with tool_directory("<tool_id>"):`. The existing `getattr(server,
-"tool_directory", nullcontext)` binding supports standalone SDK execution.
+`with tool_directory("<tool_id>"):`. The `server.tool_directory` binding supports
+both standalone and supervised execution.
 This ToolForge scope attributes calls and startup failures to the Tool ID and lets a faulty
 Tool fail without hiding healthy siblings.
 
@@ -56,11 +56,10 @@ The Sandbox provides a preconfigured CLI and browser for `agent-browser`.
 
 The repository-root `pyproject.toml` defines shared Python configuration.
 `[project].requires-python` selects Python. Additional dependencies are declared
-there or in workspace package manifests. The MCP server runtime and
-authentication depend on `mcp`, `azure-identity`, and `PyJWT[crypto]`. The
-installable `catalog-app` project owns public MCP authentication and delegated
-credentials under `src/catalog_app/`. Catalog Initialization copies this source
-into each Catalog Repository.
+there or in workspace package manifests. The installable `catalog-app` project
+owns the complete MCP execution application and its dependencies under
+`src/catalog_app/`, including the SDK, transport, authentication, and telemetry.
+Management runs in a separate environment and supplies no execution dependencies.
 
 `uv.lock` is the dependency lock. In ToolForge sandboxes, the Git pre-commit
 hook runs `uv sync --all-packages` and stages the resulting lock when a
@@ -72,8 +71,11 @@ generated lock in the same commit.
 
 ## MCP runtime and authentication
 
-`src/catalog_app/server.py` composes Catalog authentication around the supplied
-MCP Python SDK v2 server class.
+`python -m catalog_app` runs the Catalog-owned execution application.
+`src/catalog_app/__main__.py` owns transport and private supervision controls;
+`hosting.py` owns SDK integration, Tool scopes, and invocation attribution.
+`src/catalog_app/server.py` constructs its own MCP Python SDK v2 server class
+and composes Catalog authentication.
 `name`, `title`, `description`, and `instructions` are constructor arguments;
 `**kwargs` supplies hosting options. The **Server** page edits
 literal `title` and `instructions` values through an explicit **Commit** action

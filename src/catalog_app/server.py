@@ -1,10 +1,8 @@
 """Set up the Catalog's access checks and Tools on the chosen MCP server."""
 
 import os
-from contextlib import nullcontext
 from typing import Any
 
-from mcp.server import MCPServer
 from mcp.server.apps import Apps
 from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.mcpserver.context import Context
@@ -14,11 +12,10 @@ from starlette.applications import Starlette
 
 from . import credentials
 from .auth import MiseAuth, MiseRequestContextMiddleware
+from .hosting import HostedMCPServer
 
 
-def create_server(
-    *, server_class: type[MCPServer] = MCPServer, **kwargs: Any
-) -> MCPServer:
+def create_server(**kwargs: Any) -> HostedMCPServer:
     auth = MiseAuth(
         tenant_id=os.environ["TOOLFORGE_MCP_ENTRA_TENANT_ID"],
         audience=os.environ["TOOLFORGE_MCP_ENTRA_AUDIENCE"],
@@ -31,8 +28,7 @@ def create_server(
         ),
     )
 
-    class CatalogServer(server_class):  # ty: ignore[unsupported-base]
-        # Ty cannot resolve the host's runtime-selected MCPServer subclass.
+    class CatalogServer(HostedMCPServer):
         async def call_tool(
             self,
             name: str,
@@ -65,7 +61,7 @@ def create_server(
         token_verifier=auth,
         **kwargs,
     )
-    tool_directory = getattr(server, "tool_directory", nullcontext)
+    tool_directory = server.tool_directory
     with tool_directory("daily_ai_briefing"):
         from .tools.daily_ai_briefing import (
             get_daily_ai_briefing,

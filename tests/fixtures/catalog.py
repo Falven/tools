@@ -3,16 +3,9 @@
 import os
 from unittest.mock import Mock, patch
 
-from mcp.server import MCPServer
+from mcp.server.auth.settings import AuthSettings
 
 from catalog_app.server import create_server
-
-
-class _UnauthenticatedServer(MCPServer):
-    def __init__(self, **kwargs):
-        kwargs.pop("auth")
-        kwargs.pop("token_verifier")
-        super().__init__(**kwargs)
 
 
 def register_catalog_tool(server, tool_id):
@@ -25,9 +18,18 @@ def register_catalog_tool(server, tool_id):
     }
     with (
         patch.dict(os.environ, environment),
-        patch("catalog_app.server.MiseAuth", return_value=Mock(settings=None)),
+        patch(
+            "catalog_app.server.MiseAuth",
+            return_value=Mock(
+                settings=AuthSettings(
+                    issuer_url="https://issuer.test",
+                    resource_server_url="https://example.test/mcp",
+                    validate_token_resource=False,
+                )
+            ),
+        ),
     ):
-        catalog = create_server(server_class=_UnauthenticatedServer)
+        catalog = create_server()
     module = f"catalog_app.tools.{tool_id}"
     # Preserve the actual SDK argument models, including strict input settings.
     server._tool_manager._tools.update(
