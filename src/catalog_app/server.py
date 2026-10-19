@@ -100,6 +100,20 @@ def create_server(
             meta={"ui": {"csp": {"resourceDomains": [], "connectDomains": []}}},
         )(gloaming_road_app)
 
+    with tool_directory("hello_world"):
+        from .tools.hello_world import hello_world
+
+        server.add_tool(
+            hello_world,
+            title="Hello World",
+            annotations=ToolAnnotations(
+                read_only_hint=True,
+                destructive_hint=False,
+                idempotent_hint=True,
+                open_world_hint=False,
+            ),
+        )
+
     with tool_directory("minesweeper"):
         from .tools.minesweeper import (
             RESOURCE_URI as MINESWEEPER_RESOURCE_URI,
