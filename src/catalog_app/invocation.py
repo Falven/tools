@@ -26,14 +26,14 @@ class InvocationReporter:
     def __init__(self, context: Any, loop: asyncio.AbstractEventLoop) -> None:
         self.context = context
         self.loop = loop
-        self.pending: list[asyncio.Task[None] | concurrent.futures.Future[None]] = []
+        self.pending: asyncio.Task[None] | concurrent.futures.Future[None] | None = None
         self.lock = threading.Lock()
 
     def enqueue(
         self, output: Callable[[], Awaitable[None]]
     ) -> asyncio.Task[None] | concurrent.futures.Future[None]:
         with self.lock:
-            previous = self.pending[-1] if self.pending else None
+            previous = self.pending
             coroutine = self._send_after(previous, output)
             try:
                 running_loop = asyncio.get_running_loop()
@@ -43,7 +43,7 @@ class InvocationReporter:
                 pending = self.loop.create_task(coroutine)
             else:
                 pending = asyncio.run_coroutine_threadsafe(coroutine, self.loop)
-            self.pending.append(pending)
+            self.pending = pending
             return pending
 
     def log(self, level: str, data: str, logger_name: str) -> None:
@@ -78,8 +78,9 @@ class InvocationReporter:
     async def drain(self) -> None:
         with self.lock:
             pending = self.pending
-            self.pending = []
-        await asyncio.gather(*(self.wait(pending_item) for pending_item in pending))
+            self.pending = None
+        if pending is not None:
+            await self.wait(pending)
 
 
 _invocation_reporter: ContextVar[InvocationReporter | None] = ContextVar(

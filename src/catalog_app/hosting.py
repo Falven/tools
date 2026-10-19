@@ -30,7 +30,6 @@ class HostedMCPServer(MCPServer):
         self.tool_ids_by_mcp_name: dict[str, str] = {}
         self.load_errors: dict[str, str] = {}
         self._tool_ids_by_registered_name: dict[str, str] = {}
-        self._registered_names = {tool.name for tool in kwargs.get("tools") or ()}
         self._registering_tool_id: str | None = None
         super().__init__(**kwargs)
         self.middleware.append(self._observe_request)
@@ -48,7 +47,6 @@ class HostedMCPServer(MCPServer):
             self._lowlevel_server._request_handlers,
             self.tool_ids_by_mcp_name,
             self._tool_ids_by_registered_name,
-            self._registered_names,
         )
         originals = tuple(registry.copy() for registry in registries)
         lists = (self._custom_starlette_routes, self.middleware)
@@ -88,7 +86,7 @@ class HostedMCPServer(MCPServer):
         structured_output=None,
     ) -> None:
         mcp_name = name or fn.__name__
-        if mcp_name in self._registered_names:
+        if self._tool_manager.get_tool(mcp_name) is not None:
             raise ValueError(f"MCP Name {mcp_name} is registered more than once")
         tool_id = self._registering_tool_id
         ui = (meta or {}).get("ui")
@@ -115,7 +113,6 @@ class HostedMCPServer(MCPServer):
             meta=meta,
             structured_output=structured_output,
         )
-        self._registered_names.add(mcp_name)
         if tool_id:
             self._tool_ids_by_registered_name[mcp_name] = tool_id
         if tool_id and "model" in visibility:
