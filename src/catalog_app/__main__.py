@@ -29,8 +29,6 @@ def create_app(
     resource_url: str,
     *,
     catalog_commit: str = "",
-    requirements_revision: str = "",
-    lock_revision: str = "",
     allowed_hosts: list[str] | None = None,
     allowed_origins: list[str] | None = None,
 ) -> ASGIApp:
@@ -127,8 +125,6 @@ def create_app(
         acknowledgement = {
             "status": "ok",
             "catalogCommit": catalog_commit,
-            "requirementsRevision": requirements_revision,
-            "requirementsLockRevision": lock_revision,
             "tools": [tool.model_dump(mode="json", by_alias=True) for tool in tools],
             "toolIdsByMcpName": server.tool_ids_by_mcp_name,
             "loadErrors": load_errors,
@@ -241,8 +237,6 @@ def main() -> None:
 
         threading.Thread(target=stop_with_parent, daemon=True).start()
     catalog_commit = os.environ.pop("TOOLFORGE_CATALOG_COMMIT")
-    requirements_revision = os.environ.pop("TOOLFORGE_REQUIREMENTS_REVISION")
-    lock_revision = os.environ.pop("TOOLFORGE_LOCK_REVISION")
     internal_token = os.environ.pop("TOOLFORGE_INTERNAL_MCP_TOKEN")
     host = os.environ.pop("TOOLFORGE_MCP_HOST", "0.0.0.0")
     port = int(os.environ.pop("TOOLFORGE_MCP_PORT", "8000"))
@@ -266,8 +260,6 @@ def main() -> None:
         internal_token,
         resource_url,
         catalog_commit=catalog_commit,
-        requirements_revision=requirements_revision,
-        lock_revision=lock_revision,
         allowed_hosts=allowed_hosts,
         allowed_origins=allowed_origins,
     )
