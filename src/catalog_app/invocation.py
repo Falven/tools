@@ -190,7 +190,7 @@ class InvocationLogHandler(logging.Handler):
             getattr(record, "event", "python.log"),
             export=not record.name.startswith(("azure", "opentelemetry")),
             logger=record.name,
-            message=record.getMessage() if telemetry._service == "mcp" else message,
+            message=record.getMessage(),
             **{
                 key: record.__dict__[key]
                 for key in ("actor", "reason", "statusCode", "errorType")
@@ -198,9 +198,7 @@ class InvocationLogHandler(logging.Handler):
             },
             **(
                 telemetry._error_fields(record.exc_info[1])
-                if record.exc_info
-                and record.exc_info[1]
-                and (telemetry._service == "mcp" or not authentication_diagnostic)
+                if record.exc_info and record.exc_info[1]
                 else {}
             ),
         )

@@ -8,20 +8,15 @@ import sys
 import threading
 import traceback
 import warnings
-from collections.abc import Callable
 from contextvars import ContextVar
 from datetime import datetime, timezone
 from typing import Any, TypedDict
 
-from pydantic import ValidationError
-
 _log_context: ContextVar[dict[str, str]] = ContextVar("log_context", default={})
 _console_stream = sys.stderr
 _console_level = logging.INFO
-_service = "mcp"
 _redacted_values: tuple[str, ...] = ()
 _telemetry_enabled = False
-_log_sink: Callable[[dict[str, Any]], None] | None = None
 _log_levels = {
     "debug": logging.DEBUG,
     "info": logging.INFO,
@@ -79,21 +74,6 @@ def _redact(value: Any) -> Any:
 def _error_fields(error: BaseException | None) -> _ErrorFields:
     if error is None:
         return {}
-    if _service != "mcp":
-        while error.__cause__ is not None:
-            error = error.__cause__
-        return {
-            "exception.type": type(error).__name__,
-            "exception.message": (
-                f"{error.error_count()} Tool Input validation error(s)."
-                if isinstance(error, ValidationError)
-                else str(error)
-            ),
-            "exception.stacktrace": "\n".join(
-                f"{frame.f_code.co_filename}:{line} in {frame.f_code.co_name}"
-                for frame, line in traceback.walk_tb(error.__traceback__)
-            ),
-        }
     stack = traceback.TracebackException.from_exception(
         error,
         limit=sys.maxsize,
@@ -128,7 +108,7 @@ def _operator_log(
         **_log_context.get(),
         "event": event,
         **fields,
-        "service": _service,
+        "service": "mcp",
         "pid": os.getpid(),
     }
     if _telemetry_enabled:
@@ -137,13 +117,8 @@ def _operator_log(
         span = trace.get_current_span().get_span_context()
         if span.is_valid:
             entry.update(traceId=f"{span.trace_id:032x}", spanId=f"{span.span_id:016x}")
-    if _service != "mcp":
-        entry = _redact(entry)
     _console_stream.write(json.dumps(entry, default=str, ensure_ascii=False) + "\n")
     _console_stream.flush()
-    sink = _log_sink
-    if sink is not None:
-        sink(entry)
     if _telemetry_enabled and export:
         body = entry.get("message", entry.get("exception.message", event))
         logging.getLogger("toolforge.operator").log(
@@ -153,12 +128,11 @@ def _operator_log(
         )
 
 
-def configure(*, service: str = "mcp") -> None:
-    global _console_level, _redacted_values, _service, _telemetry_enabled
+def configure() -> None:
+    global _console_level, _redacted_values, _telemetry_enabled
 
     from .invocation import InvocationLogHandler, InvocationOutput
 
-    _service = service
     level = os.environ.pop("TOOLFORGE_LOG_LEVEL", "info").lower()
     if level not in {"debug", "info", "warn", "warning", "error"}:
         raise ValueError("TOOLFORGE_LOG_LEVEL must be debug, info, warning, or error")
@@ -208,40 +182,11 @@ def configure(*, service: str = "mcp") -> None:
     if os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING"):
         from azure.monitor.opentelemetry import configure_azure_monitor
         from opentelemetry.sdk.resources import Resource
-        from opentelemetry.sdk.trace import SpanProcessor
-        from opentelemetry.trace import Status
-
-        class RedactingSpanProcessor(SpanProcessor):
-            def on_end(self, span: Any) -> None:
-                # Sanitize the export snapshot before Azure's batch processor sees it.
-                span._name = _redact(span.name)
-                span._attributes = {
-                    key: _redact(
-                        value.split("?", 1)[0].split("#", 1)[0]
-                        if isinstance(value, str)
-                        and key in {"http.target", "http.url", "url.full"}
-                        else value
-                    )
-                    for key, value in (span.attributes or {}).items()
-                    if not key.startswith(
-                        (
-                            "db.",
-                            "http.request.header.",
-                            "http.response.header.",
-                            "exception.",
-                        )
-                    )
-                    and key != "url.query"
-                }
-                # Management spans omit payload-bearing SDK events.
-                span._events = []
-                span._links = []
-                span._status = Status(span.status.status_code)
 
         configure_azure_monitor(
             logger_name="toolforge.operator",
-            resource=Resource.create({"service.name": service}),
-            span_processors=[RedactingSpanProcessor()] if service != "mcp" else [],
+            resource=Resource.create({"service.name": "mcp"}),
+            span_processors=[],
             instrumentation_options={
                 name: {"enabled": False}
                 for name in ("azure_sdk", "psycopg2", "django", "flask", "fastapi")
