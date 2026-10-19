@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import re
 import sys
 import threading
 import traceback
@@ -15,7 +14,6 @@ from typing import Any, TypedDict
 _log_context: ContextVar[dict[str, str]] = ContextVar("log_context", default={})
 _console_stream = sys.stderr
 _console_level = logging.INFO
-_redacted_values: tuple[str, ...] = ()
 _telemetry_enabled = False
 _log_levels = {
     "debug": logging.DEBUG,
@@ -37,38 +35,6 @@ _ErrorFields = TypedDict(
     },
     total=False,
 )
-
-
-def _redact(value: Any) -> Any:
-    if isinstance(value, str):
-        for secret in _redacted_values:
-            value = value.replace(secret, "[REDACTED]")
-        value = re.sub(r"(?i)\bBearer\s+[^\s,;]+", "Bearer [REDACTED]", value)
-        value = re.sub(
-            r"(?i)https?://[\w-]+\.vault\.azure\.net[^\s\"'<>)]*",
-            "[REDACTED_KEY_VAULT_URI]",
-            value,
-        )
-        value = re.sub(
-            r"(?i)/subscriptions/[^\s/]+/resourceGroups/[^\s/]+/providers/Microsoft\.ManagedIdentity/userAssignedIdentities/[^\s\"'<>)]*",
-            "[REDACTED_IDENTITY]",
-            value,
-        )
-        value = re.sub(r"(?i)(https?://)[^\s/@]+:[^\s/@]+@", r"\1[REDACTED]@", value)
-        return re.sub(
-            r"(?i)([?&](?:sig|token|key|secret|password|access_token)=)[^&\s]+",
-            r"\1[REDACTED]",
-            value,
-        )
-    if isinstance(value, dict):
-        return {key: _redact(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_redact(item) for item in value]
-    return (
-        value
-        if value is None or isinstance(value, (bool, int, float))
-        else _redact(str(value))
-    )
 
 
 def _error_fields(error: BaseException | None) -> _ErrorFields:
@@ -129,7 +95,7 @@ def _operator_log(
 
 
 def configure() -> None:
-    global _console_level, _redacted_values, _telemetry_enabled
+    global _console_level, _telemetry_enabled
 
     from .invocation import InvocationLogHandler, InvocationOutput
 
@@ -137,17 +103,6 @@ def configure() -> None:
     if level not in {"debug", "info", "warn", "warning", "error"}:
         raise ValueError("TOOLFORGE_LOG_LEVEL must be debug, info, warning, or error")
     _console_level = _log_levels[level]
-    secret_values = json.loads(os.environ.pop("TOOLFORGE_LOG_REDACT_VALUES", "[]"))
-    secret_values.extend(
-        value
-        for key, value in os.environ.items()
-        if re.search(
-            r"SECRET|TOKEN|PASSWORD|CONNECTION_STRING|IDENTITY_HEADER|MSI_SECRET", key
-        )
-    )
-    _redacted_values = tuple(
-        sorted({value for value in secret_values if value}, key=len, reverse=True)
-    )
     logging.getLogger().handlers = [InvocationLogHandler()]
     logging.getLogger().setLevel(_console_level)
 

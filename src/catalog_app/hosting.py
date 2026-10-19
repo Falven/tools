@@ -65,7 +65,7 @@ class HostedMCPServer(MCPServer):
                 registry.update(original)
             for items, original in zip(lists, original_lists):
                 items[:] = original
-            self.load_errors[tool_id] = str(telemetry._redact(str(error)))
+            self.load_errors[tool_id] = str(error)
             telemetry._operator_log(
                 "error",
                 "tool.activation.failed",

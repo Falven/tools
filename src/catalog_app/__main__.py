@@ -79,9 +79,7 @@ def create_app(
         admission_error = (
             None
             if payload["ready"]
-            else telemetry._redact(
-                payload.get("error") or "The Tool Server is unavailable."
-            )
+            else payload.get("error") or "The Tool Server is unavailable."
         )
         admission_deadline = monotonic() + float(payload.get("graceSeconds", 0))
         return JSONResponse(
@@ -179,7 +177,10 @@ def create_app(
             return
         if request.url.path.rstrip("/") == "/mcp" and not ready():
             await JSONResponse(
-                {"error": "mcp_unavailable", "error_description": admission_error},
+                {
+                    "error": "mcp_unavailable",
+                    "error_description": "The Tool Server is unavailable.",
+                },
                 status_code=503,
                 headers={"retry-after": "5"},
             )(scope, receive, send)
