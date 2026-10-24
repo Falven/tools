@@ -90,6 +90,66 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
             ),
         )
 
+    with tool_directory("contoso_list_requests"):
+        from .tools.contoso_list_requests import contoso_list_requests
+
+        server.add_tool(
+            contoso_list_requests,
+            title="List Contoso requests",
+            annotations=ToolAnnotations(
+                read_only_hint=True,
+                destructive_hint=False,
+                idempotent_hint=True,
+                open_world_hint=False,
+            ),
+        )
+
+    with tool_directory("contoso_save_answers"):
+        from .tools.contoso_open_request import (
+            RESOURCE_URI as CONTOSO_REQUEST_RESOURCE_URI,
+        )
+        from .tools.contoso_save_answers import contoso_save_answers
+
+        server.add_tool(
+            contoso_save_answers,
+            title="Save Contoso clarification answers",
+            meta={
+                "ui": {
+                    "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,
+                    "visibility": ["model", "app"],
+                }
+            },
+            annotations=ToolAnnotations(
+                read_only_hint=False,
+                destructive_hint=True,
+                idempotent_hint=True,
+                open_world_hint=False,
+            ),
+        )
+
+    with tool_directory("contoso_submit_answers"):
+        from .tools.contoso_open_request import (
+            RESOURCE_URI as CONTOSO_REQUEST_RESOURCE_URI,
+        )
+        from .tools.contoso_submit_answers import contoso_submit_answers
+
+        server.add_tool(
+            contoso_submit_answers,
+            title="Submit Contoso clarification answers",
+            meta={
+                "ui": {
+                    "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,
+                    "visibility": ["model", "app"],
+                }
+            },
+            annotations=ToolAnnotations(
+                read_only_hint=False,
+                destructive_hint=True,
+                idempotent_hint=True,
+                open_world_hint=False,
+            ),
+        )
+
     with tool_directory("daily_ai_briefing"):
         from .tools.daily_ai_briefing import (
             get_daily_ai_briefing,

@@ -4,8 +4,11 @@ const app = new App({ name: 'Contoso request', version: '1.0.0' });
 const form = document.getElementById('request-form');
 const objective = document.getElementById('business-objective');
 const save = document.getElementById('save');
+const submit = document.getElementById('submit-answers');
+const submitHint = document.getElementById('submit-hint');
 const reload = document.getElementById('reload');
 const message = document.getElementById('message');
+const answerInputs = new Map();
 let requestId = '';
 let request = null;
 let connected = false;
@@ -16,11 +19,37 @@ function status(text, error = false) {
   message.dataset.error = String(error);
 }
 
+function answerValue(question, input) {
+  if (input.value === '') return null;
+  return question.type === 'yes_no' ? input.value === 'true' : input.value;
+}
+
+function unsavedAnswers() {
+  return request.questions.some(question => {
+    const saved = Object.hasOwn(request.answers, question.id) ? request.answers[question.id] : null;
+    return answerValue(question, answerInputs.get(question.id)) !== (saved === '' ? null : saved);
+  });
+}
+
 function availability(working) {
   busy = working;
   form.setAttribute('aria-busy', String(working));
-  save.disabled = working || !request || request.status !== 'draft';
-  objective.disabled = working || !request || request.status !== 'draft';
+  const intake = request?.view === 'intake' && request.status === 'draft';
+  const clarification = request?.view === 'clarification' && request.status === 'needs_clarification';
+  save.hidden = !intake && !clarification;
+  save.disabled = working || (!intake && !clarification);
+  objective.disabled = working || !intake;
+  for (const input of answerInputs.values()) input.disabled = working || !clarification;
+  submit.hidden = !clarification;
+  submitHint.hidden = !clarification;
+  const dirty = clarification && unsavedAnswers();
+  const incomplete = clarification && request.missing_required_answers.length > 0;
+  submit.disabled = working || !clarification || dirty || incomplete;
+  if (clarification) {
+    submitHint.textContent = dirty ? 'Save your changes before submitting.'
+      : incomplete ? 'Complete and save the required answers before submitting.'
+      : 'Your answers are saved. Submit when you are ready to send them to Contoso.';
+  }
   reload.disabled = working || !connected || !requestId;
 }
 
@@ -36,13 +65,91 @@ function unpack(result) {
   return data;
 }
 
+function detail(list, label, value) {
+  const term = document.createElement('dt');
+  term.textContent = label;
+  const description = document.createElement('dd');
+  description.textContent = value;
+  list.append(term, description);
+}
+
 function show(data) {
+  if (!['intake', 'clarification', 'status'].includes(data.view) || !data.brief
+      || !Array.isArray(data.questions) || !data.answers || !Array.isArray(data.missing_required_answers)) {
+    throw new Error('The saved request response is incomplete.');
+  }
   request = data;
   document.getElementById('request-title').textContent = data.title;
   document.getElementById('request-id').textContent = data.request_id;
-  document.getElementById('request-status').textContent = '· ' + data.status;
+  const labels = { draft: 'Draft', submitted: 'Submitted', needs_clarification: 'Needs clarification', in_review: 'In review' };
+  document.getElementById('request-status').textContent = '· ' + (labels[data.status] ?? data.status);
   document.getElementById('next-action').textContent = data.next_action;
   objective.value = data.business_objective;
+  document.getElementById('intake-view').hidden = data.view !== 'intake';
+  document.getElementById('clarification-view').hidden = data.view !== 'clarification';
+  document.getElementById('status-view').hidden = data.view !== 'status' || data.questions.length === 0;
+  save.textContent = data.view === 'intake' ? 'Save draft' : 'Save answers';
+
+  const brief = document.getElementById('brief');
+  brief.replaceChildren();
+  for (const [key, label] of Object.entries({
+    requested_software: 'Requested software', business_objective: 'Business objective',
+    capabilities: 'Capabilities', systems_and_constraints: 'Systems and constraints',
+    decision_maker: 'Decision maker', preferred_deadline: 'Preferred deadline',
+  })) {
+    if (data.brief[key]) detail(brief, label, data.brief[key]);
+  }
+  const savedBrief = document.getElementById('saved-brief');
+  savedBrief.hidden = data.view === 'intake';
+  savedBrief.open = data.view === 'status';
+
+  answerInputs.clear();
+  const questions = document.getElementById('questions');
+  questions.replaceChildren();
+  const savedAnswers = document.getElementById('saved-answers');
+  savedAnswers.replaceChildren();
+  for (const [index, question] of data.questions.entries()) {
+    const answer = Object.hasOwn(data.answers, question.id) ? data.answers[question.id] : undefined;
+    if (data.view === 'status') {
+      detail(savedAnswers, question.prompt, answer === true ? 'Yes' : answer === false ? 'No' : answer || 'Not answered');
+      continue;
+    }
+    if (data.view !== 'clarification') continue;
+    const field = document.createElement('div');
+    field.className = 'question';
+    const label = document.createElement('label');
+    label.htmlFor = 'question-' + index;
+    label.textContent = question.prompt + (question.required ? ' (required)' : ' (optional)');
+    const input = document.createElement(question.type === 'text' ? 'textarea' : 'select');
+    input.id = label.htmlFor;
+    input.required = question.required;
+    input.setAttribute('aria-describedby', 'answers-hint');
+    if (question.type === 'text') {
+      input.rows = 3;
+      input.maxLength = 4000;
+    } else {
+      const choices = question.type === 'yes_no' ? [['true', 'Yes'], ['false', 'No']]
+        : question.choices.map(value => [value, value]);
+      for (const [value, text] of [['', 'Choose an answer'], ...choices]) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = text;
+        input.append(option);
+      }
+    }
+    input.value = answer == null ? '' : String(answer);
+    field.append(label, input);
+    questions.append(field);
+    answerInputs.set(question.id, input);
+  }
+  const missing = document.getElementById('missing-list');
+  missing.replaceChildren();
+  for (const question of data.questions.filter(item => data.missing_required_answers.includes(item.id))) {
+    const item = document.createElement('li');
+    item.textContent = question.prompt;
+    missing.append(item);
+  }
+  document.getElementById('missing-answers').hidden = data.missing_required_answers.length === 0;
 }
 
 async function load() {
@@ -63,28 +170,41 @@ async function load() {
   }
 }
 
-form.addEventListener('submit', async event => {
-  event.preventDefault();
-  if (busy || !request || request.status !== 'draft') return;
-  const arguments_ = {
-    request_id: request.request_id,
-    business_objective: objective.value,
-    revision: request.revision,
-  };
+async function change(name, arguments_, success) {
   availability(true);
-  status('Saving draft…');
+  status(name === 'contoso_submit_answers' ? 'Submitting answers…' : 'Saving…');
   try {
-    show(unpack(await app.callServerTool({
-      name: 'contoso_save_request',
-      arguments: arguments_,
-    })));
-    status('Draft saved.');
+    show(unpack(await app.callServerTool({ name, arguments: arguments_ })));
+    status(success);
   } catch (error) {
     request = null;
     status(error.message + ' Reload the saved request before trying again.', true);
   } finally {
     availability(false);
   }
+}
+
+form.addEventListener('input', () => { if (!busy) availability(false); });
+form.addEventListener('change', () => { if (!busy) availability(false); });
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (busy || !request) return;
+  const arguments_ = { request_id: request.request_id, revision: request.revision };
+  if (request.view === 'intake' && request.status === 'draft') {
+    await change('contoso_save_request', { ...arguments_, business_objective: objective.value }, 'Draft saved.');
+  } else if (request.view === 'clarification' && request.status === 'needs_clarification') {
+    const answers = Object.fromEntries(request.questions.map(question => [question.id, answerValue(question, answerInputs.get(question.id))]));
+    await change('contoso_save_answers', { ...arguments_, answers, question_set_revision: request.question_set_revision }, 'Answers saved.');
+  }
+});
+
+submit.addEventListener('click', async () => {
+  if (busy || !request || request.view !== 'clarification' || request.status !== 'needs_clarification'
+      || unsavedAnswers() || request.missing_required_answers.length > 0) return;
+  await change('contoso_submit_answers', {
+    request_id: request.request_id, revision: request.revision,
+    question_set_revision: request.question_set_revision,
+  }, 'Clarification submitted for review.');
 });
 
 reload.addEventListener('click', load);

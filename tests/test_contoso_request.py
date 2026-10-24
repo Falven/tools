@@ -4,6 +4,8 @@ These checks do not establish live Azure access or ToolForge/Foundry integration
 """
 
 import os
+import json
+import re
 from contextlib import contextmanager
 from copy import deepcopy
 import unittest
@@ -25,6 +27,34 @@ TENANT = "22222222-2222-2222-2222-222222222222"
 CUSTOMER = "33333333-3333-3333-3333-333333333333"
 OTHER_CUSTOMER = "44444444-4444-4444-4444-444444444444"
 REQUEST_ID = "CONTOSO-DEMO-001"
+CLARIFICATION_ID = "CONTOSO-DEMO-002"
+QUESTIONS = [
+    {
+        "id": "approval_owner",
+        "type": "text",
+        "prompt": "Who should approve contractor timesheets?",
+        "required": True,
+    },
+    {
+        "id": "reminder_schedule",
+        "type": "choice",
+        "prompt": "When should reminders be sent?",
+        "required": True,
+        "choices": ["Daily", "Weekly"],
+    },
+    {
+        "id": "notify_contractors",
+        "type": "yes_no",
+        "prompt": "Should contractors receive reminders?",
+        "required": True,
+    },
+    {
+        "id": "notes",
+        "type": "text",
+        "prompt": "Anything else we should know?",
+        "required": False,
+    },
+]
 ENVIRONMENT = {
     "CONTOSO_STORAGE_CONNECTION_STRING": "synthetic-secret-not-for-output",
     "CONTOSO_REQUESTS_TABLE": "ContosoRequests",
@@ -60,6 +90,7 @@ class Table:
 
     def __init__(self):
         self.race_before_update = False
+        self.question_race_before_update = False
         self.rows = {
             (f"contoso:{TENANT}:{CUSTOMER}", REQUEST_ID): Row(
                 {
@@ -72,6 +103,23 @@ class Table:
                 }
             ),
         }
+        self.rows[(f"contoso:{TENANT}:{CUSTOMER}", CLARIFICATION_ID)] = Row(
+            {
+                "PartitionKey": f"contoso:{TENANT}:{CUSTOMER}",
+                "RowKey": CLARIFICATION_ID,
+                "DemoId": "contoso-demo",
+                "Title": "Contractor timesheet approvals",
+                "BusinessObjective": "Reduce manual timesheet follow-up.",
+                "Status": "needs_clarification",
+                "Capabilities": "Submit weekly timesheets and route approvals.",
+                "SystemsAndConstraints": "Microsoft Teams and the existing project list.",
+                "DecisionMaker": "Customer operations lead",
+                "PreferredDeadline": "Pilot next month",
+                "QuestionSetRevision": "clarification-1",
+                "Questions": json.dumps(QUESTIONS),
+                "Answers": json.dumps({"approval_owner": "Engagement lead"}),
+            }
+        )
 
     def __enter__(self):
         return self
@@ -85,11 +133,23 @@ class Table:
         except KeyError:
             raise ResourceNotFoundError("Not found") from None
 
+    def query_entities(self, query_filter, *, parameters):
+        filters = re.findall(r"(\w+) eq @(\w+)", query_filter)
+        return [
+            deepcopy(row)
+            for row in self.rows.values()
+            if all(row.get(field) == parameters[value] for field, value in filters)
+        ]
+
     def update_entity(
         self, entity, mode=UpdateMode.MERGE, *, etag=None, match_condition=None
     ):
         key = (entity["PartitionKey"], entity["RowKey"])
         current = self.rows[key]
+        if self.question_race_before_update:
+            self.question_race_before_update = False
+            current["QuestionSetRevision"] = "clarification-2"
+            current.metadata["etag"] = '"2"'
         if self.race_before_update:
             self.race_before_update = False
             current["BusinessObjective"] = "A newer saved objective."
@@ -110,6 +170,9 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
         self.server = MCPServer("contoso-request-check", extensions=[Apps()])
         register_catalog_tool(self.server, "contoso_open_request")
         register_catalog_tool(self.server, "contoso_save_request")
+        register_catalog_tool(self.server, "contoso_list_requests")
+        register_catalog_tool(self.server, "contoso_save_answers")
+        register_catalog_tool(self.server, "contoso_submit_answers")
         self.table = Table()
 
     async def call(self, name, arguments, claims=None):
@@ -138,16 +201,31 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
         visible = [
             tool.name
             for tool in tools
-            if "model" in tool.meta.get("ui", {}).get("visibility", ["model", "app"])
+            if "model"
+            in (tool.meta or {}).get("ui", {}).get("visibility", ["model", "app"])
         ]
-        self.assertCountEqual(visible, ["contoso_open_request", "contoso_save_request"])
-        descriptors = {tool.name: tool for tool in tools}
-        save_ui = descriptors["contoso_save_request"].meta["ui"]
-        self.assertIn("app", save_ui["visibility"])
-        self.assertEqual(
-            save_ui["resourceUri"],
-            descriptors["contoso_open_request"].meta["ui"]["resourceUri"],
+        self.assertCountEqual(
+            visible,
+            [
+                "contoso_open_request",
+                "contoso_save_request",
+                "contoso_list_requests",
+                "contoso_save_answers",
+                "contoso_submit_answers",
+            ],
         )
+        descriptors = {tool.name: tool for tool in tools}
+        for name in (
+            "contoso_save_request",
+            "contoso_save_answers",
+            "contoso_submit_answers",
+        ):
+            app_ui = descriptors[name].meta["ui"]
+            self.assertIn("app", app_ui["visibility"])
+            self.assertEqual(
+                app_ui["resourceUri"],
+                descriptors["contoso_open_request"].meta["ui"]["resourceUri"],
+            )
 
     async def test_open_reads_the_customers_saved_request(self):
         result = await self.call("contoso_open_request", {"request_id": REQUEST_ID})
@@ -161,8 +239,330 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
                 "status": "draft",
                 "next_action": "Review your business objective and save any changes.",
                 "revision": '"1"',
+                "view": "intake",
+                "brief": {
+                    "requested_software": "Contractor timesheet approvals",
+                    "business_objective": "Reduce manual timesheet follow-up.",
+                    "capabilities": "",
+                    "systems_and_constraints": "",
+                    "decision_maker": "",
+                    "preferred_deadline": "",
+                },
+                "questions": [],
+                "answers": {},
+                "question_set_revision": None,
+                "missing_required_answers": [],
             },
         )
+
+    async def test_list_returns_owned_requests_and_filters_for_customer_attention(self):
+        row = deepcopy(self.table.rows[(f"contoso:{TENANT}:{CUSTOMER}", REQUEST_ID)])
+        row.update(RowKey="CONTOSO-DEMO-003", Status="submitted")
+        self.table.rows[(row["PartitionKey"], row["RowKey"])] = row
+        other = deepcopy(row)
+        other.update(
+            PartitionKey=f"contoso:{TENANT}:{OTHER_CUSTOMER}",
+            RowKey="OTHER-CUSTOMER",
+            Status="needs_clarification",
+        )
+        self.table.rows[(other["PartitionKey"], other["RowKey"])] = other
+        unrelated = deepcopy(row)
+        unrelated.update(RowKey="UNRELATED", DemoId="another-demo")
+        self.table.rows[(unrelated["PartitionKey"], unrelated["RowKey"])] = unrelated
+        listed = await self.call("contoso_list_requests", {})
+        self.assertFalse(listed.is_error, listed.content)
+        self.assertEqual(
+            [row["request_id"] for row in listed.structured_content["requests"]],
+            [REQUEST_ID, CLARIFICATION_ID, "CONTOSO-DEMO-003"],
+        )
+        attention = await self.call("contoso_list_requests", {"needs_attention": True})
+        self.assertFalse(attention.is_error, attention.content)
+        self.assertEqual(
+            [row["request_id"] for row in attention.structured_content["requests"]],
+            [REQUEST_ID, CLARIFICATION_ID],
+        )
+        self.assertEqual(
+            attention.structured_content["requests"][1]["status"], "needs_clarification"
+        )
+        self.assertIn(
+            "questions", attention.structured_content["requests"][1]["next_action"]
+        )
+
+    async def test_open_returns_saved_brief_questions_and_partial_answers(self):
+        result = await self.call(
+            "contoso_open_request", {"request_id": CLARIFICATION_ID}
+        )
+        self.assertFalse(result.is_error, result.content)
+        current = result.structured_content
+        self.assertEqual(current["view"], "clarification")
+        self.assertEqual(current["question_set_revision"], "clarification-1")
+        self.assertEqual(current["questions"], QUESTIONS)
+        self.assertEqual(current["answers"], {"approval_owner": "Engagement lead"})
+        self.assertEqual(
+            current["missing_required_answers"],
+            ["reminder_schedule", "notify_contractors"],
+        )
+        self.assertEqual(
+            current["brief"],
+            {
+                "requested_software": "Contractor timesheet approvals",
+                "business_objective": "Reduce manual timesheet follow-up.",
+                "capabilities": "Submit weekly timesheets and route approvals.",
+                "systems_and_constraints": "Microsoft Teams and the existing project list.",
+                "decision_maker": "Customer operations lead",
+                "preferred_deadline": "Pilot next month",
+            },
+        )
+
+    async def test_partial_answers_keep_types_and_can_clear_an_answer(self):
+        saved = await self.call(
+            "contoso_save_answers",
+            {
+                "request_id": CLARIFICATION_ID,
+                "answers": {
+                    "notify_contractors": False,
+                    "notes": "Include a weekly summary.",
+                },
+                "revision": '"1"',
+                "question_set_revision": "clarification-1",
+            },
+        )
+        self.assertFalse(saved.is_error, saved.content)
+        self.assertEqual(saved.structured_content["status"], "needs_clarification")
+        self.assertEqual(
+            saved.structured_content["answers"],
+            {
+                "approval_owner": "Engagement lead",
+                "notify_contractors": False,
+                "notes": "Include a weekly summary.",
+            },
+        )
+        self.assertEqual(
+            saved.structured_content["missing_required_answers"], ["reminder_schedule"]
+        )
+        cleared = await self.call(
+            "contoso_save_answers",
+            {
+                "request_id": CLARIFICATION_ID,
+                "answers": {"reminder_schedule": "Weekly", "notes": None},
+                "revision": saved.structured_content["revision"],
+                "question_set_revision": "clarification-1",
+            },
+        )
+        self.assertFalse(cleared.is_error, cleared.content)
+        opened = await self.call(
+            "contoso_open_request", {"request_id": CLARIFICATION_ID}
+        )
+        self.assertEqual(opened.structured_content, cleared.structured_content)
+        self.assertEqual(
+            opened.structured_content["answers"],
+            {
+                "approval_owner": "Engagement lead",
+                "notify_contractors": False,
+                "reminder_schedule": "Weekly",
+            },
+        )
+        self.assertEqual(opened.structured_content["missing_required_answers"], [])
+
+    async def test_submission_requires_saved_required_answers_and_moves_to_review(self):
+        incomplete = await self.call(
+            "contoso_submit_answers",
+            {
+                "request_id": CLARIFICATION_ID,
+                "revision": '"1"',
+                "question_set_revision": "clarification-1",
+            },
+        )
+        self.assertTrue(incomplete.is_error)
+        self.assertIn("reminder_schedule", incomplete.content[0].text)
+        saved = await self.call(
+            "contoso_save_answers",
+            {
+                "request_id": CLARIFICATION_ID,
+                "answers": {"reminder_schedule": "Weekly", "notify_contractors": False},
+                "revision": '"1"',
+                "question_set_revision": "clarification-1",
+            },
+        )
+        submitted = await self.call(
+            "contoso_submit_answers",
+            {
+                "request_id": CLARIFICATION_ID,
+                "revision": saved.structured_content["revision"],
+                "question_set_revision": "clarification-1",
+            },
+        )
+        self.assertFalse(submitted.is_error, submitted.content)
+        self.assertEqual(submitted.structured_content["status"], "in_review")
+        self.assertEqual(submitted.structured_content["view"], "status")
+        self.assertEqual(
+            submitted.structured_content["next_action"],
+            "Contoso is reviewing your request.",
+        )
+        self.assertIs(
+            submitted.structured_content["answers"]["notify_contractors"], False
+        )
+        self.server = MCPServer("replacement-contoso-server", extensions=[Apps()])
+        for tool_id in (
+            "contoso_open_request",
+            "contoso_save_request",
+            "contoso_list_requests",
+            "contoso_save_answers",
+            "contoso_submit_answers",
+        ):
+            register_catalog_tool(self.server, tool_id)
+        reopened = await self.call(
+            "contoso_open_request", {"request_id": CLARIFICATION_ID}
+        )
+        self.assertEqual(reopened.structured_content, submitted.structured_content)
+        attention = await self.call("contoso_list_requests", {"needs_attention": True})
+        self.assertEqual(
+            [row["request_id"] for row in attention.structured_content["requests"]],
+            [REQUEST_ID],
+        )
+
+    async def test_repeated_submission_returns_one_saved_outcome(self):
+        row = self.table.rows[(f"contoso:{TENANT}:{CUSTOMER}", CLARIFICATION_ID)]
+        row["Answers"] = json.dumps(
+            {
+                "approval_owner": "Engagement lead",
+                "reminder_schedule": "Daily",
+                "notify_contractors": False,
+            }
+        )
+        arguments = {
+            "request_id": CLARIFICATION_ID,
+            "revision": '"1"',
+            "question_set_revision": "clarification-1",
+        }
+        first = await self.call("contoso_submit_answers", arguments)
+        self.assertFalse(first.is_error, first.content)
+        repeated = await self.call("contoso_submit_answers", arguments)
+        self.assertFalse(repeated.is_error, repeated.content)
+        self.assertEqual(repeated.structured_content, first.structured_content)
+        current_repeat = await self.call(
+            "contoso_submit_answers",
+            {**arguments, "revision": first.structured_content["revision"]},
+        )
+        self.assertFalse(current_repeat.is_error, current_repeat.content)
+        self.assertEqual(current_repeat.structured_content, first.structured_content)
+        unrelated_revision = await self.call(
+            "contoso_submit_answers", {**arguments, "revision": '"unrelated"'}
+        )
+        self.assertTrue(unrelated_revision.is_error)
+        current = await self.call(
+            "contoso_open_request", {"request_id": CLARIFICATION_ID}
+        )
+        self.assertEqual(current.structured_content, first.structured_content)
+
+    async def test_invalid_answers_do_not_change_any_saved_answer(self):
+        for answers in (
+            {"unknown_question": "Invented"},
+            {"unknown_question": None},
+            {"notify_contractors": "false"},
+            {"notify_contractors": 0},
+            {"approval_owner": True},
+            {"reminder_schedule": "Hourly"},
+            {"approval_owner": "Changed", "notify_contractors": "yes"},
+        ):
+            with self.subTest(answers=answers):
+                result = await self.call(
+                    "contoso_save_answers",
+                    {
+                        "request_id": CLARIFICATION_ID,
+                        "answers": answers,
+                        "revision": '"1"',
+                        "question_set_revision": "clarification-1",
+                    },
+                )
+                self.assertTrue(result.is_error)
+        current = await self.call(
+            "contoso_open_request", {"request_id": CLARIFICATION_ID}
+        )
+        self.assertEqual(
+            current.structured_content["answers"], {"approval_owner": "Engagement lead"}
+        )
+        self.assertEqual(current.structured_content["revision"], '"1"')
+
+    async def test_record_and_question_revisions_protect_clarification_changes(self):
+        row = self.table.rows[(f"contoso:{TENANT}:{CUSTOMER}", CLARIFICATION_ID)]
+        row["Answers"] = json.dumps(
+            {
+                "approval_owner": "Engagement lead",
+                "reminder_schedule": "Daily",
+                "notify_contractors": False,
+            }
+        )
+        row["QuestionSetRevision"] = "clarification-2"
+        row.metadata["etag"] = '"2"'
+        before = await self.call(
+            "contoso_open_request", {"request_id": CLARIFICATION_ID}
+        )
+        for operation in ("contoso_save_answers", "contoso_submit_answers"):
+            for revision, question_revision in (
+                ('"1"', "clarification-2"),
+                ('"2"', "clarification-1"),
+                ("*", "clarification-2"),
+                ("", "clarification-2"),
+            ):
+                with self.subTest(
+                    operation=operation,
+                    revision=revision,
+                    question_revision=question_revision,
+                ):
+                    arguments = {
+                        "request_id": CLARIFICATION_ID,
+                        "revision": revision,
+                        "question_set_revision": question_revision,
+                    }
+                    if operation == "contoso_save_answers":
+                        arguments["answers"] = {"approval_owner": "Stale overwrite"}
+                    denied = await self.call(operation, arguments)
+                    self.assertTrue(denied.is_error)
+        current = await self.call(
+            "contoso_open_request", {"request_id": CLARIFICATION_ID}
+        )
+        self.assertEqual(current.structured_content, before.structured_content)
+
+    async def test_question_changes_during_save_or_submit_cannot_be_overwritten(self):
+        for operation in ("contoso_save_answers", "contoso_submit_answers"):
+            with self.subTest(operation=operation):
+                self.table = Table()
+                row = self.table.rows[
+                    (f"contoso:{TENANT}:{CUSTOMER}", CLARIFICATION_ID)
+                ]
+                row["Answers"] = json.dumps(
+                    {
+                        "approval_owner": "Engagement lead",
+                        "reminder_schedule": "Daily",
+                        "notify_contractors": False,
+                    }
+                )
+                self.table.question_race_before_update = True
+                arguments = {
+                    "request_id": CLARIFICATION_ID,
+                    "revision": '"1"',
+                    "question_set_revision": "clarification-1",
+                }
+                if operation == "contoso_save_answers":
+                    arguments["answers"] = {"approval_owner": "Racing overwrite"}
+                denied = await self.call(operation, arguments)
+                self.assertTrue(denied.is_error)
+                current = await self.call(
+                    "contoso_open_request", {"request_id": CLARIFICATION_ID}
+                )
+                self.assertEqual(
+                    current.structured_content["question_set_revision"],
+                    "clarification-2",
+                )
+                self.assertEqual(
+                    current.structured_content["answers"]["approval_owner"],
+                    "Engagement lead",
+                )
+                self.assertEqual(
+                    current.structured_content["status"], "needs_clarification"
+                )
+                self.assertEqual(current.structured_content["revision"], '"2"')
 
     async def test_save_and_reopen_preserve_the_draft_and_other_fields(self):
         saved = await self.call(
@@ -193,6 +593,16 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
     async def test_other_users_and_application_callers_cannot_read_or_change_a_request(
         self,
     ):
+        clarification = self.table.rows[
+            (f"contoso:{TENANT}:{CUSTOMER}", CLARIFICATION_ID)
+        ]
+        clarification["Answers"] = json.dumps(
+            {
+                "approval_owner": "Engagement lead",
+                "reminder_schedule": "Daily",
+                "notify_contractors": False,
+            }
+        )
         for claims in (
             {"tid": TENANT, "oid": OTHER_CUSTOMER, "scp": "ToolForge.MCP.Access"},
             {"tid": OTHER_CUSTOMER, "oid": CUSTOMER, "scp": "ToolForge.MCP.Access"},
@@ -202,6 +612,12 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
                 "roles": ["ToolForge.MCP.Access.Application"],
             },
             {"tid": TENANT, "oid": CUSTOMER, "scp": " ", "idtyp": "app"},
+            {
+                "tid": TENANT,
+                "oid": CUSTOMER,
+                "scp": "ToolForge.MCP.Access",
+                "idtyp": "app",
+            },
             {"tid": TENANT, "scp": "ToolForge.MCP.Access"},
         ):
             with self.subTest(claims=claims):
@@ -220,12 +636,49 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
                 self.assertTrue(opened.is_error)
                 self.assertTrue(changed.is_error)
                 self.assertNotIn("Reduce manual timesheet", opened.model_dump_json())
+                listed = await self.call("contoso_list_requests", {}, claims)
+                self.assertNotIn(REQUEST_ID, listed.model_dump_json())
+                self.assertNotIn(CLARIFICATION_ID, listed.model_dump_json())
+                answer_change = await self.call(
+                    "contoso_save_answers",
+                    {
+                        "request_id": CLARIFICATION_ID,
+                        "answers": {"approval_owner": "Unauthorized change"},
+                        "revision": '"1"',
+                        "question_set_revision": "clarification-1",
+                        "tenant_id": TENANT,
+                        "customer_id": CUSTOMER,
+                    },
+                    claims,
+                )
+                submitted = await self.call(
+                    "contoso_submit_answers",
+                    {
+                        "request_id": CLARIFICATION_ID,
+                        "revision": '"1"',
+                        "question_set_revision": "clarification-1",
+                    },
+                    claims,
+                )
+                self.assertTrue(answer_change.is_error)
+                self.assertTrue(submitted.is_error)
         current = await self.call("contoso_open_request", {"request_id": REQUEST_ID})
         self.assertEqual(
             current.structured_content["business_objective"],
             "Reduce manual timesheet follow-up.",
         )
         self.assertEqual(current.structured_content["revision"], '"1"')
+        current_answers = await self.call(
+            "contoso_open_request", {"request_id": CLARIFICATION_ID}
+        )
+        self.assertEqual(
+            current_answers.structured_content["status"], "needs_clarification"
+        )
+        self.assertEqual(current_answers.structured_content["revision"], '"1"')
+        self.assertEqual(
+            current_answers.structured_content["answers"]["approval_owner"],
+            "Engagement lead",
+        )
 
     async def test_stale_and_wildcard_revisions_cannot_overwrite_current_data(self):
         for revision in ('"old"', "*", " * ", "", '""', '"old", *'):
