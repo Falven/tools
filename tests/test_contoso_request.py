@@ -397,6 +397,190 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(reopened.structured_content, outcome)
 
+    async def test_intake_required_fields_can_be_cleared_but_not_submitted(self):
+        brief = {
+            "requested_software": "Contractor timesheet approvals",
+            "business_objective": "Reduce manual follow-up.",
+            "capabilities": "Collect timesheets and send approval reminders.",
+            "decision_maker": "Customer operations lead",
+        }
+        created = await self.call("contoso_create_request", brief)
+        self.assertFalse(created.is_error, created.content)
+        current = created.structured_content
+        for field, blank in (
+            ("requested_software", ""),
+            ("business_objective", " \t"),
+            ("capabilities", ""),
+            ("decision_maker", ""),
+        ):
+            with self.subTest(field=field):
+                cleared = await self.call(
+                    "contoso_save_request",
+                    {
+                        "request_id": current["request_id"],
+                        "revision": current["revision"],
+                        field: blank,
+                    },
+                )
+                self.assertFalse(cleared.is_error, cleared.content)
+                current = cleared.structured_content
+                self.assertEqual(current["brief"][field], blank)
+                self.assertEqual(current["missing_required_fields"], [field])
+                denied = await self.call(
+                    "contoso_submit_request",
+                    {
+                        "request_id": current["request_id"],
+                        "revision": current["revision"],
+                    },
+                )
+                self.assertTrue(denied.is_error)
+                reopened = await self.call(
+                    "contoso_open_request",
+                    {
+                        "request_id": current["request_id"],
+                    },
+                )
+                self.assertEqual(reopened.structured_content, current)
+                restored = await self.call(
+                    "contoso_save_request",
+                    {
+                        "request_id": current["request_id"],
+                        "revision": current["revision"],
+                        field: brief[field],
+                    },
+                )
+                self.assertFalse(restored.is_error, restored.content)
+                current = restored.structured_content
+
+        self.assertEqual(
+            current["brief"],
+            {
+                **brief,
+                "systems_and_constraints": "",
+                "preferred_deadline": "",
+            },
+        )
+        self.assertEqual(current["missing_required_fields"], [])
+        submitted = await self.call(
+            "contoso_submit_request",
+            {
+                "request_id": current["request_id"],
+                "revision": current["revision"],
+            },
+        )
+        self.assertFalse(submitted.is_error, submitted.content)
+        self.assertEqual(submitted.structured_content["status"], "submitted")
+        self.assertEqual(submitted.structured_content["brief"], current["brief"])
+
+    async def test_repeated_intake_submission_returns_the_saved_outcome(self):
+        created = await self.call(
+            "contoso_create_request",
+            {
+                "requested_software": "Contractor timesheet approvals",
+                "business_objective": "Reduce manual follow-up.",
+                "capabilities": "Collect timesheets and send approval reminders.",
+                "decision_maker": "Customer operations lead",
+            },
+        )
+        self.assertFalse(created.is_error, created.content)
+        draft = created.structured_content
+        submitted = await self.call(
+            "contoso_submit_request",
+            {
+                "request_id": draft["request_id"],
+                "revision": draft["revision"],
+            },
+        )
+        self.assertFalse(submitted.is_error, submitted.content)
+        outcome = submitted.structured_content
+        for revision in (draft["revision"], outcome["revision"]):
+            repeated = await self.call(
+                "contoso_submit_request",
+                {
+                    "request_id": draft["request_id"],
+                    "revision": revision,
+                },
+            )
+            self.assertFalse(repeated.is_error, repeated.content)
+            self.assertEqual(repeated.structured_content, outcome)
+        unrelated = await self.call(
+            "contoso_submit_request",
+            {
+                "request_id": draft["request_id"],
+                "revision": '"unrelated"',
+            },
+        )
+        self.assertTrue(unrelated.is_error)
+        reopened = await self.call(
+            "contoso_open_request",
+            {
+                "request_id": draft["request_id"],
+            },
+        )
+        self.assertEqual(reopened.structured_content, outcome)
+
+    async def test_intake_submission_rejects_stale_revisions_and_racing_edits(self):
+        created = await self.call(
+            "contoso_create_request",
+            {
+                "requested_software": "Contractor timesheet approvals",
+                "business_objective": "Reduce manual follow-up.",
+                "capabilities": "Collect timesheets and send approval reminders.",
+                "decision_maker": "Customer operations lead",
+            },
+        )
+        self.assertFalse(created.is_error, created.content)
+        draft = created.structured_content
+        self.table.race_before_update = True
+        raced = await self.call(
+            "contoso_submit_request",
+            {
+                "request_id": draft["request_id"],
+                "revision": draft["revision"],
+            },
+        )
+        self.assertTrue(raced.is_error)
+        opened = await self.call(
+            "contoso_open_request",
+            {
+                "request_id": draft["request_id"],
+            },
+        )
+        current = opened.structured_content
+        self.assertEqual(current["status"], "draft")
+        self.assertEqual(
+            current["brief"]["business_objective"], "A newer saved objective."
+        )
+        self.assertNotEqual(current["revision"], draft["revision"])
+        for operation in ("contoso_save_request", "contoso_submit_request"):
+            for revision in (draft["revision"], "*", "", '"old", *'):
+                with self.subTest(operation=operation, revision=revision):
+                    denied = await self.call(
+                        operation,
+                        {
+                            "request_id": draft["request_id"],
+                            "revision": revision,
+                        },
+                    )
+                    self.assertTrue(denied.is_error)
+        reopened = await self.call(
+            "contoso_open_request",
+            {
+                "request_id": draft["request_id"],
+            },
+        )
+        self.assertEqual(reopened.structured_content, current)
+        submitted = await self.call(
+            "contoso_submit_request",
+            {
+                "request_id": draft["request_id"],
+                "revision": current["revision"],
+            },
+        )
+        self.assertFalse(submitted.is_error, submitted.content)
+        self.assertEqual(submitted.structured_content["status"], "submitted")
+        self.assertEqual(submitted.structured_content["brief"], current["brief"])
+
     async def test_open_reads_the_customers_saved_request(self):
         result = await self.call("contoso_open_request", {"request_id": REQUEST_ID})
         self.assertFalse(result.is_error, result.content)
@@ -405,9 +589,15 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
             {
                 "request_id": REQUEST_ID,
                 "title": "Contractor timesheet approvals",
+                "requested_software": "Contractor timesheet approvals",
                 "business_objective": "Reduce manual timesheet follow-up.",
+                "capabilities": "",
+                "systems_and_constraints": "",
+                "decision_maker": "",
+                "preferred_deadline": "",
+                "missing_required_fields": ["capabilities", "decision_maker"],
                 "status": "draft",
-                "next_action": "Review your business objective and save any changes.",
+                "next_action": "Review and save your request details, then submit when ready.",
                 "revision": '"1"',
                 "view": "intake",
                 "brief": {
@@ -763,6 +953,10 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
     async def test_other_users_and_application_callers_cannot_read_or_change_a_request(
         self,
     ):
+        self.table.rows[(f"contoso:{TENANT}:{CUSTOMER}", REQUEST_ID)].update(
+            Capabilities="Collect timesheets and send approval reminders.",
+            DecisionMaker="Customer operations lead",
+        )
         clarification = self.table.rows[
             (f"contoso:{TENANT}:{CUSTOMER}", CLARIFICATION_ID)
         ]
@@ -805,6 +999,12 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
                 )
                 self.assertTrue(opened.is_error)
                 self.assertTrue(changed.is_error)
+                intake_submission = await self.call(
+                    "contoso_submit_request",
+                    {"request_id": REQUEST_ID, "revision": '"1"'},
+                    claims,
+                )
+                self.assertTrue(intake_submission.is_error)
                 self.assertNotIn("Reduce manual timesheet", opened.model_dump_json())
                 listed = await self.call("contoso_list_requests", {}, claims)
                 self.assertNotIn(REQUEST_ID, listed.model_dump_json())
@@ -849,6 +1049,59 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
             current_answers.structured_content["answers"]["approval_owner"],
             "Engagement lead",
         )
+
+    async def test_intake_creation_uses_the_verified_customer_identity(self):
+        before = await self.call("contoso_list_requests", {})
+        for claims in (
+            {"tid": TENANT, "oid": OTHER_CUSTOMER, "scp": "ToolForge.MCP.Access"},
+            {"tid": OTHER_CUSTOMER, "oid": CUSTOMER, "scp": "ToolForge.MCP.Access"},
+        ):
+            with self.subTest(claims=claims):
+                created = await self.call(
+                    "contoso_create_request",
+                    {
+                        "requested_software": "Another customer's request",
+                    },
+                    claims,
+                )
+                self.assertFalse(created.is_error, created.content)
+                draft = created.structured_content
+                opened = await self.call(
+                    "contoso_open_request",
+                    {
+                        "request_id": draft["request_id"],
+                    },
+                    claims,
+                )
+                self.assertEqual(opened.structured_content, draft)
+                hidden = await self.call(
+                    "contoso_open_request",
+                    {
+                        "request_id": draft["request_id"],
+                    },
+                )
+                self.assertTrue(hidden.is_error)
+        for claims in (
+            {
+                "tid": TENANT,
+                "oid": CUSTOMER,
+                "roles": ["ToolForge.MCP.Access.Application"],
+            },
+            {
+                "tid": TENANT,
+                "oid": CUSTOMER,
+                "scp": "ToolForge.MCP.Access",
+                "idtyp": "app",
+            },
+            {"tid": TENANT, "oid": CUSTOMER, "scp": " "},
+            {"tid": TENANT, "scp": "ToolForge.MCP.Access"},
+            {"oid": CUSTOMER, "scp": "ToolForge.MCP.Access"},
+        ):
+            with self.subTest(claims=claims):
+                denied = await self.call("contoso_create_request", {}, claims)
+                self.assertTrue(denied.is_error)
+        after = await self.call("contoso_list_requests", {})
+        self.assertEqual(after.structured_content, before.structured_content)
 
     async def test_stale_and_wildcard_revisions_cannot_overwrite_current_data(self):
         for revision in ('"old"', "*", " * ", "", '""', '"old", *'):

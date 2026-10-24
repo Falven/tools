@@ -204,7 +204,7 @@ def _validate_request(entity):
 
 def _next_action(status: str) -> str:
     return {
-        "draft": "Review your business objective and save any changes.",
+        "draft": "Review and save your request details, then submit when ready.",
         "needs_clarification": "Answer Contoso's questions and submit your clarification.",
         "submitted": "Your request has been submitted to Contoso.",
         "in_review": "Contoso is reviewing your request.",
