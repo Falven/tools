@@ -1,9 +1,8 @@
-# Contoso request App
+# Contoso request Tools and App
 
-This first demo gate opens one saved software request, edits its business
-objective, and reopens the current saved value. The ToolForge App and Foundry
-conversation use the same request. Intake creation, clarification, and
-submission are outside these Tools' current scope.
+The ToolForge App and Foundry conversation browse the same saved requests,
+edit a draft's business objective, and save or submit clarification answers.
+Creating and submitting a new intake request are outside the current scope.
 
 ## Runtime configuration
 
@@ -21,9 +20,8 @@ environment and are never sent to the App.
 
 ## Operator fixture
 
-Create this entity in the configured table for the customer who will run the
-demo. Use that customer's verified Entra tenant ID and object ID as canonical,
-lowercase UUIDs.
+Use the customer's verified Entra tenant ID and object ID as canonical,
+lowercase UUIDs. Existing draft rows remain valid with these properties:
 
 | Property | Value |
 | --- | --- |
@@ -37,28 +35,89 @@ lowercase UUIDs.
 Azure Table Storage supplies the ETag. Do not create a separate revision
 property. Each response returns the ETag as `revision`.
 
+A needs-clarification fixture uses `RowKey=CONTOSO-DEMO-002`, the same partition
+and demo marker, and `Status=needs_clarification`. It adds:
+
+| Property | Type and value |
+| --- | --- |
+| `Capabilities` | Optional saved brief string. |
+| `SystemsAndConstraints` | Optional saved brief string. |
+| `DecisionMaker` | Optional saved brief string. |
+| `PreferredDeadline` | Optional saved brief string. |
+| `QuestionSetRevision` | Nonempty string, such as `clarification-1`. |
+| `Questions` | JSON array serialized as an Azure Table string. |
+| `Answers` | JSON object serialized as an Azure Table string. |
+
+Each question has a unique `id`, a `type` of `text`, `choice`, or `yes_no`, a
+nonempty `prompt`, and a boolean `required`. IDs use 1–128 letters, digits,
+underscores, or hyphens. Choice questions also have a nonempty `choices` array
+of distinct, nonempty strings; other types omit `choices`. For example:
+
+```json
+[
+  {"id":"approval_owner","type":"text","prompt":"Who should approve contractor timesheets?","required":true},
+  {"id":"reminder_schedule","type":"choice","prompt":"When should reminders be sent?","required":true,"choices":["Daily","Weekly"]},
+  {"id":"notify_contractors","type":"yes_no","prompt":"Should contractors receive reminders?","required":true},
+  {"id":"notes","type":"text","prompt":"Anything else we should know?","required":false}
+]
+```
+
+An initial `Answers` value can serialize `{"approval_owner":"Engagement lead"}`.
+Stored text and choice answers are strings; yes/no answers are actual booleans.
+`false` is a completed answer. Unanswered questions are absent from the object.
+Keep questions and answers consistent, and change `QuestionSetRevision` whenever
+questions change. Each answer string is limited to 4,000 characters.
+
+Submission retains the questions and answers, changes `Status` to `in_review`,
+and stores `SubmittedFromRevision` and `SubmittedQuestionSetRevision`. These
+fields make a retry of that submission safe. Do not seed them on a request
+that still needs clarification. Normal preparation must preserve existing rows;
+replacing rehearsal data is an explicit reset.
+
 ## MCP interface
 
-- `contoso_open_request(request_id)` is a model-facing Tool. It reads the
-  signed-in customer's request and attaches `ui://contoso-request/app.html`.
+- `contoso_list_requests(needs_attention=False)` lists the signed-in customer's
+  requests with status and next action. The attention filter includes `draft`
+  and `needs_clarification` requests.
+- `contoso_open_request(request_id)` reads the current brief, status, questions,
+  saved answers, record revision, question-set revision, and missing required
+  answers. It attaches `ui://contoso-request/app.html`.
 - `contoso_save_request(request_id, business_objective, revision)` is a
   model-facing, App-visible Tool in its own Tool Directory. The App's **Save
   draft** button and conversational saves call this same operation. It changes
   `BusinessObjective` on a draft, preserves the other properties, and uses the
   supplied ETag for a conditional update. Empty, wildcard, and stale revisions
   are rejected.
+- `contoso_save_answers(request_id, answers, revision, question_set_revision)`
+  merges partial answers without submitting. Omitted answers remain unchanged;
+  `null` clears one answer. Unknown question IDs, wrong types, invalid choices,
+  and stale revisions reject the entire change.
+- `contoso_submit_answers(request_id, revision, question_set_revision)` submits
+  already-saved answers after the customer's explicit decision. All required
+  answers must be present; blank text is incomplete. Configure client approval
+  for this Tool. The App requires a separate **Submit answers** action after
+  saving complete answers.
 
-Keep both Tool registrations active. Open publishes the shared App resource;
-Save supplies the operation used by the form and the Foundry agent.
+Each operation has one model-facing Tool Directory. App actions call the same
+operations. Keep their registrations active together: Open publishes the shared
+App resource used by the mutation results. The App chooses its view from the
+saved state: `draft` shows the intake editor, `needs_clarification` shows the
+question form, and `submitted` or `in_review` shows a read-only brief and answers.
 
-Both operations derive ownership from verified `tid` and `oid` claims and
-require a nonempty delegated `scp` claim. Application-only callers are rejected.
+Every operation derives ownership from verified `tid` and `oid` claims and
+requires a nonempty delegated `scp` claim. Application-only callers are rejected.
 Client-supplied owner fields cannot grant access. Rows without the `contoso-demo`
 marker are hidden.
 
 The form bundles the official MCP App SDK. On opening, it takes only the request
 ID from the retained result and fetches the current record through the host.
 Reloading or reopening performs a read; it never replays a save.
+
+Answer writes check the active question-set revision before a conditional Table
+Merge using the supplied ETag. A conflict requires reopening and review before
+another change. An exact submission retry, or a repeat using the current
+revision of the same submitted question set, returns the saved outcome without
+another write.
 
 ## Build and check
 
@@ -79,8 +138,9 @@ uv run --frozen python -m unittest tests.test_contoso_request -v
 
 These tests use the public MCP client with controlled verified-principal and
 Azure SDK fixtures. They establish Tool discovery, ownership, conditional writes,
-and read/save/reopen behavior. Live Azure access and integration with ToolForge
-and Foundry must be checked separately.
+and read/save/reopen behavior, including clarification types, required answers,
+revision conflicts, and submission retries. Live Azure access and integration
+with ToolForge and Foundry must be checked separately.
 
 For that live gate, open `CONTOSO-DEMO-001` in ToolForge, change the business
 objective, and select **Save draft**. In the Foundry playground, have the customer
@@ -89,3 +149,10 @@ using the current revision. Reopen the ToolForge App and confirm that it shows
 the second saved value. The row's ETag must change only for saves. Both surfaces
 must resolve to the same delegated customer. Also verify that a different
 customer and an application-only caller cannot read or edit the request.
+
+For clarification, list requests needing attention and open `CONTOSO-DEMO-002`.
+Save partial answers, including a **No** answer, and confirm the same values
+through the other interface. Complete and save the remaining required answers.
+Verify conversational submission approval, explicitly submit, and reopen the
+App to see the retained answers and **In review** state. A repeated submission
+must not advance the ETag again.

@@ -11,9 +11,18 @@
       main { max-width: 760px; margin: auto; padding: 24px; }
       .brand { margin: 0 0 8px; color: light-dark(#005fb8, #75baff); font-weight: 650; }
       h1 { margin: 0 0 8px; font-size: 1.45rem; line-height: 1.3; }
+      h2 { margin: 24px 0 14px; font-size: 1.15rem; }
       .details { margin: 0 0 24px; font-size: .9rem; }
       label { display: block; margin-bottom: 8px; font-weight: 600; }
-      textarea { display: block; width: 100%; resize: vertical; min-height: 132px; padding: 12px; border: 1px solid GrayText; border-radius: 6px; font: inherit; color: inherit; background: Canvas; }
+      textarea, select { display: block; width: 100%; padding: 12px; border: 1px solid GrayText; border-radius: 6px; font: inherit; color: inherit; background: Canvas; }
+      textarea { resize: vertical; min-height: 96px; }
+      .question { margin: 20px 0; }
+      summary { cursor: pointer; font-weight: 600; }
+      dl { margin: 16px 0 24px; }
+      dt { margin-top: 14px; font-weight: 600; }
+      dd { margin: 5px 0 0; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+      #missing-answers { padding: 0 14px; border-left: 3px solid GrayText; }
+      #missing-list { padding-left: 20px; line-height: 1.5; }
       .hint, #next-action { font-size: .9rem; line-height: 1.5; }
       .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
       button { padding: 9px 15px; border: 1px solid GrayText; border-radius: 5px; font: inherit; color: inherit; background: Canvas; cursor: pointer; }
@@ -30,15 +39,36 @@
       <p class="brand">Contoso</p>
       <h1 id="request-title">Software request</h1>
       <p class="details"><span id="request-id"></span> <span id="request-status"></span></p>
-      <form id="request-form">
-        <label for="business-objective">Business objective</label>
-        <textarea id="business-objective" rows="5" maxlength="4000" aria-describedby="save-hint" disabled></textarea>
-        <p id="save-hint" class="hint">Describe the outcome you want. Your draft changes only when you select Save draft.</p>
-        <p id="next-action"></p>
+      <p id="next-action"></p>
+      <details id="saved-brief" hidden>
+        <summary>Saved brief</summary>
+        <dl id="brief"></dl>
+      </details>
+      <form id="request-form" novalidate>
+        <section id="intake-view" hidden>
+          <label for="business-objective">Business objective</label>
+          <textarea id="business-objective" rows="5" maxlength="4000" aria-describedby="save-hint" disabled></textarea>
+          <p id="save-hint" class="hint">Describe the outcome you want. Your draft changes only when you select Save draft.</p>
+        </section>
+        <section id="clarification-view" hidden aria-labelledby="clarification-title">
+          <h2 id="clarification-title">Clarification</h2>
+          <p id="answers-hint" class="hint">You can save partial answers and return later. Complete the required answers before submitting.</p>
+          <div id="questions"></div>
+          <div id="missing-answers" hidden>
+            <p>Saved answers still needed:</p>
+            <ul id="missing-list"></ul>
+          </div>
+        </section>
+        <section id="status-view" hidden aria-labelledby="saved-answers-title">
+          <h2 id="saved-answers-title">Saved answers</h2>
+          <dl id="saved-answers"></dl>
+        </section>
         <div class="actions">
-          <button id="save" type="submit" disabled>Save draft</button>
+          <button id="save" type="submit" hidden disabled>Save draft</button>
+          <button id="submit-answers" type="button" aria-describedby="submit-hint" hidden disabled>Submit answers</button>
           <button id="reload" type="button" disabled>Reload saved request</button>
         </div>
+        <p id="submit-hint" class="hint" hidden></p>
       </form>
       <p id="message" role="status" aria-live="polite">Loading the saved request…</p>
     </main>

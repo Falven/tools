@@ -9,6 +9,7 @@ from pydantic import Field
 
 from ..contoso_open_request import (
     RequestId,
+    Revision,
     _customer_partition,
     _owned_request,
     _storage,
@@ -16,9 +17,6 @@ from ..contoso_open_request import (
 )
 
 BusinessObjective = Annotated[str, Field(strict=True, max_length=4000)]
-Revision = Annotated[
-    str, Field(strict=True, max_length=256, pattern=r'^(?:W/)?"[^"\r\n]+"$')
-]
 
 
 def contoso_save_request(
