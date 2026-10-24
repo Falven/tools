@@ -1,6 +1,6 @@
 """Contoso's public MCP boundary with controlled caller and storage fixtures.
 
-These checks do not establish live Azure access or Microsoft 365 App support.
+These checks do not establish live Azure access or ToolForge/Foundry integration.
 """
 
 import os
@@ -109,6 +109,7 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.server = MCPServer("contoso-request-check", extensions=[Apps()])
         register_catalog_tool(self.server, "contoso_open_request")
+        register_catalog_tool(self.server, "contoso_save_request")
         self.table = Table()
 
     async def call(self, name, arguments, claims=None):
@@ -128,19 +129,25 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("synthetic-bearer-not-for-output", result.model_dump_json())
         return result
 
-    async def test_discovery_works_without_storage_configuration(self):
+    async def test_open_and_save_are_model_and_app_visible_without_storage_configuration(
+        self,
+    ):
         with patch.dict(os.environ, {}, clear=True):
             async with Client(self.server) as client:
                 tools = (await client.list_tools()).tools
         visible = [
             tool.name
             for tool in tools
-            if tool.meta.get("ui", {}).get("visibility") != ["app"]
+            if "model" in tool.meta.get("ui", {}).get("visibility", ["model", "app"])
         ]
-        self.assertEqual(visible, ["contoso_open_request"])
-        handlers = [tool for tool in tools if tool.name == "contoso_save_request"]
-        self.assertEqual(len(handlers), 1)
-        self.assertEqual(handlers[0].meta["ui"]["visibility"], ["app"])
+        self.assertCountEqual(visible, ["contoso_open_request", "contoso_save_request"])
+        descriptors = {tool.name: tool for tool in tools}
+        save_ui = descriptors["contoso_save_request"].meta["ui"]
+        self.assertIn("app", save_ui["visibility"])
+        self.assertEqual(
+            save_ui["resourceUri"],
+            descriptors["contoso_open_request"].meta["ui"]["resourceUri"],
+        )
 
     async def test_open_reads_the_customers_saved_request(self):
         result = await self.call("contoso_open_request", {"request_id": REQUEST_ID})
@@ -169,6 +176,7 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(saved.is_error, saved.content)
         self.server = MCPServer("replacement-contoso-server", extensions=[Apps()])
         register_catalog_tool(self.server, "contoso_open_request")
+        register_catalog_tool(self.server, "contoso_save_request")
         opened = await self.call("contoso_open_request", {"request_id": REQUEST_ID})
         self.assertFalse(opened.is_error, opened.content)
         self.assertEqual(opened.structured_content, saved.structured_content)

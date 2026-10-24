@@ -1,8 +1,9 @@
 # Contoso request App
 
 This first demo gate opens one saved software request, edits its business
-objective, and reopens the current saved value. Intake creation, clarification,
-and submission are outside this Tool's current scope.
+objective, and reopens the current saved value. The ToolForge App and Foundry
+conversation use the same request. Intake creation, clarification, and
+submission are outside these Tools' current scope.
 
 ## Runtime configuration
 
@@ -38,12 +39,17 @@ property. Each response returns the ETag as `revision`.
 
 ## MCP interface
 
-- `contoso_open_request(request_id)` is the model-facing Tool. It reads the
+- `contoso_open_request(request_id)` is a model-facing Tool. It reads the
   signed-in customer's request and attaches `ui://contoso-request/app.html`.
-- `contoso_save_request(request_id, business_objective, revision)` is an
-  App-only handler. **Save draft** explicitly changes `BusinessObjective` on a
-  draft. The handler preserves the other properties and uses the supplied ETag
-  for a conditional update. Empty, wildcard, and stale revisions are rejected.
+- `contoso_save_request(request_id, business_objective, revision)` is a
+  model-facing, App-visible Tool in its own Tool Directory. The App's **Save
+  draft** button and conversational saves call this same operation. It changes
+  `BusinessObjective` on a draft, preserves the other properties, and uses the
+  supplied ETag for a conditional update. Empty, wildcard, and stale revisions
+  are rejected.
+
+Keep both Tool registrations active. Open publishes the shared App resource;
+Save supplies the operation used by the form and the Foundry agent.
 
 Both operations derive ownership from verified `tid` and `oid` claims and
 require a nonempty delegated `scp` claim. Application-only callers are rejected.
@@ -73,10 +79,13 @@ uv run --frozen python -m unittest tests.test_contoso_request -v
 
 These tests use the public MCP client with controlled verified-principal and
 Azure SDK fixtures. They establish Tool discovery, ownership, conditional writes,
-and read/save/reopen behavior. Live Azure, Foundry, and Microsoft 365 access must
-be checked separately.
+and read/save/reopen behavior. Live Azure access and integration with ToolForge
+and Foundry must be checked separately.
 
-For that live gate, open `CONTOSO-DEMO-001` through the customer agent, change the
-business objective, select **Save draft**, and reopen the App. Confirm the saved
-value is visible and that the row's ETag changed only for the save. Also verify
-that a different customer and an application-only caller cannot read or edit it.
+For that live gate, open `CONTOSO-DEMO-001` in ToolForge, change the business
+objective, and select **Save draft**. In the Foundry playground, have the customer
+agent read that same changed request and save another customer-requested edit
+using the current revision. Reopen the ToolForge App and confirm that it shows
+the second saved value. The row's ETag must change only for saves. Both surfaces
+must resolve to the same delegated customer. Also verify that a different
+customer and an application-only caller cannot read or edit the request.

@@ -6,13 +6,12 @@ from pathlib import Path
 from typing import Annotated, Any
 from uuid import UUID
 
-from azure.core import MatchConditions
 from azure.core.exceptions import (
     AzureError,
     ResourceModifiedError,
     ResourceNotFoundError,
 )
-from azure.data.tables import TableClient, UpdateMode
+from azure.data.tables import TableClient
 from mcp.server import MCPServer
 from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.mcpserver.exceptions import ToolError
@@ -21,10 +20,6 @@ from pydantic import Field
 
 RESOURCE_URI = "ui://contoso-request/app.html"
 RequestId = Annotated[str, Field(strict=True, pattern=r"^[A-Za-z0-9_-]{1,128}$")]
-BusinessObjective = Annotated[str, Field(strict=True, max_length=4000)]
-Revision = Annotated[
-    str, Field(strict=True, max_length=256, pattern=r'^(?:W/)?"[^"\r\n]+"$')
-]
 
 
 def _customer_partition() -> str:
@@ -102,29 +97,6 @@ def contoso_open_request(request_id: RequestId) -> dict[str, Any]:
         return _view(entity, entity.metadata["etag"])
 
 
-def contoso_save_request(
-    request_id: RequestId, business_objective: BusinessObjective, revision: Revision
-) -> dict[str, Any]:
-    """Save a draft's business objective using the revision displayed in its form."""
-    partition = _customer_partition()
-    with _storage() as table:
-        entity = _owned_request(table, partition, request_id)
-        if entity["Status"] != "draft":
-            raise ToolError("Only draft requests can be edited.")
-        update = {
-            "PartitionKey": partition,
-            "RowKey": request_id,
-            "BusinessObjective": business_objective,
-        }
-        result = table.update_entity(
-            update,
-            mode=UpdateMode.MERGE,
-            etag=revision,
-            match_condition=MatchConditions.IfNotModified,
-        )
-        return _view({**entity, **update}, result["etag"])
-
-
 def contoso_request_app() -> str:
     """Serve the request form without reading customer records."""
     assets = Path(__file__).parent
@@ -145,17 +117,6 @@ def register(server: MCPServer) -> None:
         annotations=ToolAnnotations(
             read_only_hint=True,
             destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    server.add_tool(
-        contoso_save_request,
-        title="Save Contoso request",
-        meta={"ui": {"resourceUri": RESOURCE_URI, "visibility": ["app"]}},
-        annotations=ToolAnnotations(
-            read_only_hint=False,
-            destructive_hint=True,
             idempotent_hint=True,
             open_world_hint=False,
         ),
