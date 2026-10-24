@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contoso request</title>
+    <style>
+      :root { color-scheme: light dark; font-family: "Segoe UI", system-ui, sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: Canvas; color: CanvasText; }
+      main { max-width: 760px; margin: auto; padding: 24px; }
+      .brand { margin: 0 0 8px; color: light-dark(#005fb8, #75baff); font-weight: 650; }
+      h1 { margin: 0 0 8px; font-size: 1.45rem; line-height: 1.3; }
+      .details { margin: 0 0 24px; font-size: .9rem; }
+      label { display: block; margin-bottom: 8px; font-weight: 600; }
+      textarea { display: block; width: 100%; resize: vertical; min-height: 132px; padding: 12px; border: 1px solid GrayText; border-radius: 6px; font: inherit; color: inherit; background: Canvas; }
+      .hint, #next-action { font-size: .9rem; line-height: 1.5; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+      button { padding: 9px 15px; border: 1px solid GrayText; border-radius: 5px; font: inherit; color: inherit; background: Canvas; cursor: pointer; }
+      button[type="submit"] { background: #005fb8; border-color: #005fb8; color: white; }
+      button:disabled { opacity: .55; cursor: default; }
+      :focus-visible { outline: 3px solid #0078d4; outline-offset: 3px; }
+      #message { min-height: 1.5em; line-height: 1.5; margin-bottom: 0; }
+      #message[data-error="true"] { color: light-dark(#a4262c, #ff9d9d); }
+      @media (max-width: 420px) { main { padding: 18px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="brand">Contoso</p>
+      <h1 id="request-title">Software request</h1>
+      <p class="details"><span id="request-id"></span> <span id="request-status"></span></p>
+      <form id="request-form">
+        <label for="business-objective">Business objective</label>
+        <textarea id="business-objective" rows="5" maxlength="4000" aria-describedby="save-hint" disabled></textarea>
+        <p id="save-hint" class="hint">Describe the outcome you want. Your draft changes only when you select Save draft.</p>
+        <p id="next-action"></p>
+        <div class="actions">
+          <button id="save" type="submit" disabled>Save draft</button>
+          <button id="reload" type="button" disabled>Reload saved request</button>
+        </div>
+      </form>
+      <p id="message" role="status" aria-live="polite">Loading the saved request…</p>
+    </main>
+    <!-- app.js -->
+  </body>
+</html>
