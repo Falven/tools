@@ -67,6 +67,29 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
 
         register(server)
 
+    with tool_directory("contoso_save_request"):
+        from .tools.contoso_open_request import (
+            RESOURCE_URI as CONTOSO_REQUEST_RESOURCE_URI,
+        )
+        from .tools.contoso_save_request import contoso_save_request
+
+        server.add_tool(
+            contoso_save_request,
+            title="Save Contoso request",
+            meta={
+                "ui": {
+                    "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,
+                    "visibility": ["model", "app"],
+                }
+            },
+            annotations=ToolAnnotations(
+                read_only_hint=False,
+                destructive_hint=True,
+                idempotent_hint=True,
+                open_world_hint=False,
+            ),
+        )
+
     with tool_directory("daily_ai_briefing"):
         from .tools.daily_ai_briefing import (
             get_daily_ai_briefing,
