@@ -2,8 +2,16 @@ import { App } from '@modelcontextprotocol/ext-apps';
 
 const app = new App({ name: 'Contoso request', version: '1.0.0' });
 const form = document.getElementById('request-form');
-const objective = document.getElementById('business-objective');
+const intakeFields = {
+  requested_software: 'Requested software', business_objective: 'Business objective',
+  capabilities: 'Capabilities', systems_and_constraints: 'Systems and constraints',
+  decision_maker: 'Decision maker', preferred_deadline: 'Preferred deadline',
+};
+const requiredIntakeFields = ['requested_software', 'business_objective', 'capabilities', 'decision_maker'];
+const intakeInputs = new Map(Object.keys(intakeFields).map(key => [key, document.getElementById(key.replaceAll('_', '-'))]));
 const save = document.getElementById('save');
+const submitRequest = document.getElementById('submit-request');
+const submitRequestHint = document.getElementById('submit-request-hint');
 const submit = document.getElementById('submit-answers');
 const submitHint = document.getElementById('submit-hint');
 const reload = document.getElementById('reload');
@@ -31,15 +39,39 @@ function unsavedAnswers() {
   });
 }
 
+function changedIntakeFields() {
+  return Object.fromEntries([...intakeInputs].filter(([key, input]) => input.value !== request[key])
+    .map(([key, input]) => [key, input.value]));
+}
+
+function unsavedIntake() {
+  return Object.keys(changedIntakeFields()).length > 0;
+}
+
+function incompleteIntake() {
+  return request.missing_required_fields.length > 0
+    || requiredIntakeFields.some(key => !request[key].trim());
+}
+
 function availability(working) {
   busy = working;
   form.setAttribute('aria-busy', String(working));
   const intake = request?.view === 'intake' && request.status === 'draft';
   const clarification = request?.view === 'clarification' && request.status === 'needs_clarification';
+  const intakeDirty = intake && unsavedIntake();
+  const intakeIncomplete = intake && incompleteIntake();
   save.hidden = !intake && !clarification;
-  save.disabled = working || (!intake && !clarification);
-  objective.disabled = working || !intake;
+  save.disabled = working || (!intake && !clarification) || (intake && !intakeDirty);
+  for (const input of intakeInputs.values()) input.disabled = working || !intake;
   for (const input of answerInputs.values()) input.disabled = working || !clarification;
+  submitRequest.hidden = !intake;
+  submitRequestHint.hidden = !intake;
+  submitRequest.disabled = working || !intake || intakeDirty || intakeIncomplete;
+  if (intake) {
+    submitRequestHint.textContent = intakeDirty ? 'Save your changes before submitting your request.'
+      : intakeIncomplete ? 'Complete and save the four required fields before submitting your request.'
+      : 'Your draft is saved. Select Submit request when you are ready to send it to Contoso.';
+  }
   submit.hidden = !clarification;
   submitHint.hidden = !clarification;
   const dirty = clarification && unsavedAnswers();
@@ -75,16 +107,26 @@ function detail(list, label, value) {
 
 function show(data) {
   if (!['intake', 'clarification', 'status'].includes(data.view) || !data.brief
+      || !Object.keys(intakeFields).every(key => typeof data[key] === 'string')
+      || !Array.isArray(data.missing_required_fields)
       || !Array.isArray(data.questions) || !data.answers || !Array.isArray(data.missing_required_answers)) {
     throw new Error('The saved request response is incomplete.');
   }
   request = data;
-  document.getElementById('request-title').textContent = data.title;
+  document.getElementById('request-title').textContent = data.title || 'Software request';
   document.getElementById('request-id').textContent = data.request_id;
   const labels = { draft: 'Draft', submitted: 'Submitted', needs_clarification: 'Needs clarification', in_review: 'In review' };
   document.getElementById('request-status').textContent = '· ' + (labels[data.status] ?? data.status);
   document.getElementById('next-action').textContent = data.next_action;
-  objective.value = data.business_objective;
+  for (const [key, input] of intakeInputs) input.value = data[key];
+  const missingFields = document.getElementById('missing-fields-list');
+  missingFields.replaceChildren();
+  for (const key of data.missing_required_fields) {
+    const item = document.createElement('li');
+    item.textContent = intakeFields[key] ?? key;
+    missingFields.append(item);
+  }
+  document.getElementById('missing-fields').hidden = data.missing_required_fields.length === 0;
   document.getElementById('intake-view').hidden = data.view !== 'intake';
   document.getElementById('clarification-view').hidden = data.view !== 'clarification';
   document.getElementById('status-view').hidden = data.view !== 'status' || data.questions.length === 0;
@@ -92,11 +134,7 @@ function show(data) {
 
   const brief = document.getElementById('brief');
   brief.replaceChildren();
-  for (const [key, label] of Object.entries({
-    requested_software: 'Requested software', business_objective: 'Business objective',
-    capabilities: 'Capabilities', systems_and_constraints: 'Systems and constraints',
-    decision_maker: 'Decision maker', preferred_deadline: 'Preferred deadline',
-  })) {
+  for (const [key, label] of Object.entries(intakeFields)) {
     if (data.brief[key]) detail(brief, label, data.brief[key]);
   }
   const savedBrief = document.getElementById('saved-brief');
@@ -172,7 +210,8 @@ async function load() {
 
 async function change(name, arguments_, success) {
   availability(true);
-  status(name === 'contoso_submit_answers' ? 'Submitting answers…' : 'Saving…');
+  status(name === 'contoso_submit_request' ? 'Submitting request…'
+    : name === 'contoso_submit_answers' ? 'Submitting answers…' : 'Saving…');
   try {
     show(unpack(await app.callServerTool({ name, arguments: arguments_ })));
     status(success);
@@ -191,11 +230,22 @@ form.addEventListener('submit', async event => {
   if (busy || !request) return;
   const arguments_ = { request_id: request.request_id, revision: request.revision };
   if (request.view === 'intake' && request.status === 'draft') {
-    await change('contoso_save_request', { ...arguments_, business_objective: objective.value }, 'Draft saved.');
+    const fields = changedIntakeFields();
+    if (Object.keys(fields).length === 0) return;
+    await change('contoso_save_request', { ...arguments_, ...fields }, 'Draft saved. Your request has not been submitted.');
   } else if (request.view === 'clarification' && request.status === 'needs_clarification') {
     const answers = Object.fromEntries(request.questions.map(question => [question.id, answerValue(question, answerInputs.get(question.id))]));
     await change('contoso_save_answers', { ...arguments_, answers, question_set_revision: request.question_set_revision }, 'Answers saved.');
   }
+});
+
+// Submission is a separate explicit click, never a form submit or save side effect.
+submitRequest.addEventListener('click', async () => {
+  if (busy || !request || request.view !== 'intake' || request.status !== 'draft'
+      || unsavedIntake() || incompleteIntake()) return;
+  await change('contoso_submit_request', {
+    request_id: request.request_id, revision: request.revision,
+  }, 'Request submitted to Contoso.');
 });
 
 submit.addEventListener('click', async () => {
