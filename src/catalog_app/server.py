@@ -62,6 +62,11 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
         **kwargs,
     )
     tool_directory = server.tool_directory
+    with tool_directory("contoso_open_request"):
+        from .tools.contoso_open_request import register
+
+        register(server)
+
     with tool_directory("daily_ai_briefing"):
         from .tools.daily_ai_briefing import (
             get_daily_ai_briefing,
