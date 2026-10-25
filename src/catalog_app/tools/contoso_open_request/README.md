@@ -1,9 +1,8 @@
 # Contoso request Tools and App
 
-The ToolForge App and Foundry conversation use the same customer-scoped Tools
-and saved requests: create an incomplete intake draft, edit its six flat text
-fields, explicitly submit the saved brief, and save or submit clarification
-answers. Creation and saving never submit a request.
+The ToolForge App and Foundry conversation browse the same saved requests,
+edit a draft's business objective, and save or submit clarification answers.
+Creating and submitting a new intake request are outside the current scope.
 
 ## Runtime configuration
 
@@ -15,8 +14,7 @@ Set these values in **ToolForge → Server → Environment variables**:
 | `CONTOSO_REQUESTS_TABLE` | Existing Azure Table containing the demo request. |
 
 The MCP service uses the Azure Tables SDK. It does not create the table or seed
-operator fixtures. Intake creation inserts a new customer-owned draft using
-`create_entity`, never an upsert. Storage configuration is read when a Tool runs; Tool discovery and App
+records. Storage configuration is read when a Tool runs; Tool discovery and App
 assets remain available before configuration. Credentials stay in the server
 environment and are never sent to the App.
 
@@ -84,29 +82,12 @@ replacing rehearsal data is an explicit reset.
 - `contoso_open_request(request_id)` reads the current brief, status, questions,
   saved answers, record revision, question-set revision, and missing required
   answers. It attaches `ui://contoso-request/app.html`.
-- `contoso_create_request(requested_software="", business_objective="",
-  capabilities="", systems_and_constraints="", decision_maker="",
-  preferred_deadline="")` saves a new draft and returns its identifier, current
-  revision, six flat text fields, missing required fields, and prefilled App.
-  All inputs may be incomplete or blank. Reopen that identifier; do not create
-  again to resume a saved request.
-- `contoso_save_request(request_id, revision, ...)` accepts any supplied subset
-  of those same six flat fields. Unknown input fields are rejected, not silently
-  ignored. Omitted fields stay unchanged; an empty string clears a field
-  (explicit `null` is rejected). It only edits drafts and never
-  submits. The App's **Save draft** action and conversational saves call this
-  same Tool. Updates use a conditional Table Merge; empty, wildcard, and stale
-  revisions are rejected, including a save with no supplied fields.
-- `contoso_submit_request(request_id, revision)` requires the customer's explicit
-  submission decision and submits only already-saved fields. Requested software,
-  business objective, capabilities, and decision maker must be nonblank. Systems
-  and constraints and the preferred deadline are optional. Deadline values remain
-  the customer's text, including approximate dates; no date parsing occurs.
-  Submission changes `draft` to `submitted` and stores
-  `IntakeSubmittedFromRevision`, separately from clarification retry metadata.
-  Repeats with the original or resulting revision return the saved submitted
-  record without another write. The App requires a separate **Submit request**
-  action after saving a complete brief, with no unsaved edits.
+- `contoso_save_request(request_id, business_objective, revision)` is a
+  model-facing, App-visible Tool in its own Tool Directory. The App's **Save
+  draft** button and conversational saves call this same operation. It changes
+  `BusinessObjective` on a draft, preserves the other properties, and uses the
+  supplied ETag for a conditional update. Empty, wildcard, and stale revisions
+  are rejected.
 - `contoso_save_answers(request_id, answers, revision, question_set_revision)`
   merges partial answers without submitting. Omitted answers remain unchanged;
   `null` clears one answer. Unknown question IDs, wrong types, invalid choices,

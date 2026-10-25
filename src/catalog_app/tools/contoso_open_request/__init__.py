@@ -1,4 +1,4 @@
-"""Shared Contoso request storage, identity checks, views, and MCP App."""
+"""Open a saved Contoso request and edit its draft business objective."""
 
 import os
 from contextlib import contextmanager
@@ -29,18 +29,6 @@ from pydantic import (
 RESOURCE_URI = "ui://contoso-request/app.html"
 RequestId = Annotated[str, Field(strict=True, pattern=r"^[A-Za-z0-9_-]{1,128}$")]
 AnswerText = Annotated[str, Field(strict=True, max_length=4000)]
-IntakeText = Annotated[str, Field(strict=True, max_length=4000)]
-INTAKE_FIELDS = {
-    "requested_software": "Title",
-    "business_objective": "BusinessObjective",
-    "capabilities": "Capabilities",
-    "systems_and_constraints": "SystemsAndConstraints",
-    "decision_maker": "DecisionMaker",
-    "preferred_deadline": "PreferredDeadline",
-}
-REQUIRED_INTAKE_FIELDS = (
-    "requested_software", "business_objective", "capabilities", "decision_maker"
-)
 QuestionSetRevision = Annotated[str, Field(strict=True, min_length=1, max_length=128)]
 Revision = Annotated[
     str, Field(strict=True, max_length=256, pattern=r'^(?:W/)?"[^"\r\n]+"$')
@@ -178,9 +166,6 @@ def _owned_request(table: TableClient, partition: str, request_id: str):
     if entity.get("DemoId") != "contoso-demo":
         raise ToolError("Request not found.")
     _validate_request(entity)
-    # Validate retained clarification data before any conditional mutation, so a
-    # corrupt legacy draft cannot be changed and only then fail while rendering.
-    _clarification(entity)
     return entity
 
 
@@ -204,35 +189,16 @@ def _validate_request(entity):
 
 def _next_action(status: str) -> str:
     return {
-        "draft": "Review and save your request details, then submit when ready.",
+        "draft": "Review your business objective and save any changes.",
         "needs_clarification": "Answer Contoso's questions and submit your clarification.",
         "submitted": "Your request has been submitted to Contoso.",
         "in_review": "Contoso is reviewing your request.",
     }.get(status, "This request is read-only.")
 
 
-def _brief(entity) -> dict[str, str]:
-    # Legacy customer rows may lack the newer intake properties; do not migrate
-    # or rewrite them on read. Requested software keeps the existing Title column.
-    return {field: entity.get(column, "") for field, column in INTAKE_FIELDS.items()}
-
-
-def _missing_intake_fields(entity) -> list[str]:
-    brief = _brief(entity)
-    return [field for field in REQUIRED_INTAKE_FIELDS if not brief[field].strip()]
-
-
-def _check_revision(entity, revision: str) -> None:
-    if revision != entity.metadata["etag"]:
-        raise ToolError("This request changed. Reopen it before saving or submitting.")
-
-
 def _view(entity, revision: str) -> dict[str, Any]:
     questions, answers, question_revision = _clarification(entity)
-    brief = _brief(entity)
     return {
-        **brief,
-        "missing_required_fields": _missing_intake_fields(entity),
         "request_id": entity["RowKey"],
         "title": entity["Title"],
         "business_objective": entity["BusinessObjective"],
@@ -242,7 +208,14 @@ def _view(entity, revision: str) -> dict[str, Any]:
         "view": {"draft": "intake", "needs_clarification": "clarification"}.get(
             entity["Status"], "status"
         ),
-        "brief": brief,
+        "brief": {
+            "requested_software": entity["Title"],
+            "business_objective": entity["BusinessObjective"],
+            "capabilities": entity.get("Capabilities", ""),
+            "systems_and_constraints": entity.get("SystemsAndConstraints", ""),
+            "decision_maker": entity.get("DecisionMaker", ""),
+            "preferred_deadline": entity.get("PreferredDeadline", ""),
+        },
         "questions": [question.model_dump(exclude_none=True) for question in questions],
         "answers": answers,
         "question_set_revision": question_revision,
@@ -251,12 +224,7 @@ def _view(entity, revision: str) -> dict[str, Any]:
 
 
 def contoso_open_request(request_id: RequestId) -> dict[str, Any]:
-    """Reopen the signed-in customer's saved request by ID; never create or change it.
-
-    Returns the six flat intake fields, current revision, missing required fields,
-    status, and shared App, plus any saved invoice clarification questions and
-    answers. Use this to resume a draft or review a conflict before another edit.
-    """
+    """Open the signed-in customer's saved software request without changing it."""
     partition = _customer_partition()
     with _storage() as table:
         entity = _owned_request(table, partition, request_id)
@@ -273,27 +241,6 @@ def contoso_request_app() -> str:
     return html.replace(
         "<!-- app.js -->", f'<script type="module">\n{script}\n</script>'
     )
-
-
-def _strict_intake_inputs(server: MCPServer, name: str) -> None:
-    """Keep flat signature schemas but reject ignored/overposted mutation fields.
-
-    The pinned SDK defaults to dropping unknown arguments; configure only the
-    intake Tools' generated models, following the catalog's existing pattern.
-    """
-    tool = server._tool_manager.get_tool(name)
-    if tool is None:
-        raise RuntimeError(f"Contoso Tool {name} was not registered.")
-    model = tool.fn_metadata.arg_model
-    model.model_config = {**model.model_config, "extra": "forbid", "strict": True}
-    model.model_rebuild(force=True)
-    tool.parameters = model.model_json_schema(by_alias=True)
-    # The save function's None defaults distinguish omitted strings internally,
-    # not a customer-visible null value. Do not advertise an invalid null default
-    # that a chat/App client could automatically send for an omitted field.
-    for field in tool.parameters.get("properties", {}).values():
-        if field.get("type") == "string" and field.get("default", "") is None:
-            field.pop("default")
 
 
 def register(server: MCPServer) -> None:

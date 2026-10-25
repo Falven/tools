@@ -70,7 +70,6 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
     with tool_directory("contoso_save_request"):
         from .tools.contoso_open_request import (
             RESOURCE_URI as CONTOSO_REQUEST_RESOURCE_URI,
-            _strict_intake_inputs,
         )
         from .tools.contoso_save_request import contoso_save_request
 
@@ -90,60 +89,6 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
                 open_world_hint=False,
             ),
         )
-
-        _strict_intake_inputs(server, "contoso_save_request")
-
-    with tool_directory("contoso_create_request"):
-        from .tools.contoso_open_request import (
-            RESOURCE_URI as CONTOSO_REQUEST_RESOURCE_URI,
-            _strict_intake_inputs,
-        )
-        from .tools.contoso_create_request import contoso_create_request
-
-        server.add_tool(
-            contoso_create_request,
-            title="Create Contoso request draft",
-            meta={
-                "ui": {
-                    "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,
-                    "visibility": ["model", "app"],
-                }
-            },
-            annotations=ToolAnnotations(
-                read_only_hint=False,
-                destructive_hint=False,
-                idempotent_hint=False,
-                open_world_hint=False,
-            ),
-        )
-
-        _strict_intake_inputs(server, "contoso_create_request")
-
-    with tool_directory("contoso_submit_request"):
-        from .tools.contoso_open_request import (
-            RESOURCE_URI as CONTOSO_REQUEST_RESOURCE_URI,
-            _strict_intake_inputs,
-        )
-        from .tools.contoso_submit_request import contoso_submit_request
-
-        server.add_tool(
-            contoso_submit_request,
-            title="Submit Contoso request",
-            meta={
-                "ui": {
-                    "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,
-                    "visibility": ["model", "app"],
-                }
-            },
-            annotations=ToolAnnotations(
-                read_only_hint=False,
-                destructive_hint=True,
-                idempotent_hint=True,
-                open_world_hint=False,
-            ),
-        )
-
-        _strict_intake_inputs(server, "contoso_submit_request")
 
     with tool_directory("contoso_list_requests"):
         from .tools.contoso_list_requests import contoso_list_requests

@@ -14,15 +14,15 @@
       h2 { margin: 24px 0 14px; font-size: 1.15rem; }
       .details { margin: 0 0 24px; font-size: .9rem; }
       label { display: block; margin-bottom: 8px; font-weight: 600; }
-      input, textarea, select { display: block; width: 100%; padding: 12px; border: 1px solid GrayText; border-radius: 6px; font: inherit; color: inherit; background: Canvas; }
+      textarea, select { display: block; width: 100%; padding: 12px; border: 1px solid GrayText; border-radius: 6px; font: inherit; color: inherit; background: Canvas; }
       textarea { resize: vertical; min-height: 96px; }
       .question { margin: 20px 0; }
       summary { cursor: pointer; font-weight: 600; }
       dl { margin: 16px 0 24px; }
       dt { margin-top: 14px; font-weight: 600; }
       dd { margin: 5px 0 0; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
-      #missing-answers, #missing-fields { padding: 0 14px; border-left: 3px solid GrayText; }
-      #missing-list, #missing-fields-list { padding-left: 20px; line-height: 1.5; }
+      #missing-answers { padding: 0 14px; border-left: 3px solid GrayText; }
+      #missing-list { padding-left: 20px; line-height: 1.5; }
       .hint, #next-action { font-size: .9rem; line-height: 1.5; }
       .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
       button { padding: 9px 15px; border: 1px solid GrayText; border-radius: 5px; font: inherit; color: inherit; background: Canvas; cursor: pointer; }
@@ -45,38 +45,10 @@
         <dl id="brief"></dl>
       </details>
       <form id="request-form" novalidate>
-        <section id="intake-view" hidden aria-labelledby="intake-title">
-          <h2 id="intake-title">Software request details</h2>
-          <p id="save-hint" class="hint">You can save an incomplete draft and return later. The four fields marked “required to submit” are needed only when you submit. Save draft does not submit your request.</p>
-          <div class="question">
-            <label for="requested-software">Requested software (required to submit)</label>
-            <input id="requested-software" name="requested_software" type="text" maxlength="4000" aria-describedby="save-hint" disabled>
-          </div>
-          <div class="question">
-            <label for="business-objective">Business objective (required to submit)</label>
-            <textarea id="business-objective" name="business_objective" rows="5" maxlength="4000" aria-describedby="save-hint" disabled></textarea>
-          </div>
-          <div class="question">
-            <label for="capabilities">Capabilities (required to submit)</label>
-            <textarea id="capabilities" name="capabilities" rows="3" maxlength="4000" aria-describedby="save-hint" disabled></textarea>
-          </div>
-          <div class="question">
-            <label for="systems-and-constraints">Systems and constraints (optional)</label>
-            <textarea id="systems-and-constraints" name="systems_and_constraints" rows="3" maxlength="4000" aria-describedby="save-hint" disabled></textarea>
-          </div>
-          <div class="question">
-            <label for="decision-maker">Decision maker (required to submit)</label>
-            <input id="decision-maker" name="decision_maker" type="text" maxlength="4000" aria-describedby="save-hint" disabled>
-          </div>
-          <div class="question">
-            <label for="preferred-deadline">Preferred deadline (optional)</label>
-            <input id="preferred-deadline" name="preferred_deadline" type="text" maxlength="4000" aria-describedby="deadline-hint" disabled>
-            <p id="deadline-hint" class="hint">Describe your preferred timing in your own words. A specific date is not required.</p>
-          </div>
-          <div id="missing-fields" hidden>
-            <p>Saved draft fields still needed to submit:</p>
-            <ul id="missing-fields-list"></ul>
-          </div>
+        <section id="intake-view" hidden>
+          <label for="business-objective">Business objective</label>
+          <textarea id="business-objective" rows="5" maxlength="4000" aria-describedby="save-hint" disabled></textarea>
+          <p id="save-hint" class="hint">Describe the outcome you want. Your draft changes only when you select Save draft.</p>
         </section>
         <section id="clarification-view" hidden aria-labelledby="clarification-title">
           <h2 id="clarification-title">Clarification</h2>
@@ -93,11 +65,9 @@
         </section>
         <div class="actions">
           <button id="save" type="submit" hidden disabled>Save draft</button>
-          <button id="submit-request" type="button" aria-describedby="submit-request-hint" hidden disabled>Submit request</button>
           <button id="submit-answers" type="button" aria-describedby="submit-hint" hidden disabled>Submit answers</button>
           <button id="reload" type="button" disabled>Reload saved request</button>
         </div>
-        <p id="submit-request-hint" class="hint" hidden></p>
         <p id="submit-hint" class="hint" hidden></p>
       </form>
       <p id="message" role="status" aria-live="polite">Loading the saved request…</p>
