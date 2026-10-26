@@ -6,6 +6,8 @@
 
 <p align="center">This repository contains the tools your ToolForge instance makes available to agents through MCP.</p>
 
+The customer software-request demo tools and their MCP App now live in [Falven/crm-tools](https://github.com/Falven/crm-tools).
+
 <p align="center">
   <a href="#what-an-agent-sees">What an agent sees</a> ·
   <a href="#interactive-mcp-apps">Interactive apps</a> ·

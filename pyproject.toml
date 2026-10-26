@@ -17,7 +17,6 @@ dependencies = [
   "opentelemetry-sdk==1.43.0",
   "mise==2.7.0",
   "icukit-pyicu==78.3.0; sys_platform == 'linux'",
-  "azure-data-tables==12.7.0",
 ]
 
 [tool.uv]
