@@ -1,4 +1,4 @@
-THIRD-PARTY NOTICES — CONTOSO REQUEST
+THIRD-PARTY NOTICES — SOFTWARE REQUEST
 Dependencies below are bundled/minified for the browser; upstream source is otherwise unchanged.
 
 ===== @modelcontextprotocol/client 2.3.1 =====

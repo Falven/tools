@@ -169,7 +169,7 @@ def _storage():
     except (AzureError, ValueError):
         # Azure errors can include configured URLs or credentials; keep them out of Tool output.
         raise ToolError(
-            "Contoso storage is unavailable. Check its access and configuration."
+            "Request storage is unavailable. Check its access and configuration."
         ) from None
 
 
@@ -189,7 +189,7 @@ def _validate_request(entity):
         not isinstance(entity.get(key), str)
         for key in ("Title", "BusinessObjective", "Status")
     ):
-        raise ToolError("The saved Contoso request is incomplete.")
+        raise ToolError("The saved request is incomplete.")
     if any(
         key in entity and not isinstance(entity[key], str)
         for key in (
@@ -199,15 +199,15 @@ def _validate_request(entity):
             "PreferredDeadline",
         )
     ):
-        raise ToolError("The saved Contoso brief is invalid.")
+        raise ToolError("The saved brief is invalid.")
 
 
 def _next_action(status: str) -> str:
     return {
         "draft": "Review and save your request details, then submit when ready.",
-        "needs_clarification": "Answer Contoso's questions and submit your clarification.",
-        "submitted": "Your request has been submitted to Contoso.",
-        "in_review": "Contoso is reviewing your request.",
+        "needs_clarification": "Answer the questions and submit your clarification.",
+        "submitted": "Your request has been submitted for review.",
+        "in_review": "Your request is being reviewed.",
     }.get(status, "This request is read-only.")
 
 
@@ -269,7 +269,7 @@ def contoso_request_app() -> str:
     html = (assets / "app.html").read_text(encoding="utf-8")
     script = (assets / "app.js").read_text(encoding="utf-8")
     if html.count("<!-- app.js -->") != 1:
-        raise ToolError("The Contoso request interface is incomplete.")
+        raise ToolError("The request interface is incomplete.")
     return html.replace(
         "<!-- app.js -->", f'<script type="module">\n{script}\n</script>'
     )
@@ -283,7 +283,7 @@ def _strict_intake_inputs(server: MCPServer, name: str) -> None:
     """
     tool = server._tool_manager.get_tool(name)
     if tool is None:
-        raise RuntimeError(f"Contoso Tool {name} was not registered.")
+        raise RuntimeError(f"Tool {name} was not registered.")
     model = tool.fn_metadata.arg_model
     model.model_config = {**model.model_config, "extra": "forbid", "strict": True}
     model.model_rebuild(force=True)
@@ -299,7 +299,7 @@ def _strict_intake_inputs(server: MCPServer, name: str) -> None:
 def register(server: MCPServer) -> None:
     server.add_tool(
         contoso_open_request,
-        title="Open Contoso request",
+        title="Open software request",
         meta={"ui": {"resourceUri": RESOURCE_URI}},
         annotations=ToolAnnotations(
             read_only_hint=True,
@@ -311,6 +311,6 @@ def register(server: MCPServer) -> None:
     server.resource(
         RESOURCE_URI,
         mime_type="text/html;profile=mcp-app",
-        title="Contoso request",
+        title="Software request",
         meta={"ui": {"csp": {"resourceDomains": [], "connectDomains": []}}},
     )(contoso_request_app)

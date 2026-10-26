@@ -16,7 +16,7 @@ const result = await build({
   charset: 'utf8',
   write: false,
   metafile: true,
-  banner: { js: '/* CONTOSO REQUEST — generated from frontend/main.js. Rebuild: npm ci && npm run build. The official MCP App SDK and form are bundled. */' },
+  banner: { js: '/* SOFTWARE REQUEST — generated from frontend/main.js. Rebuild: npm ci && npm run build. The official MCP App SDK and form are bundled. */' },
 });
 const packages = new Set();
 for (const input of Object.keys(result.metafile.inputs)) {
@@ -25,7 +25,7 @@ for (const input of Object.keys(result.metafile.inputs)) {
   const bits = path.split('/');
   packages.add(bits[0].startsWith('@') ? bits.slice(0, 2).join('/') : bits[0]);
 }
-const notices = ['THIRD-PARTY NOTICES — CONTOSO REQUEST\nDependencies below are bundled/minified for the browser; upstream source is otherwise unchanged.'];
+const notices = ['THIRD-PARTY NOTICES — SOFTWARE REQUEST\nDependencies below are bundled/minified for the browser; upstream source is otherwise unchanged.'];
 for (const name of [...packages].sort()) {
   const base = resolve(here, 'node_modules', name);
   const manifest = JSON.parse(await readFile(resolve(base, 'package.json'), 'utf8'));
@@ -46,4 +46,4 @@ const script = result.outputFiles[0].text.replace(/[ \t]+$/gm, '').trimEnd();
 const embedded = notice.replaceAll('*/', '* /').replace(/<\/script/gi, '<\\/script');
 await writeFile(resolve(here, '../THIRD_PARTY_NOTICES.txt'), notice + '\n');
 await writeFile(resolve(here, '../app.js'), `/*\n${embedded}\n*/\n${script}\n`);
-console.log(`Built self-contained Contoso request App with ${packages.size} bundled dependency notices.`);
+console.log(`Built self-contained software request App with ${packages.size} bundled dependency notices.`);

@@ -1,4 +1,4 @@
-# Contoso request Tools and App
+# Software request Tools and App
 
 The ToolForge App and Foundry conversation use the same customer-scoped Tools
 and saved requests: create an incomplete intake draft, edit its six flat text

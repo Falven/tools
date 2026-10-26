@@ -757,7 +757,7 @@ class ContosoRequestTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(submitted.structured_content["view"], "status")
         self.assertEqual(
             submitted.structured_content["next_action"],
-            "Contoso is reviewing your request.",
+            "Your request is being reviewed.",
         )
         self.assertIs(
             submitted.structured_content["answers"]["notify_contractors"], False

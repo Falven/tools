@@ -76,7 +76,7 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
 
         server.add_tool(
             contoso_save_request,
-            title="Save Contoso request",
+            title="Save software request",
             meta={
                 "ui": {
                     "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,
@@ -102,7 +102,7 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
 
         server.add_tool(
             contoso_create_request,
-            title="Create Contoso request draft",
+            title="Create software request draft",
             meta={
                 "ui": {
                     "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,
@@ -128,7 +128,7 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
 
         server.add_tool(
             contoso_submit_request,
-            title="Submit Contoso request",
+            title="Submit software request",
             meta={
                 "ui": {
                     "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,
@@ -150,7 +150,7 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
 
         server.add_tool(
             contoso_list_requests,
-            title="List Contoso requests",
+            title="List software requests",
             annotations=ToolAnnotations(
                 read_only_hint=True,
                 destructive_hint=False,
@@ -167,7 +167,7 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
 
         server.add_tool(
             contoso_save_answers,
-            title="Save Contoso clarification answers",
+            title="Save clarification answers",
             meta={
                 "ui": {
                     "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,
@@ -190,7 +190,7 @@ def create_server(**kwargs: Any) -> HostedMCPServer:
 
         server.add_tool(
             contoso_submit_answers,
-            title="Submit Contoso clarification answers",
+            title="Submit clarification answers",
             meta={
                 "ui": {
                     "resourceUri": CONTOSO_REQUEST_RESOURCE_URI,

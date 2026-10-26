@@ -1,6 +1,6 @@
 import { App } from '@modelcontextprotocol/ext-apps';
 
-const app = new App({ name: 'Contoso request', version: '1.0.0' });
+const app = new App({ name: 'Software request', version: '1.0.0' });
 const form = document.getElementById('request-form');
 const intakeFields = {
   requested_software: 'Requested software', business_objective: 'Business objective',
@@ -70,7 +70,7 @@ function availability(working) {
   if (intake) {
     submitRequestHint.textContent = intakeDirty ? 'Save your changes before submitting your request.'
       : intakeIncomplete ? 'Complete and save the four required fields before submitting your request.'
-      : 'Your draft is saved. Select Submit request when you are ready to send it to Contoso.';
+      : 'Your draft is saved. Select Submit request when you are ready to send it for review.';
   }
   submit.hidden = !clarification;
   submitHint.hidden = !clarification;
@@ -80,7 +80,7 @@ function availability(working) {
   if (clarification) {
     submitHint.textContent = dirty ? 'Save your changes before submitting.'
       : incomplete ? 'Complete and save the required answers before submitting.'
-      : 'Your answers are saved. Submit when you are ready to send them to Contoso.';
+      : 'Your answers are saved. Submit when you are ready to send them for review.';
   }
   reload.disabled = working || !connected || !requestId;
 }
@@ -245,7 +245,7 @@ submitRequest.addEventListener('click', async () => {
       || unsavedIntake() || incompleteIntake()) return;
   await change('contoso_submit_request', {
     request_id: request.request_id, revision: request.revision,
-  }, 'Request submitted to Contoso.');
+  }, 'Request submitted for review.');
 });
 
 submit.addEventListener('click', async () => {
@@ -271,7 +271,7 @@ app.ontoolresult = result => {
 };
 
 if (window.parent === window) {
-  status('Open this form from a Contoso request in your agent.', true);
+  status('Open this form from a software request in your agent.', true);
 } else {
   app.connect().then(() => {
     connected = true;
