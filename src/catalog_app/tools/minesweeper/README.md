@@ -4,7 +4,7 @@ A self-contained MCP App with a teal desktop, classic Windows-inspired beveled t
 
 ## Play
 
-Open the **Minesweeper** Tool, then use the host's **Open App / View App** controls. The host's native fullscreen control gives large fields more room.
+Call the **Minesweeper** Tool to display its App inline with the result. Use the host's **Fullscreen** control to give large fields more room.
 
 - **Beginner:** 9 × 9, 10 mines, 1× points.
 - **Intermediate:** 16 × 16, 40 mines, 2× points.

@@ -4,7 +4,7 @@ A fullscreen-friendly, self-contained Three.js MCP App: a beveled 2.5D Snake arc
 
 ## Play
 
-Invoke `neon_coil` and choose **Open App**. The app fills the host viewport and requests the standard `fullscreen` display mode when supported. The host’s native Fullscreen control remains available; the app does not add competing maximize controls.
+Invoke `neon_coil` to display the App with its result. Inline, the App fits the available width and reports its content height to the host. It requests the standard `fullscreen` display mode when supported. The host's **Fullscreen** control also expands the App; returning inline preserves the same game.
 
 - **Arrow keys / WASD:** steer; two distinct turns can be buffered.
 - **Space / P:** pause or resume. **Escape:** pause while playing.

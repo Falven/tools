@@ -68,11 +68,11 @@ Add a similar block for each new Tool. Catalog source does not scan directories 
 
 ## Interactive [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview)
 
-An [MCP App](https://modelcontextprotocol.io/extensions/apps/overview) adds an interactive interface, such as a form or dashboard, to a tool result. Choose **Open App** at the end of the latest reply that returned one, or choose **View App** at the top of the right sidebar's new-tab page. This entry appears only in sessions with an App result. Both open the latest successful App result in the current conversation. Use the sidebar's Fullscreen control to expand it.
+An [MCP App](https://modelcontextprotocol.io/extensions/apps/overview) adds an interactive interface, such as a form or dashboard, to a tool result. Each App appears automatically inline with the call that produced it. Use its **Fullscreen** control, when available, to expand it, then return to the same inline App.
 
-New App results replace the displayed App. Switching tabs or collapsing the sidebar keeps its state; closing or reloading starts it again with the latest result and current published interface. Other MCP clients need [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) support to display the interface. Clients without it still receive the tool's result.
+Each call retains its own App and result. Fullscreen preserves the live App's state. Leaving the conversation closes its Apps; returning loads the current published interface with each call's saved data without rerunning the producing tool. Other MCP clients need [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) support to display the interface. Clients without it still receive the tool's result.
 
-The App's files and handlers are published with its tool and follow the same Enable, Disable, and Delete controls.
+The App's files and handlers are published with its tool through Git.
 
 ## Copilot Skills
 

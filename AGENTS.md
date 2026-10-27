@@ -28,9 +28,9 @@ the Tool package; paths relative to `__file__` locate these assets independently
 of the working directory.
 
 Text or structured return data supports clients that cannot render Apps.
-An App's assets and handlers are published with its Tool. A successful App result
-exposes **Open App** on the completed reply and an entry in ToolForge's
-**View App** sidebar panel for that session.
+An App's assets and handlers are published with its Tool. ToolForge displays each
+App automatically inline with its producing call's result. Direct users to that
+inline interface and its **Fullscreen** control when available.
 
 The naming convention for Tool IDs and tool names is lowercase snake_case.
 The registered function's name is its MCP name even when re-exported from a

@@ -12,11 +12,12 @@ document.head.append(fonts);
 const $ = id => document.getElementById(id);
 const ui = Object.fromEntries(['scene','intro','scene-caption','start-button','start-label','identity-label','score','best','level','level-track','pause-button','pause-overlay','pause-reason','resume-button','gameover-overlay','end-score','end-foods','end-level','end-title','end-eyebrow','record-label','save-status','retry-save','restart-button','leaderboard-button','end-leaderboard','scoreboard','close-scoreboard','score-list','empty-scores','empty-title','empty-description','board-player','board-best','refresh-scores','load-more-scores','sfx-button','music-button','quality-button','touch-controls','swipe-hint','footer-state','arena-label','arena-coordinates','toast','live-announcement','renderer-error','renderer-error-message'].map(id => [id,$(id)]));
 const audio = new ArcadeAudio();
-const app = new App({name:'Neon Coil',version:'1.0.0'},{availableDisplayModes:['inline','fullscreen']},{autoResize:false});
+const app = new App({name:'Neon Coil',version:'1.0.0'},{availableDisplayModes:['inline','fullscreen']});
 let touchDevice = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 const MAX_STEPS = 18000;
 let renderer, phase='intro', game=null, previous=null, run=null, queued=[], accumulator=0, interval=150;
 let connected=false, practice=window.parent===window, canPost=false, player=null, scores=[], epoch=null, best=0, nextOffset=null;
+if(practice)document.body.dataset.displayMode='fullscreen';
 let raf=0,lastFrame=0,disposed=false,toastTimer=0,submission=null,scoreRequest=0,fullscreenRequested=false;
 let actualInputAt=0,consumedInputMs=0,inputSamples=0,runStartedAt=0,runEndedAt=0,awayGeneration=0,startVersion=0;
 
@@ -70,10 +71,11 @@ function setPhase(next){
 }
 async function unlock(){await audio.unlock();if(!audio.available){ui['sfx-button'].disabled=true;ui['music-button'].disabled=true;ui['sfx-button'].title=ui['music-button'].title='Web Audio is unavailable in this browser';}}
 function focusScene(){ui.scene.focus({preventScroll:true});}
-function syncHostTouch(context){
+function syncHostContext(context){
+  if(context?.displayMode)document.body.dataset.displayMode=context.displayMode;
   touchDevice=touchDevice||Boolean(context?.deviceCapabilities?.touch);
   ui['swipe-hint'].hidden=!touchDevice;ui['touch-controls'].hidden=!touchDevice||phase!=='playing';
-  if(renderer&&renderer.touchControls!==touchDevice){renderer.touchControls=touchDevice;renderer.resize();}
+  if(renderer){renderer.touchControls=touchDevice;renderer.resize();}
 }
 async function requestFullscreen(){
   if(fullscreenRequested||!connected)return;fullscreenRequested=true;
@@ -272,7 +274,7 @@ function frame(now){
 function dispose(){if(disposed)return;disposed=true;cancelAnimationFrame(raf);clearTimeout(toastTimer);audio.dispose();renderer?.dispose();queued=[];game=null;previous=null;scores=[];submission=null;run=null;}
 app.onteardown=async()=>{dispose();return {};};
 app.ontoolresult=result=>{if(connected||epoch||disposed)return;try{updateIdentity(readResult(result));}catch(error){toast(error.message);}};
-app.onhostcontextchanged=context=>{if(context.displayMode)document.body.dataset.displayMode=context.displayMode;syncHostTouch(context);renderer?.resize();};
+app.onhostcontextchanged=syncHostContext;
 app.ontoolcancelled=()=>{if(phase==='starting'){startVersion++;setPhase('intro');ui['start-button'].disabled=false;toast('The request was cancelled. You can try again.');}};
 window.addEventListener('pagehide',dispose,{once:true});
 try{
@@ -292,7 +294,7 @@ Object.defineProperty(window,'__NEON_COIL__',{value:Object.freeze({
 async function connect(){
   if(practice){updateIdentity({});ui['start-button'].disabled=!renderer;return;}
   try{
-    await app.connect(undefined,{timeout:12000});connected=true;syncHostTouch(app.getHostContext());
+    await app.connect(undefined,{timeout:12000});connected=true;syncHostContext(app.getHostContext());
     updateIdentity(await call('neon_coil_scores'));ui['start-button'].disabled=!renderer;
     void requestFullscreen();
   }catch(error){
