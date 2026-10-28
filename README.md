@@ -101,28 +101,22 @@ Each action commits and pushes the change immediately.
 
 ## Authentication and credentials
 
-This Catalog requires MISE verification of Microsoft Entra authentication for all MCP calls and accepts both user and application tokens. Authentication is enforced before Tool code runs. The pinned MISE wheel is stored in `wheelhouse/`; Linux also needs the declared ICU dependency. Verification failures deny access. `src/catalog_app/server.py` imports and constructs the chosen `CatalogAuth` provider from `auth.py`. The provider implements the official Model Context Protocol Python SDK (`mcp` package) `TokenVerifier`, exposes SDK `AuthSettings`, and can supply a delegated Azure Core `TokenCredential`. To use another bearer provider, add a class in `src/catalog_app/auth.py`. The starter file already imports these types:
+`authentication=MiseAuth.from_env()` in `src/catalog_app/server.py` verifies Microsoft Entra user and application tokens through MISE before Tool code runs. `src/catalog_app/mise.py` owns verification, on-behalf-of (OBO) exchange, and `MiseMCPServer`, the small server adapter that supplies the HTTP request context MISE needs. The pinned MISE wheel stays in `wheelhouse/`; Linux also uses the declared ICU dependency. Verification failures deny access.
 
-```python
-class MyAuth:
-    settings = AuthSettings(
-        issuer_url=AnyHttpUrl("https://issuer.example.com"),
-        resource_server_url=AnyHttpUrl("https://mcp.example.com/mcp"),
-        required_scopes=["mcp.read"],
-    )
+To use another bearer provider, implement the `CatalogAuth` contract from `src/catalog_app/auth.py` in a module such as `my_auth.py`. The provider has four members:
 
-    async def verify_token(self, token: str) -> AccessToken | None:
-        raise NotImplementedError("Validate this provider's tokens")
+| Member | Responsibility |
+| --- | --- |
+| `settings` | Native SDK `AuthSettings`: issuer, resource URL, and required scopes. |
+| `verify_token(token)` | Validate the bearer token and return a native SDK `AccessToken`, or `None` to reject it. Bind `client_id` to the verified client. |
+| `caller_identity(caller)` | Return `CallerIdentity`: an explicit `principalType` of `user` or `application` and the available safe attribution fields. |
+| `delegated_credential(caller)` | Return a context manager yielding an Azure Core `TokenCredential`, or `None` when delegation is unavailable. |
 
-    def delegated_credential(
-        self, caller: AccessToken
-    ) -> AbstractContextManager[TokenCredential] | None:
-        return None  # No downstream delegation for this provider.
-```
+`CallerIdentity` supports `userId`, `userName`, `userEmail`, `entraTenantId`, and `entraObjectId`; omit fields your provider does not have. Keep assertions and raw claims in the native token, outside this projection. The provider determines whether its verified token represents a user or an application. Hosting accepts forwarded execution context only from configured trusted client IDs; application callers cannot forward user attribution.
 
-In `server.py`, import `MyAuth` instead of `MiseAuth` and replace the `MiseAuth(...)` construction with `auth = MyAuth()`. This shows the interface, not a working verifier: set your issuer, resource URL, and scopes, and validate tokens before publishing. Replacing the SDK bearer provider alone does not add a nonbearer HTTP authentication flow or change how ToolForge Web and Copilot obtain tokens.
+For a custom provider that needs only the bearer token, replace the MISE import in `server.py` with `from .hosting import HostedMCPServer as server_class` and an import of your provider. Replace `authentication=MiseAuth.from_env()` with `authentication=MyAuth()`. The hosted server connects the provider to the SDK and manages each Tool call's reporting and credential lifetime. Tool registrations stay the same. Replacing the bearer provider does not change how ToolForge Web or the agent obtains tokens or add a nonbearer HTTP authentication flow.
 
-Tools can use on-behalf-of (OBO) authentication to call downstream APIs with the signed-in user's delegated permissions. `server.py` reads the environment at startup and passes the settings to `MiseAuth`, which stores them. MISE requires the client ID at startup. Other OBO settings are optional until a Tool requests a credential. A custom provider can return a context manager yielding an Azure Core `TokenCredential`, or `None` when delegation is unavailable. `catalog_app.credentials.get_caller_credential()` returns that invocation-scoped credential; `credentials.py` closes it at the end of the Tool call, so do not retain it afterward.
+`MiseAuth.from_env()` reads the existing environment settings once at startup. Its explicit `MiseAuth(...)` constructor remains available when settings come from elsewhere. MISE requires the client ID at startup. Other OBO settings are optional until a Tool requests a credential. `catalog_app.credentials.get_caller_credential()` returns the invocation-scoped Azure Core credential for downstream APIs; it closes when the Tool call ends, so do not retain it afterward. Application-only calls cannot use the MISE provider's OBO credential.
 
 For calls made by a signed-in user, read their identity with `get_access_token()`:
 
