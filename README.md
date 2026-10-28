@@ -103,6 +103,8 @@ Each action commits and pushes the change immediately.
 
 `authentication=MiseAuth.from_env()` in `src/catalog_app/server.py` verifies Microsoft Entra user and application tokens through MISE before Tool code runs. `src/catalog_app/mise.py` owns verification, on-behalf-of (OBO) exchange, and `MiseMCPServer`, the small server adapter that supplies the HTTP request context MISE needs. The pinned MISE wheel stays in `wheelhouse/`; Linux also uses the declared ICU dependency. Verification failures deny access.
 
+Set `TOOLFORGE_MCP_ENTRA_SCOPE` to the full OAuth scope, such as `api://toolforge/ToolForge.MCP.Access`, for client discovery. `TOOLFORGE_MCP_ENTRA_PERMISSION` remains the short token permission, such as `ToolForge.MCP.Access`.
+
 To use another bearer provider, implement the `CatalogAuth` contract from `src/catalog_app/auth.py` in a module such as `my_auth.py`. The provider has four members:
 
 | Member | Responsibility |
